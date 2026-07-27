@@ -75,7 +75,7 @@
       --color-aide-cee: #7030A0;
       --color-aide-if: #CC66FF;
       --color-aide-fonds-chaleur: #E0D6A5;
-      --color-aide-autre-aide: #000000;
+      --color-aide-autre-aide: #684343;
       --color-aide-ao-h2: #A4FF90;
       --color-aide-piiec: #C7835E;
 
@@ -1463,10 +1463,16 @@
               if (record_projets.Aide_FR_Situation[i] != "Pas besoin d'aide"){
                 laureats['montant'].push(record_projets.Aide_FR_Montant_[i]);
                 laureats['anneeMES'].push((record_projets.Annee_MES_prevue[i] && record_projets.Annee_MES_prevue[i] != 0) ? record_projets.Annee_MES_prevue[i] : null);
-                if (record_projets.Aide_FR_Situation[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_FR[i])) == false){
+                if (record_projets.Aide_FR_Situation[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_FR[i])) == false){       // Cas lauréat non compris dans base aides
                   laureats['aide'].push(aides_FR[i]);
                   laureats['etat'].push('Engagé');
                   laureats['co2_abattu'].push(record_projets.Emissions_abattues_tCO2e_an_[i]);
+                  projet_compte = true;
+                }
+                else if (record_projets.Aide_FR_Situation[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_FR[i])) == true){   // Cas lauréat compris dans Base aides pour ne pas dédoubler les émissions
+                  laureats['aide'].push('n.a.');
+                  laureats['etat'].push('');
+                  laureats['co2_abattu'].push(0);
                   projet_compte = true;
                 }
                 else if (typeof record_projets.Aide_FR_Situation[i] == 'string' && (record_projets.Aide_FR_Situation[i] == 'Candidat' || record_projets.Aide_FR_Situation[i].includes('Intérêt'))){
@@ -1476,8 +1482,8 @@
                   projet_compte = true;
                 }
                 else {
-                  laureats['aide'].push('');
-                  laureats['etat'].push('n.a.');
+                  laureats['aide'].push('n.a.');
+                  laureats['etat'].push('');
                   laureats['co2_abattu'].push(0);
                 }
               }
@@ -1485,10 +1491,16 @@
               if (record_projets.Aide_UE_Situation[i] != "Pas besoin d'aide"){
                 laureats['montant'].push(record_projets.Aide_UE_Montant_[i]);
                 laureats['anneeMES'].push((record_projets.Annee_MES_prevue[i] && record_projets.Annee_MES_prevue[i] != 0) ? record_projets.Annee_MES_prevue[i] : null);
-                if (record_projets.Aide_UE_Situation[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_FR[i])) == false){
+                if (record_projets.Aide_UE_Situation[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_UE[i])) == false){
                   laureats['aide'].push(aides_UE[i]);
                   laureats['etat'].push('Engagé');
                   laureats['co2_abattu'].push(projet_compte ? 0 : record_projets.Emissions_abattues_tCO2e_an_[i]);
+                  projet_compte = true;
+                }
+                else if (record_projets.Aide_UE_Situation[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_UE[i])) == true){   // Cas lauréat compris dans Base aides pour ne pas dédoubler les émissions
+                  laureats['aide'].push('n.a.');
+                  laureats['etat'].push('');
+                  laureats['co2_abattu'].push(0);
                   projet_compte = true;
                 }
                 else if ((typeof record_projets.Aide_UE_Situation[i] == 'string') && (record_projets.Aide_UE_Situation[i] == 'Candidat' ||  record_projets.Aide_UE_Situation[i].includes('Intérêt'))){
@@ -1498,8 +1510,8 @@
                   projet_compte = true;
                 }
                 else {
-                  laureats['aide'].push('');
-                  laureats['etat'].push('n.a.');
+                  laureats['aide'].push('n.a.');
+                  laureats['etat'].push('');
                   laureats['co2_abattu'].push(0);
                 }
               }
@@ -1507,10 +1519,16 @@
               if (record_projets.Aide_autre_Statut[i] != "Pas besoin d'aide"){
                 laureats['montant'].push(record_projets.Aide_autre_Montant_[i]);
                 laureats['anneeMES'].push((record_projets.Annee_MES_prevue[i] && record_projets.Annee_MES_prevue[i] != 0) ? record_projets.Annee_MES_prevue[i] : null);
-                if (record_projets.Aide_autre_Statut[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_FR[i])) == false){
+                if (record_projets.Aide_autre_Statut[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_Autre[i])) == false){
                   laureats['aide'].push(aides_Autre[i]);
                   laureats['etat'].push('Engagé');
                   laureats['co2_abattu'].push(projet_compte ? 0 : record_projets.Emissions_abattues_tCO2e_an_[i]);
+                  projet_compte = true;
+                }
+                else if (record_projets.Aide_autre_Statut[i] == 'Lauréat' && (aidesBaseAides(record_aides).includes(aides_Autre[i])) == true){   // Cas lauréat compris dans Base aides pour ne pas dédoubler les émissions
+                  laureats['aide'].push('n.a.');
+                  laureats['etat'].push('');
+                  laureats['co2_abattu'].push(0);
                   projet_compte = true;
                 }
                 else if ((typeof record_projets.Aide_autre_Statut[i] == 'string') && (record_projets.Aide_autre_Statut[i] == 'Candidat' ||  record_projets.Aide_autre_Statut[i].includes('Intérêt'))){
@@ -1520,8 +1538,8 @@
                   projet_compte = true;
                 }
                 else{
-                  laureats['aide'].push('');
-                  laureats['etat'].push('n.a.');
+                  laureats['aide'].push('n.a.');
+                  laureats['etat'].push('');
                   laureats['co2_abattu'].push(projet_compte ? 0 : record_projets.Emissions_abattues_tCO2e_an_[i]);
                 }
               }
@@ -1579,7 +1597,9 @@
             else if (2046 <= annee && annee <= 2050) {
               cleAnnee = 2048;
             }
-            else if (annee < 2019) { }
+            else if (annee < 2019 || annee > 2050) { 
+              
+            }
             else {
               cleAnnee = annee;
             }
@@ -1651,7 +1671,7 @@
                 order[i] += 10*i;
               }
               order[i] += 1;
-              backgroundColors[i] = pattern.draw('diagonal',window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`));
+              backgroundColors[i] = pattern.draw('square',window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`));
             }
             else {
               backgroundColors[i] = 'transparent';
@@ -1697,7 +1717,7 @@
                     generateLabels(chart) {
                       const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
                       border.forEach(label => {
-                        if (label.text.includes('Désengagé')){
+                        if (label.text.includes('n.a.')){
                           label.lineDash = [4, 2];
                           label.lineWidth = 1;
                           label.strokeStyle = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${label.text.split(' ')[0].replace(' ','-').toLowerCase()}`);
