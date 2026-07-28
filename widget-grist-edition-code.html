@@ -461,6 +461,73 @@
       position: relative;
     }
 
+      #legend-container {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 32px;
+        margin-top: 20px;
+      }
+      /* Chaque colonne empile ses groupes verticalement, dans l'ordre d'insertion */
+      .legend-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        flex: 1;
+        min-width: 0; /* évite le débordement flex par défaut */
+      }
+
+
+      .legend-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 140px;
+    }
+    .legend-group-title {
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--color-brand-blue);
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 4px;
+      margin-bottom: 2px;
+    }
+  
+    .legend-group ul {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .legend-group li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      user-select: none;
+    }
+
+    .legend-group li.hidden {
+      opacity: 0.4;
+      text-decoration: line-through;
+    }
+
+
+    .legend-group .swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+
+
+
     /* Résultats */
     .results-section {
       display: flex;
@@ -822,6 +889,7 @@
           <div class='bar-chart-annee'>
             <canvas id="barChartCO2parAnneeAide"></canvas>
           </div>
+          <div id="legend-container"></div>
         </div>
       </div>
 
@@ -899,51 +967,233 @@
           }
         };
 
-        const htmlLegendPlugin = {
-          id: 'htmlLegend', // identifiant unique du plugin
+
+        function getOrCreateLegendContainer(chart, containerId){
+          const el = document.getElementById(containerId);
+          while (el.firstChild) el.firstChild.remove();
+          return el;
+        }
+
+        // Applique un objet de style JS (camelCase) à un élément DOM
+        function applyStyle(el, styleObj = {}){
+          Object.entries(styleObj).forEach(([prop, value]) => {
+            el.style[prop] = value;
+          });
+        }
         
-          // Chart.js appelle cette méthode à chaque rendu / mise à jour du graphique
+        function defaultSwatchStyle(item) {
+          return {
+            background: item.fillStyle,
+            borderColor: item.strokeStyle,
+            borderWidth: item.lineWidth + 'px',
+            borderStyle: 'solid'
+          };
+        }
+
+        const htmlGroupedLegendPlugin = {
+          id: 'htmlGroupedLegend',
+        
           afterUpdate(chart, args, options) {
-            const ul = getOrCreateLegendList(chart, options.containerID);
+            const container = getOrCreateLegendContainer(chart, options.containerID);
+            const groups = options.groups || legendGroups();
+
+            const col1 = document.createElement('div');
+            col1.classList.add('legend-column');
+            const col2 = document.createElement('div');
+            col2.classList.add('legend-column');
+            container.appendChild(col1);
+            container.appendChild(col2);
+
         
-            // On vide la légende avant de la reconstruire
-            while (ul.firstChild) {
-              ul.firstChild.remove();
-            }
-        
+            // Labels générés par la logique Chart.js habituelle (couleurs, hidden, index...)
             const items = chart.options.plugins.legend.labels.generateLabels(chart);
         
+            // Répartition des items dans les groupes, AVEC RECOUVREMENT AUTORISÉ :
+            // un même item peut être poussé dans plusieurs groupes si plusieurs match()
+            // renvoient true pour lui. Un item qui ne matche aucun groupe n'apparaît nulle part.
+            const buckets = new Map(groups.map(g => [g.key, []]));
+            const dispositifs = new Set();
+
             items.forEach(item => {
-              const li = document.createElement('li');
-              if (item.hidden) li.classList.add('hidden');
+                groups.forEach(g => {
+                    if (g.match(item)){
+                      if (g.key === 'dispositifs') {
+                        const key = item.text.split(' :')[0];
+                        if (!dispositifs.has(key)){
+                          dispositifs.add(key);
+                          buckets.get(g.key).push(item);
+                        }
+                      }
+                      else{
+                        buckets.get(g.key).push(item);
+                      }
+                    }
+                });
+            });
         
-              const swatch = document.createElement('span');
-              swatch.classList.add('swatch');
-              swatch.style.background = item.fillStyle;
-              swatch.style.borderColor = item.strokeStyle;
-              swatch.style.borderWidth = item.lineWidth + 'px';
-              swatch.style.borderStyle = 'solid';
+            // Tri des groupes selon leur "order", puis rendu (on saute les groupes vides)
+            const groupsTries = [...groups].sort((a, b) => a.order - b.order);
         
-              // Texte du label
-              const text = document.createElement('span');
-              text.textContent = item.text;
+            groupsTries.forEach(group => {
+              const itemsDuGroupe = buckets.get(group.key);
+              if (!itemsDuGroupe.length) return; // pas d'entête pour un groupe vide
         
-              li.appendChild(swatch);
-              li.appendChild(text);
+              const groupDiv = document.createElement('div');
+              groupDiv.classList.add('legend-group');
+              // POSITION : l'ordre visuel est piloté par l'ordre d'insertion (flex-wrap en ligne).
         
-              // Clic = masquer/afficher le dataset ou le secteur correspondant
-              li.onclick = () => {
-                const { type } = chart.config;
-                chart.setDatasetVisibility(
-                  item.datasetIndex,
-                  !chart.isDatasetVisible(item.datasetIndex)
-                );
-                chart.update();
-              };
-              ul.appendChild(li);
+              const titleDiv = document.createElement('div');
+              titleDiv.classList.add('legend-group-title');
+              titleDiv.textContent = group.title; // TEXTE personnalisable du groupe
+              applyStyle(titleDiv, group.titleStyle); // STYLE personnalisable du groupe
+              groupDiv.appendChild(titleDiv);
+        
+              const ul = document.createElement('ul');
+        
+              if (group.mode === 'aggregate') {
+                // --- Rendu AGRÉGÉ : une seule ligne représente tout le groupe ---
+                const li = document.createElement('li');
+        
+                // Etat "masqué" du groupe : on considère le groupe masqué seulement
+                // si TOUS ses items matchés sont masqués (sinon, au moins un est visible).
+                const tousMasques = itemsDuGroupe.every(it => it.hidden);
+                if (tousMasques) li.classList.add('hidden');
+
+                const swatch = document.createElement('span');
+                swatch.classList.add('swatch');
+                const style = group.swatchStyle
+                  ? group.swatchStyle(itemsDuGroupe[0])
+                  : defaultSwatchStyle(itemsDuGroupe[0]);
+                applyStyle(swatch, style);
+
+
+                const text = document.createElement('span');
+                // Texte de la ligne agrégée : personnalisable via group.aggregateText,
+                // sinon on retombe sur le titre du groupe.
+                text.textContent = group.aggregateText
+                  ? group.aggregateText(itemsDuGroupe)
+                  : group.title;
+        
+                li.appendChild(swatch);
+                li.appendChild(text);
+        
+                // --- Toggle groupé : bascule TOUS les datasets matchés en une fois ---
+                li.onclick = () => {
+                  const { type } = chart.config;
+                  // Règle de toggle : si au moins un dataset du groupe est visible,
+                  // on masque tout le groupe ; s'ils sont tous masqués, on affiche tout.
+                  const cibleVisible = tousMasques; // si tout était masqué, on veut réafficher
+        
+                  itemsDuGroupe.forEach(it => {
+                    chart.setDatasetVisibility(it.datasetIndex, cibleVisible);
+                  });
+                  chart.update();
+                };
+        
+                ul.appendChild(li);
+        
+              } else {
+                // --- Rendu EXPANSÉ (comportement d'origine) : une ligne par item ---
+                itemsDuGroupe.forEach(item => {
+                  const li = document.createElement('li');
+                  if (item.hidden) li.classList.add('hidden');
+        
+                  const swatch = document.createElement('span');
+                  swatch.classList.add('swatch');
+                  swatch.style.background = item.fillStyle;
+                  swatch.style.borderColor = item.strokeStyle;
+                  swatch.style.borderWidth = item.lineWidth + 'px';
+                  swatch.style.borderStyle = 'solid';
+        
+                  const text = document.createElement('span');
+                  text.textContent = group.formatText ? group.formatText(item) : item.text;
+        
+                  li.appendChild(swatch);
+                  li.appendChild(text);
+        
+                  // --- Fonctionnalité onClick individuelle conservée à l'identique ---
+                  li.onclick = () => {
+                    const { type } = chart.config;
+                    chart.setDatasetVisibility(
+                      item.datasetIndex,
+                      !chart.isDatasetVisible(item.datasetIndex)
+                    );
+                    chart.update();
+                  };
+        
+                  ul.appendChild(li);
+                });
+              }
+        
+              groupDiv.appendChild(ul);
+              const colonneCible = group.mode === 'aggregate' ? col1 : col2;
+              colonneCible.appendChild(groupDiv);
+
             });
           }
         };
+
+
+        function legendGroups(){
+          const legendGroups = [
+            {
+              key: 'n.a.',
+              title: "n.a.",
+              order: 1,
+              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes('n.a.'),
+              formatText: (item) => 'n.a.',
+              swatchStyle: (item) => ({
+                background: 'transparent',
+                borderColor: 'rgba(1,1,1,255)',
+                borderWidth: '1px',
+                borderStyle: 'dashed'   
+              })  
+            },
+            {
+              key: "sansbesoin",
+              title: "Pas de besoin d'aide",
+              order: 2,
+              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes('Pas de besoin'),
+              formatText: (item) => "Pas de besoin d'aide"
+            },
+            {
+              key: 'engage',
+              title: "Dispositif d'aide engagé",
+              order: 3,
+              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes("Engagé"),
+              formatText: (item) => "Dispositif : engagé"
+            },
+            {
+              key: 'interet',
+              title: 'Intérêt ou Candidature',
+              order: 4,
+              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes("Intérêt"),
+              formatText: (item) => "Dispositif : intérêt"
+            },
+            {
+              key: 'dispositifs',
+              title: "Liste des dispositifs d'aide",
+              order: 5,
+              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue'), fontStyle: 'italic' },
+              legends: [],
+              match: (item) => item.text.includes("Engagé") || item.text.includes("Intérêt"),
+              formatText: (item) => item.text.replace(item.text.includes('Engagé') ? ' : Engagé' : ' : Intérêt','')
+            }
+          ];
+          return legendGroups;
+        }
 
 
 
@@ -978,16 +1228,6 @@
             divCible.className = 'canvas-charts-1-shown';
             btn.textContent = 'Cacher';
           }
-        }
-
-        function getOrCreateLegendList(chart, containerId){
-          const legendContainer = document.getElementById(containerId);
-          let listContainer = legendContainer.querySelector('ul');
-          if (!listContainer) {
-            listContainer = document.createElement('ul');
-            legendContainer.appendChild(listContainer);
-          }
-          return listContainer;
         }
 
 
@@ -1526,7 +1766,7 @@
           let projet_compte;
           for (let i = 0 ; i < aides_FR.length ; i++){
             projet_compte = false;
-            if (record_projets.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné' && record_projets.Procede != 'Variation de production sans décarbonation'){
+            if (record_projets.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné' && record_projets.Procede[i] != 'Variation de production sans décarbonation'){
               if (!record_projets.Aide_FR_dans_base_aide[i]){
                 laureats['montant'].push(record_projets.Aide_FR_Montant_[i]);
                 laureats['anneeMES'].push((record_projets.Annee_MES_prevue[i] && record_projets.Annee_MES_prevue[i] != 0) ? record_projets.Annee_MES_prevue[i] : null);
@@ -1783,7 +2023,7 @@
               labels: list_labels,
               datasets: datasets
             },
-            plugins: [dashedBorderPlugin],
+            plugins: [htmlGroupedLegendPlugin,dashedBorderPlugin],
             options: {
               borderWidth: 0,
               skippedBorders: true,
@@ -1793,6 +2033,7 @@
               plugins: {
                 legend: {
                   display : false,
+                  /*
                   labels: {
                     generateLabels: (chart) => {
                       const newLegend = Chart.overrides.bar.plugins.legend/labels.generateLabels(chart);
@@ -1815,6 +2056,11 @@
                       return border;
                     }
                   }
+                  */
+                },
+                htmlGroupedLegend : {
+                  containerID: 'legend-container',
+                  groups: legendGroups(),
                 },
                 title: {
                   color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
