@@ -63,21 +63,21 @@
       --color-procede-intrant-decarb: #A4FF90;
       --color-procede-report-gaz-nat: #C7835E;
 
-      --color-aide-aogpid: #0070C0;
-      --color-aide-bciat: #203864;
-      --color-aide-demibac: #7F7F7F;
-      --color-aide-df: #9DC3E6;
-      --color-aide-di: #DEEBF7;
-      --color-aide-ibac-pme: #ADB9CA;
-      --color-aide-induss-ee: #548235;
-      --color-aide-solinbac: #70AD47;
-      --color-aide-zibac: #A9D18E;
-      --color-aide-cee: #7030A0;
-      --color-aide-if: #CC66FF;
-      --color-aide-fonds-chaleur: #E0D6A5;
-      --color-aide-autre-aide: #684343;
-      --color-aide-ao-h2: #A4FF90;
-      --color-aide-piiec: #C7835E;
+      --color-aide-aogpid: #A31F1F;
+      --color-aide-ao-h2: #89471A;
+      --color-aide-bciat: #A3881F;
+      --color-aide-cee: #73891A;
+      --color-aide-df: #54A31F;
+      --color-aide-demibac:  #1A891A;
+      --color-aide-di: #1FA354;
+      --color-aide-fonds-chaleur: #1A8973;
+      --color-aide-ibac-pme: #1F88A3;
+      --color-aide-if: #1A4789;
+      --color-aide-induss-ee: #1F1FA3;
+      --color-aide-piiec: #471A89;
+      --color-aide-solinbac: #881FA3;
+      --color-aide-zibac: #891A73; 
+      --color-aide-autre-aide: #A31F54;
 
 
 
@@ -907,6 +907,10 @@
             .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
         }
 
+        function strSort(a){
+          return a.sort(function(x,y){return x.toString().localeCompare(y.toString());});
+        }
+
         function hideShowButtons(idCible) {
           const divCible = document.getElementById(idCible);
           let btn;
@@ -1655,6 +1659,7 @@
           let dashedBorders = Array.from({ length: list_aide.length }, (_, i) => false);
           let pointStyle = Array.from({ length: list_aide.length }, (_, i) => false);
           let order = Array.from({ length: list_aide.length }, (_, i) => 0);
+          let aideOrderAlph = strSort([...new Set(cles.map(k => k.split('|')[1].split(' :')[0]))]);
           
 
           ///  Style du graph avec couleurs par type d'aides à refaire !!  /// 
@@ -1662,22 +1667,28 @@
           for (let i = 0; i < list_aide.length; i++) {
             if (list_aide[i].endsWith('Engagé')) {
               if (list_aide[i].includes('Autre Aide')){
-                order[i] += 1000;
+                order[i] += 50;
               }
               else {
-                order[i] += 10*i;
+                order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
               }
               backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`);
             }
             else if (list_aide[i].endsWith('Intérêt')) {
               if (list_aide[i].includes('Autre Aide')){
-                order[i] += 1000;
+                order[i] += 50;
               }
               else {
-                order[i] += 10*i;
+                order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
               }
-              order[i] += 1;
-              backgroundColors[i] = pattern.draw('square',window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`));
+              order[i] += 100;
+              backgroundColors[i] = Chart.helpers.color(window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`)).alpha(0.2).rgbString();
+              // backgroundColors[i] = pattern.draw('square',window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`));
+            }
+            else if(list_aide[i].endsWith("Pas besoin d'aide")){
+              backgroundColors[i] = 'transparent';
+              borderColors[i] = 'rgba(1,1,1,255)';
+              order[i] += 1000;
             }
             else {
               backgroundColors[i] = 'transparent';
@@ -1727,6 +1738,7 @@
                           label.lineDash = [4, 2];
                           label.lineWidth = 1;
                           label.strokeStyle = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${label.text.split(' ')[0].replace(' ','-').toLowerCase()}`);
+                          label.text = 'n.a.';
                         }
                       });
                       return border;
