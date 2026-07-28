@@ -1609,9 +1609,9 @@
             else {
               cleAnnee = annee;
             }
-            if (cleAnnee != undefined) {
+            if (cleAnnee != undefined && typeof cleAnnee == 'number') {
               const cle = `${cleAnnee}|${aides[i]} : ${engagement[i]}`;                // cle String obtenues via la méthode .split()
-              D[cle] = (D[cle] ?? 0) + co2_abattu[i];                 // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+              D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                 // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
             }
           }
           return D;
