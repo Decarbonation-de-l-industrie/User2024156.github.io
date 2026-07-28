@@ -1526,7 +1526,7 @@
           let projet_compte;
           for (let i = 0 ; i < aides_FR.length ; i++){
             projet_compte = false;
-            if (record_projets.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné'){
+            if (record_projets.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné' && record_projets.Procede != 'Variation de production sans décarbonation'){
               if (!record_projets.Aide_FR_dans_base_aide[i]){
                 laureats['montant'].push(record_projets.Aide_FR_Montant_[i]);
                 laureats['anneeMES'].push((record_projets.Annee_MES_prevue[i] && record_projets.Annee_MES_prevue[i] != 0) ? record_projets.Annee_MES_prevue[i] : null);
