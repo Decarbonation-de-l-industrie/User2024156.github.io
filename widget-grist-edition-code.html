@@ -869,6 +869,8 @@
         let filtered_records_sites;
         let currentDataExport;
 
+        /// PLUGINS POUR LES GRAPHS ///
+
         const dashedBorderPlugin = {                                                                      // Plugin pour pouvoir afficher des barres en pointillés
           id: 'dashedBorder',
           afterDatasetsDraw(chart) {
@@ -896,6 +898,56 @@
             });
           }
         };
+
+        const htmlLegendPlugin = {
+          id: 'htmlLegend', // identifiant unique du plugin
+        
+          // Chart.js appelle cette méthode à chaque rendu / mise à jour du graphique
+          afterUpdate(chart, args, options) {
+            const ul = getOrCreateLegendList(chart, options.containerID);
+        
+            // On vide la légende avant de la reconstruire
+            while (ul.firstChild) {
+              ul.firstChild.remove();
+            }
+        
+            const items = chart.options.plugins.legend.labels.generateLabels(chart);
+        
+            items.forEach(item => {
+              const li = document.createElement('li');
+              if (item.hidden) li.classList.add('hidden');
+        
+              const swatch = document.createElement('span');
+              swatch.classList.add('swatch');
+              swatch.style.background = item.fillStyle;
+              swatch.style.borderColor = item.strokeStyle;
+              swatch.style.borderWidth = item.lineWidth + 'px';
+              swatch.style.borderStyle = 'solid';
+        
+              // Texte du label
+              const text = document.createElement('span');
+              text.textContent = item.text;
+        
+              li.appendChild(swatch);
+              li.appendChild(text);
+        
+              // Clic = masquer/afficher le dataset ou le secteur correspondant
+              li.onclick = () => {
+                const { type } = chart.config;
+                chart.setDatasetVisibility(
+                  item.datasetIndex,
+                  !chart.isDatasetVisible(item.datasetIndex)
+                );
+                chart.update();
+              };
+              ul.appendChild(li);
+            });
+          }
+        };
+
+
+
+        /// PLUGINS POUR LES GRAPHS ///
 
         function normStr(x) {
           return (x ?? "").toString().trim();
@@ -927,6 +979,17 @@
             btn.textContent = 'Cacher';
           }
         }
+
+        function getOrCreateLegendList(chart, containerId){
+          const legendContainer = document.getElementById(containerId);
+          let listContainer = legendContainer.querySelector('ul');
+          if (!listContainer) {
+            listContainer = document.createElement('ul');
+            legendContainer.appendChild(listContainer);
+          }
+          return listContainer;
+        }
+
 
         function areaMarkerfromEmission(emission, maxRadius, typeMarker) {
           const minRadius = 5;
@@ -1729,7 +1792,15 @@
               },
               plugins: {
                 legend: {
-                  position: 'bottom',
+                  display : false,
+                  labels: {
+                    generateLabels: (chart) => {
+                      const newLegend = Chart.overrides.bar.plugins.legend/labels.generateLabels(chart);
+                    }
+                  },
+                  htmlLegend: {
+                    containerID: 'legend-container'
+                  },
                   labels: {
                     generateLabels(chart) {
                       const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
