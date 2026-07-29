@@ -2012,7 +2012,7 @@
           let backgroundColors = Array.from({ length: list_aide.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
           let borderColors = Array.from({ length: list_aide.length }, (_, i) => 'transparent');
           let borderWidths = Array.from({ length: list_aide.length }, (_, i) => 0);
-          let borderSkips = Array.from({ length: list_aide.length }, (_, i) => 'top');
+          let borderSkips = Array.from({ length: list_aide.length }, (_, i) => 'false');
           let dashedBorders = Array.from({ length: list_aide.length }, (_, i) => false);
           let pointStyle = Array.from({ length: list_aide.length }, (_, i) => false);
           let order = Array.from({ length: list_aide.length }, (_, i) => 0);
@@ -2040,6 +2040,8 @@
               }
               order[i] += 100;
               backgroundColors[i] = Chart.helpers.color(window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`)).alpha(0.2).rgbString();
+              borderColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`);
+              borderWidths[i] = 2;
               // backgroundColors[i] = pattern.draw('square',window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`));
             }
             else if(list_aide[i].endsWith("Pas besoin d'aide")){
