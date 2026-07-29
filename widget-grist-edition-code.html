@@ -843,6 +843,34 @@
       </section>
 
 
+      <!-- Carte des sites ETS sélectionnés par les filtres -->
+
+      <header class='section-header'>
+        <h1>Carte des sites ETS concernés</h1>
+        <div id="map-buttons">
+          <button class="btn secondary" onclick="redrawMap('constant')" id="const-button-map">Rayons constants</button>
+          <button class="btn secondary" onclick="redrawMap('linear')" id="linear-button-map">Relation linéaire</button>
+          <button class="btn secondary" onclick="redrawMap('logarithmique')" id="log-button-map">Relation
+            logarithmique</button>
+          <button class='btn secondary' onclick="hideShowButtons('map-container')" id="hide-button-map">Cacher</button>
+        </div>
+      </header>
+
+
+      <section>
+        <div class="map-wrapper">
+          <div id="map-container" class="map-container-shown">
+            <div id="map-header">
+              <div id="map-legend">
+                <div class="legend-item"></div>
+              </div>
+            </div>
+            <div id="leaflet-map"></div>
+            <div id="empty-map" class="empty" style="display:none;"></div>
+          </div>
+        </div>
+      </section>
+
 
       <!-- Graph des émissions abattues par procédé par années et du potentiel d'abattement selon l'état d'avancement des projets -->
 
@@ -893,33 +921,6 @@
         </div>
       </div>
 
-      <!-- Carte des sites ETS sélectionnés par les filtres -->
-
-      <header class='section-header'>
-        <h1>Carte des sites ETS concernés</h1>
-        <div id="map-buttons">
-          <button class="btn secondary" onclick="redrawMap('constant')" id="const-button-map">Rayons constants</button>
-          <button class="btn secondary" onclick="redrawMap('linear')" id="linear-button-map">Relation linéaire</button>
-          <button class="btn secondary" onclick="redrawMap('logarithmique')" id="log-button-map">Relation
-            logarithmique</button>
-          <button class='btn secondary' onclick="hideShowButtons('map-container')" id="hide-button-map">Cacher</button>
-        </div>
-      </header>
-
-
-      <section>
-        <div class="map-wrapper">
-          <div id="map-container" class="map-container-shown">
-            <div id="map-header">
-              <div id="map-legend">
-                <div class="legend-item"></div>
-              </div>
-            </div>
-            <div id="leaflet-map"></div>
-            <div id="empty-map" class="empty" style="display:none;"></div>
-          </div>
-        </div>
-      </section>
 
       <script type="text/javascript">
 
@@ -1041,12 +1042,14 @@
               const groupDiv = document.createElement('div');
               groupDiv.classList.add('legend-group');
               // POSITION : l'ordre visuel est piloté par l'ordre d'insertion (flex-wrap en ligne).
-        
-              const titleDiv = document.createElement('div');
-              titleDiv.classList.add('legend-group-title');
-              titleDiv.textContent = group.title; // TEXTE personnalisable du groupe
-              applyStyle(titleDiv, group.titleStyle); // STYLE personnalisable du groupe
-              groupDiv.appendChild(titleDiv);
+              
+              if (group.key == 'dispositifs'){
+                const titleDiv = document.createElement('div');
+                titleDiv.classList.add('legend-group-title');
+                titleDiv.textContent = group.title; // TEXTE personnalisable du groupe
+                applyStyle(titleDiv, group.titleStyle); // STYLE personnalisable du groupe
+                groupDiv.appendChild(titleDiv);
+              }
         
               const ul = document.createElement('ul');
         
@@ -1139,8 +1142,7 @@
             {
               key: 'n.a.',
               title: "n.a.",
-              order: 1,
-              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              order: 4,
               mode: 'aggregate',
               legends: [],
               match: (item) => item.text.includes('n.a.'),
@@ -1155,8 +1157,7 @@
             {
               key: "sansbesoin",
               title: "Pas de besoin d'aide",
-              order: 2,
-              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              order: 3,
               mode: 'aggregate',
               legends: [],
               match: (item) => item.text.includes('Pas de besoin'),
@@ -1164,9 +1165,8 @@
             },
             {
               key: 'engage',
-              title: "Dispositif d'aide engagé",
-              order: 3,
-              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              title: "Dispositif : engagé",
+              order: 1,
               mode: 'aggregate',
               legends: [],
               match: (item) => item.text.includes("Engagé"),
@@ -1174,9 +1174,8 @@
             },
             {
               key: 'interet',
-              title: 'Intérêt ou Candidature',
-              order: 4,
-              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue') },
+              title: "Dispositif : intérêt",
+              order: 2,
               mode: 'aggregate',
               legends: [],
               match: (item) => item.text.includes("Intérêt"),
@@ -1752,6 +1751,36 @@
           return [... new Set(regroupAides(record.Nom_du_dispositif))];
         }
 
+        function aidesBaseProjets(record_projets,record_aides){
+          return [... new Set(projets_Laureat_Aide(record_projets,record_aides)['aide'])];
+        }
+
+        function allAides(record_projets, record_aides){
+          let list_aide = [];
+
+          for (const a of aidesBaseAides(record_aides)){
+            if (a != 'Autre Aide'){
+              list_aide.push(`${a} : Engagé`);
+              list_aide.push(`${a} : Intérêt`);
+            }
+          }
+
+          for (const a of aidesBaseProjets(record_projets, record_aides)){
+            if (a != ''){
+              list_aide.push(`${a} : Engagé`);
+              list_aide.push(`${a} : Intérêt`);
+            }
+          }
+
+          list_aide = strSort([...new Set(list_aide)]);
+          list_aide.push("Autre Aide : Intérêt");
+          list_aide.push("Autre Aide : Engagé");
+          list_aide.push(" : Pas besoin d'aide");
+          list_aide.push(" : n.a.");
+
+          return list_aide;
+        }
+
         function projets_Laureat_Aide(record_projets,record_aides){
           let laureats = {
             aide : [],
@@ -1956,7 +1985,7 @@
           list_labels[list_labels.length - 3] = '2036-2040';
           list_annees[list_annees.length - 3] = 2038;
 
-          const list_aide = [...new Set(cles.map(k => k.split('|')[1]))];
+          const list_aide = allAides(records_projets,records_aides);
           let backgroundColors = Array.from({ length: list_aide.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
           let borderColors = Array.from({ length: list_aide.length }, (_, i) => 'rgba(0,0,0,0)');
           let dashedBorders = Array.from({ length: list_aide.length }, (_, i) => false);
@@ -1965,7 +1994,7 @@
           let aideOrderAlph = strSort([...new Set(cles.map(k => k.split('|')[1].split(' :')[0]))]);
           
 
-          ///  Style du graph avec couleurs par type d'aides à refaire !!  /// 
+          ///  Style du graph avec couleurs par type d'aides  /// 
 
           for (let i = 0; i < list_aide.length; i++) {
             if (list_aide[i].endsWith('Engagé')) {
@@ -2002,7 +2031,7 @@
           }
 
 
-          ///  Style du graph avec couleurs par type d'aides à refaire !!  ///
+          ///  Style du graph avec couleurs par type d'aides ///
 
 
           const datasets = list_aide.map((aide,i) => ({
