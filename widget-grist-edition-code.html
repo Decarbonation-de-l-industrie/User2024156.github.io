@@ -458,25 +458,28 @@
     }
 
     .pie-chart {
-        flex: 1;          /* 1/5 */
-        position: relative;
+      flex: 3;          /* 1/5 */
+      position: relative;
+      min-width: 0;
     }
 
     .bar-chart-annee {
-        flex: 6;          /* 3/5 */
-        position: relative;
-        min-width: 0;     /* important pour que le graphique puisse rétrécir */
+      flex: 12;          /* 3/5 */
+      position: relative;
+      min-width: 0;     /* important pour que le graphique puisse rétrécir */
+      width: 100% !important;
+      height: 100% !important;
     }
 
     #legend-container {
-        flex: 1;          /* 1/5 */
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        gap: 20px;
-        margin-top: 0;
+      flex: 2;          /* 1/5 */
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 20px;
+      margin-top: 0;
+      height: 100%;
     }
-
 
     .legend-group {
       display: flex;
