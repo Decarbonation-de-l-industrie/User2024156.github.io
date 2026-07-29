@@ -461,29 +461,22 @@
       position: relative;
     }
 
-      #legend-container {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 32px;
-        margin-top: 20px;
-      }
-      /* Chaque colonne empile ses groupes verticalement, dans l'ordre d'insertion */
-      .legend-column {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        flex: 1;
-        min-width: 0; /* évite le débordement flex par défaut */
-      }
+    #legend-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content : center;
+      gap: 32px;
+      margin-top: 20px;
+    }
 
 
-      .legend-group {
+    .legend-group {
       display: flex;
       flex-direction: column;
       gap: 6px;
       min-width: 140px;
     }
+
     .legend-group-title {
       font-weight: 700;
       font-size: 13px;
@@ -997,14 +990,6 @@
           afterUpdate(chart, args, options) {
             const container = getOrCreateLegendContainer(chart, options.containerID);
             const groups = options.groups || legendGroups();
-
-            const col1 = document.createElement('div');
-            col1.classList.add('legend-column');
-            const col2 = document.createElement('div');
-            col2.classList.add('legend-column');
-            container.appendChild(col1);
-            container.appendChild(col2);
-
         
             // Labels générés par la logique Chart.js habituelle (couleurs, hidden, index...)
             const items = chart.options.plugins.legend.labels.generateLabels(chart);
@@ -1127,11 +1112,8 @@
                   ul.appendChild(li);
                 });
               }
-        
               groupDiv.appendChild(ul);
-              const colonneCible = group.mode === 'aggregate' ? col1 : col2;
-              colonneCible.appendChild(groupDiv);
-
+              container.appendChild(groupDiv);
             });
           }
         };
