@@ -104,6 +104,11 @@
       --color-background-abandonne: #b63e3e;
       --color-background-mis-en-service: #98b63e;
 
+      --color-background-n-a-: #E6E8E6;
+      --color-background-pas-besoin-d-aide: #D9E2DA;
+      --color-background-interet: #C8DEC8;
+      --color-background-engage: #B7D9B7;
+
 
     }
 
@@ -449,24 +454,27 @@
       width: 100%;
       height: 600px;
       gap: 30px;
+      align-items: stretch;
     }
 
     .pie-chart {
-      flex: 1;
-      position: relative;
+        flex: 1;          /* 1/5 */
+        position: relative;
     }
 
     .bar-chart-annee {
-      flex: 3;
-      position: relative;
+        flex: 6;          /* 3/5 */
+        position: relative;
+        min-width: 0;     /* important pour que le graphique puisse rétrécir */
     }
 
     #legend-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content : center;
-      gap: 32px;
-      margin-top: 20px;
+        flex: 1;          /* 1/5 */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 20px;
+        margin-top: 0;
     }
 
 
@@ -625,6 +633,7 @@
 
     .map-wrapper {
       position: relative;
+      margin-bottom: 40px;
     }
 
     .map-container-shown {}
@@ -1206,21 +1215,27 @@
           return a.sort(function(x,y){return x.toString().localeCompare(y.toString());});
         }
 
-        function hideShowButtons(idCible) {
+        function hideShowButtons(idCible, forceShow) {
           const divCible = document.getElementById(idCible);
-          let btn;
-          if (divCible.className.includes('map')) {
-            btn = document.getElementById('hide-button-map');
-          } else if (divCible.className.includes('chart')) {
-            btn = document.getElementById('hide-button-charts-procede');
-          }
-          if (divCible.className === 'canvas-charts-1-shown') {
-            divCible.className = 'canvas-charts-1-hidden';
-            btn.textContent = 'Afficher';
-          } else {
-            divCible.className = 'canvas-charts-1-shown';
-            btn.textContent = 'Cacher';
-          }
+
+          // Table de correspondance fiable id-div -> id-bouton
+          // (le test précédent sur className.includes('map'/'chart') était cassé :
+          //  'canvas-charts-aide-1' et 'canvas-charts-procede-1' ont tous les deux
+          //  className='canvas-charts-1-shown', qui contient "chart" -> les deux
+          //  tombaient dans la même branche et mettaient à jour le MÊME bouton
+          //  (hide-button-charts-procede), jamais hide-button-charts-aide)
+          const boutonParId = {
+            'map-container': 'hide-button-map',
+            'canvas-charts-procede-1': 'hide-button-charts-procede',
+            'canvas-charts-aide-1': 'hide-button-charts-aide',
+          };
+          const btn = document.getElementById(boutonParId[idCible]);
+
+          const isCurrentlyShown = divCible.className === 'canvas-charts-1-shown';
+          const show = (forceShow !== undefined) ? forceShow : !isCurrentlyShown;
+
+          divCible.className = show ? 'canvas-charts-1-shown' : 'canvas-charts-1-hidden';
+          if (btn) btn.textContent = show ? 'Cacher' : 'Afficher';
         }
 
 
@@ -1427,6 +1442,7 @@
         let chartCO2Procede = null;
         let chartCO2Etat = null;
         let chartCO2Aide = null;
+        let chartCO2PieAide = null;
 
         let map;
         let markersLayer;
@@ -2151,6 +2167,90 @@
 
 
 
+        function graphique_pie_CO2_aide_projet(record_aides,record_projets) {
+          const donnees = concatenation_Aides_Projets(records_aides,projets_Laureat_Aide(records_projets,records_aides));
+          // const aides = donnees[4];      
+          const co2_abattu = donnees[1];
+          const engagement = donnees[2];
+          const montant = donnees[3];
+          let sum_co2 = 0;
+          for (c of co2_abattu){
+            sum_co2 = sum_co2 + c;
+          }
+          if (sum_co2 == 0) return;
+          const labels = [... new Set(engagement)];
+          const data = labels.map(l => 0);
+          for (let i = 0 ; i < co2_abattu.length ; i++){
+            for (let j = 0 ; j < labels.length ; j++){
+              if(engagement[i] == labels[j]){
+                data[j] += typeof co2_abattu[i] == 'number' && co2_abattu[1] > 0 ? co2_abattu[i] : 0;
+              }
+            }
+          }
+          const ctx = document.getElementById('pieChartCO2parEtatAide');
+          const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              datasets: [{
+                data: data,
+                backgroundColor: [... new Set(labels.map(l => window.getComputedStyle(document.head).getPropertyValue(`--color-background-${l.replaceAll(' ', '-').replaceAll('é', 'e').replaceAll('ê','e').replaceAll("'",'-').replaceAll('.','-').toLowerCase()}`)))],
+                borderColor: Array.from({ length: labels.length }, (_, i) => 'rgba(0,0,0,1)'),
+              }],
+              labels: labels,
+            },
+            options: {
+              cutout: '60%',
+              devicePixelRatio: window.devicePixelRatio * 2,
+              plugins: {
+                legend: {
+                  position: 'bottom'
+                },
+                title: {
+                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  align: 'start',
+                  display: true,
+                  text: 'Part des émissions abattues par état des projets',
+                },
+                tooltip: {
+                  displayColors: true,
+                  padding: {
+                    left: 5,
+                    right: 5,
+                    top: 15,
+                    bottom: 15,
+                  },
+                  titleFont: { size: 12, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
+                  bodyFont: { size: 12, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
+                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  backgroundColor: '#F6F7FF',
+                  callbacks: {
+                    labelTextColor: function (context) {
+                      return 'rgba(0,0,0,1)';
+                    },
+                    title: function (context) {
+                      const etatProj = context[0].label;
+                      return `Emissions abattues par les projets ${etatProj.toLowerCase()}s`;
+                    },
+                    label: function (context) {
+                      const value = context.raw; // Raw data value (e.g., 1200)
+                      const formatedValue = Math.floor(value / 1000);
+                      return ` ${formatedValue} kt CO2e`; // Custom label
+                    },
+                  }
+                },
+              },
+              radius: '90%',
+              maintainAspectRatio: false,
+              borderAlign: 'inner',
+              borderWidth: 0.5
+            }
+          });
+          return chart;
+        }
+
+
+
         function renderList(records, hide) {
           const acc = document.getElementById("company-accordion");
           const emptyLeft = document.getElementById("empty-left");
@@ -2291,9 +2391,10 @@
           if (!pts.length) {
             emptyMap.textContent = "Aucun point géolocalisé (Latitude/Longitude manquantes) pour cette sélection.";
             emptyMap.style.display = "block";
-            hideShowButtons('map-container');
+            hideShowButtons('map-container',false);
             return;
           }
+          hideShowButtons('map-container',true);
 
           const ptsWithRadius = pts.map(p => {
             const ind = p.index;
@@ -2356,11 +2457,13 @@
           if (chartCO2Procede) chartCO2Procede.destroy();
           if (chartCO2Etat) chartCO2Etat.destroy();
           if (chartCO2Aide) chartCO2Aide.destroy();
+          if (chartCO2PieAide) chartCO2PieAide.destroy();
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           if (resultCO2Procede) {
             chartCO2Procede = resultCO2Procede[0];
             currentDataExport = resultCO2Procede[1];
           }
+          chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
           chartCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           chartCO2Etat = graphique_CO2_etat_projet(filtered_records_projets);
           renderMap(filtered_records_sites, 'logarithmique');
@@ -2544,7 +2647,7 @@
 
         function clearFilters() {
           document.querySelectorAll('select').forEach(el => {
-            if (el.tomselect) el.tomselect.clear(true);           // true rend l'évènement 'silent' donc ne déclenche pas les actions onChange : toutes les majde graphique
+            if (el.tomselect) el.tomselect.clear(true);           // true rend l'évènement 'silent' donc ne déclenche pas les actions onChange : toutes les maj de graphique
           });
           document.getElementById("search-by-name").value = "";
           renderSuggestion(filtered_records_sites, true, false);
@@ -2604,6 +2707,8 @@
           graphique_CO2_etat_projet(filtered_records_projets);
 
           graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
+
+          graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
 
         }
 
