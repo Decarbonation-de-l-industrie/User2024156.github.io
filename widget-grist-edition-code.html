@@ -999,12 +999,15 @@
             // renvoient true pour lui. Un item qui ne matche aucun groupe n'apparaît nulle part.
             const buckets = new Map(groups.map(g => [g.key, []]));
             const dispositifs = new Set();
+            const dispositifItemsMap = new Map();
 
             items.forEach(item => {
                 groups.forEach(g => {
                     if (g.match(item)){
                       if (g.key === 'dispositifs') {
                         const key = item.text.split(' :')[0];
+                        if (!dispositifItemsMap.has(key)) dispositifItemsMap.set(key, []);
+                        dispositifItemsMap.get(key).push(item);
                         if (!dispositifs.has(key)){
                           dispositifs.add(key);
                           buckets.get(g.key).push(item);
@@ -1084,7 +1087,11 @@
                 // --- Rendu EXPANSÉ (comportement d'origine) : une ligne par item ---
                 itemsDuGroupe.forEach(item => {
                   const li = document.createElement('li');
-                  if (item.hidden) li.classList.add('hidden');
+                  const linked = group.key === 'dispositifs' ? (dispositifItemsMap.get(item.text.split(' :')[0]) || [item]) : [item];
+                  const tousMasques = linked.every(it => it.hidden);
+                  if (tousMasques) li.classList.add('hidden');
+
+                  // if (item.hidden) li.classList.add('hidden');
         
                   const swatch = document.createElement('span');
                   swatch.classList.add('swatch');
@@ -1101,11 +1108,10 @@
         
                   // --- Fonctionnalité onClick individuelle conservée à l'identique ---
                   li.onclick = () => {
-                    const { type } = chart.config;
-                    chart.setDatasetVisibility(
-                      item.datasetIndex,
-                      !chart.isDatasetVisible(item.datasetIndex)
-                    );
+                    const cibleVisible = tousMasques; // si tout était masqué, on réaffiche tout
+                    linked.forEach(it => {
+                      chart.setDatasetVisibility(it.datasetIndex, cibleVisible);
+                    });
                     chart.update();
                   };
         
@@ -1142,8 +1148,14 @@
               order: 3,
               mode: 'aggregate',
               legends: [],
-              match: (item) => item.text.includes('Pas de besoin'),
-              formatText: (item) => "Pas de besoin d'aide"
+              match: (item) => item.text.includes('Pas besoin'),
+              formatText: (item) => "Pas de besoin d'aide",
+              swatchStyle: (item) => ({
+                background: 'transparent',
+                borderColor: 'rgba(1,1,1,255)',
+                borderWidth: '1px',
+                borderStyle: 'solid'   
+              })  
             },
             {
               key: 'engage',
@@ -1277,6 +1289,17 @@
 
         function redrawMap(typeMarker) {
           renderMap(filtered_records_sites, typeMarker);
+        }
+
+        function maxAnneeDataset(dataset){
+          const list_annees = Array.from({ length: 20 }, (_, i) => 0);
+          for(let i = 0 ; i < dataset.length ; i++){
+            for (let j = 0 ; j < list_annees.length ; j++){
+              list_annees[j] += dataset[i]['data'][j] > 0 ? dataset[i]['data'][j] : 0;
+            }
+          }
+          console.log(Math.max(...list_annees));
+          return Math.max(...list_annees);
         }
 
         /* INTRODUCTION D'OBJETS + OUTILS + PARAMETRAGE GRIST */
@@ -1596,6 +1619,7 @@
                   stacked: true,
                   beginAtZero: false,
                   type: 'linear',
+                  suggestedMax: maxAnneeDataset(datasets)*1.1,
                 }
               },
               maintainAspectRatio: false
@@ -1706,9 +1730,6 @@
             else if (a_norm.includes('piiec')){
               return 'PIIEC';
             }
-            else if (a_norm.includes('zibac')){
-              return 'ZIBAC';
-            }
             else if (a_norm.includes('fondschal')){
               return 'Fonds Chaleur';
             }
@@ -1748,7 +1769,7 @@
           }
 
           for (const a of aidesBaseProjets(record_projets, record_aides)){
-            if (a != ''){
+            if (a != '' && a != 'Autre Aide'){
               list_aide.push(`${a} : Engagé`);
               list_aide.push(`${a} : Intérêt`);
             }
@@ -1793,7 +1814,7 @@
                   laureats['co2_abattu'].push(record_projets.Emissions_abattues_tCO2e_an_[i]);
                   projet_compte = true;
                 }
-                else if (record_projets.Aide_FR_Situation[i] == "Pas besoin d'aide"){
+                else if (record_projets.Aide_FR_Situation[i] == "Pas de besoin d'aide"){
                   laureats['aide'].push('');
                   laureats['etat'].push("Pas besoin d'aide");
                   laureats['co2_abattu'].push(record_projets.Emissions_abattues_tCO2e_an_[i]);
@@ -1824,7 +1845,7 @@
                   laureats['co2_abattu'].push(projet_compte ? 0 : record_projets.Emissions_abattues_tCO2e_an_[i]);
                   projet_compte = true;
                 }
-                else if (record_projets.Aide_UE_Situation[i] == "Pas besoin d'aide"){
+                else if (record_projets.Aide_UE_Situation[i] == "Pas de besoin d'aide"){
                   laureats['aide'].push('');
                   laureats['etat'].push("Pas besoin d'aide");
                   laureats['co2_abattu'].push(projet_compte ? 0 : record_projets.Emissions_abattues_tCO2e_an_[i]);
@@ -1855,7 +1876,7 @@
                   laureats['co2_abattu'].push(projet_compte ? 0 : record_projets.Emissions_abattues_tCO2e_an_[i]);
                   projet_compte = true;
                 }
-                else if (record_projets.Aide_autre_Statut[i] == "Pas besoin d'aide"){
+                else if (record_projets.Aide_autre_Statut[i] == "Pas de besoin d'aide"){
                   laureats['aide'].push('');
                   laureats['etat'].push("Pas besoin d'aide");
                   laureats['co2_abattu'].push(projet_compte ? 0 : record_projets.Emissions_abattues_tCO2e_an_[i]);
@@ -1969,7 +1990,9 @@
 
           const list_aide = allAides(records_projets,records_aides);
           let backgroundColors = Array.from({ length: list_aide.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
-          let borderColors = Array.from({ length: list_aide.length }, (_, i) => 'rgba(0,0,0,0)');
+          let borderColors = Array.from({ length: list_aide.length }, (_, i) => 'transparent');
+          let borderWidths = Array.from({ length: list_aide.length }, (_, i) => 0);
+          let borderSkips = Array.from({ length: list_aide.length }, (_, i) => 'top');
           let dashedBorders = Array.from({ length: list_aide.length }, (_, i) => false);
           let pointStyle = Array.from({ length: list_aide.length }, (_, i) => false);
           let order = Array.from({ length: list_aide.length }, (_, i) => 0);
@@ -2002,6 +2025,7 @@
             else if(list_aide[i].endsWith("Pas besoin d'aide")){
               backgroundColors[i] = 'transparent';
               borderColors[i] = 'rgba(1,1,1,255)';
+              borderWidths[i] = 2;
               order[i] += 1000;
             }
             else {
@@ -2022,6 +2046,8 @@
             order : order[i],
             backgroundColor: backgroundColors[i % backgroundColors.length],
             borderColor: borderColors[i],
+            borderWidth: borderWidths[i],
+            borderSkipped: borderSkips[i],
             dashed: dashedBorders[i],
             pointStyle : pointStyle[i],
             stack: 'stack1',
@@ -2036,8 +2062,6 @@
             },
             plugins: [htmlGroupedLegendPlugin,dashedBorderPlugin],
             options: {
-              borderWidth: 0,
-              skippedBorders: true,
               interaction: {
                 mode: 'x',
               },
@@ -2116,6 +2140,7 @@
                   stacked: true,
                   beginAtZero: false,
                   type: 'linear',
+                  suggestedMax: maxAnneeDataset(datasets)*1.1,
                 }
               },
               maintainAspectRatio: false
