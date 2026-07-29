@@ -77,7 +77,7 @@
       --color-aide-piiec: #471A89;
       --color-aide-solinbac: #881FA3;
       --color-aide-zibac: #891A73; 
-      --color-aide-autre-aide: #A31F54;
+      --color-aide-autre-aide: #373435;
 
 
 
@@ -851,7 +851,7 @@
       <!-- Carte des sites ETS sélectionnés par les filtres -->
 
       <header class='section-header'>
-        <h1>Carte des sites ETS concernés</h1>
+        <h1>Cartographie des sites</h1>
         <div id="map-buttons">
           <button class="btn secondary" onclick="redrawMap('constant')" id="const-button-map">Rayons constants</button>
           <button class="btn secondary" onclick="redrawMap('linear')" id="linear-button-map">Relation linéaire</button>
@@ -880,7 +880,7 @@
       <!-- Graph des émissions abattues par procédé par années et du potentiel d'abattement selon l'état d'avancement des projets -->
 
       <header class='section-header'>
-        <h1>Emissions abattues par levier de décarbonation</h1>
+        <h1>Projets de décarbonation</h1>
         <div id="map-buttons">
           <button class="btn secondary" onclick="exportToExcel(currentDataExport,'Extraction_Base_Projet_filtrée.xlsx')"
             id="export-button-charts-procede">Exporter données</button>
@@ -904,7 +904,7 @@
       <!-- Graphs des émissions abattues par aides par années -->
 
       <header class='section-header'>
-        <h1>Emissions abattues par dispositif de soutien</h1>
+        <h1>Dispositifs de soutien</h1>
         <div id="map-buttons">
           <button class="btn secondary" onclick="exportToExcel(currentDataExport,'Extraction_Base_Projet_filtrée.xlsx')"
             id="export-button-charts-aide">Exporter données</button>
@@ -1699,7 +1699,8 @@
                     },
                     title: function (context) {
                       const etatProj = context[0].label;
-                      return `Emissions abattues par les projets ${etatProj.toLowerCase()}s`;
+                      return ['Emissions abattues par les projets',
+                       `${etatProj.toLowerCase()}s`];
                     },
                     label: function (context) {
                       const value = context.raw; // Raw data value (e.g., 1200)
@@ -2216,8 +2217,8 @@
                   font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'start',
                   display: true,
-                  text: ['Part des émissions abattues',
-                   'par soutien des projets'],
+                  text: ['Sécurisation des projets',
+                   'soutenus par des AAP'],
                 },
                 tooltip: {
                   displayColors: true,
@@ -2237,7 +2238,8 @@
                     },
                     title: function (context) {
                       const etatProj = context[0].label;
-                      return `Emissions abattues par les projets ${etatProj.toLowerCase()}s`;
+                      return ['Emissions abattues par les projets',
+                       etatProj == 'n.a.' ? 'sans donnée renseignée sur les dispositifs' : etatProj == "Pas de besoin d'aide" ? "sans besoin d'aide" : etatProj == 'Intérêt' ? 'intéréssés par un AAP' : 'engagés sur un AAP'];
                     },
                     label: function (context) {
                       const value = context.raw; // Raw data value (e.g., 1200)
