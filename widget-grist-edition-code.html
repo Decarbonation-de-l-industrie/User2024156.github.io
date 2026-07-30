@@ -1484,7 +1484,7 @@
           let backgroundColors = Array.from({ length: list_procede.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
           let borderColors = Array.from({ length: list_procede.length }, (_, i) => 'rgba(0,0,0,0)');
           let dashedBorders = Array.from({ length: list_procede.length }, (_, i) => false);
-          let bases = Array.from({ length: list_procede.length }, (_, i) => null);
+          let order = Array.from({ length: list_procede.length }, (_, i) => 10);
           let datas = list_procede.map(p => list_annees.map(a => dict_donnees[`${a}|${p}`] ?? 0));
 
 
@@ -1506,10 +1506,11 @@
               backgroundColors[i] = 'transparent';
               borderColors[i] = '#000000';
               dashedBorders[i] = true;
-              bases[i] = 0;
+              order[i] = 0;
             }
             else if (list_procede[i] == 'CCS') {
               backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-ccs');
+              order[i] = 50;
             }
             else if (list_procede[i] == 'Biogaz') {
               backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-biogaz');
@@ -1519,6 +1520,7 @@
             }
             else if (list_procede[i] == 'EAF (DRI/Scrap)') {
               backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf');
+              order[i] = 100;
             }
             else if (list_procede[i] == 'CSR') {
               backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-csr');
@@ -1549,6 +1551,7 @@
             }
             else if (list_procede[i] == 'Autre changement de procédé') {
               backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-chgmnt-procede');
+              order[i] = 1000;
             }
             else {
               backgroundColors[i] = 'rgba(0,0,0,0)';
@@ -1561,6 +1564,7 @@
             backgroundColor: backgroundColors[i % backgroundColors.length],
             borderColor: borderColors[i],
             dashed: dashedBorders[i],
+            order: order[i],
             stack: 'stack1',
             skipNull: true,
           }))
@@ -1603,13 +1607,19 @@
                   text: 'Déploiement des projets (abandonnés exclus), ktCO2e/an, 2019-2050',
                 },
                 tooltip: {
-                  mode: 'point',
+                  mode: 'x',
                   displayColors: true,
                   padding: '15',
                   titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
                   bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
                   titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
                   backgroundColor: '#F6F7FF',
+                  filter: function (tooltipItem){
+                    return tooltipItem.raw !== 0 && tooltipItem.raw !== null;
+                  },
+                  itemSort: function (a, b) {
+                    return b.dataset.order - a.dataset.order; // ordre décroissant par valeur
+                  },
                   callbacks: {
                     labelTextColor: function (context) {
                       return 'rgba(0,0,0,1)';
@@ -1624,8 +1634,8 @@
                       const formatedValue = Math.floor(value / 1000);
                       return `${labels} : ${formatedValue} kt CO2e`; // Custom label
                     },
-                  }
-                },
+                  } 
+                }, 
               },
               scales: {
                 x: {
@@ -2128,13 +2138,19 @@
                   text: "Emissions abattues par des projets, par dispositif d'aide, ktCO2e/an, 2019-2050",
                 },
                 tooltip: {
-                  mode: 'point',
+                  mode: 'x',
                   displayColors: true,
                   padding: '15',
                   titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
                   bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
                   titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
                   backgroundColor: '#F6F7FF',
+                  filter: function (tooltipItem){
+                    return tooltipItem.raw !== 0 && tooltipItem.raw !== null;
+                  },
+                  itemSort: function (a, b) {
+                    return b.dataset.order - a.dataset.order; // ordre décroissant par valeur
+                  },
                   callbacks: {
                     labelTextColor: function (context) {
                       return 'rgba(0,0,0,1)';
