@@ -98,16 +98,16 @@
       --color-energie: #000099;
 
 
-      --color-background-certain: #b6b63e;
-      --color-background-potentiel: #b6983e;
-      --color-background-a-risque: #b65c3e;
-      --color-background-abandonne: #b63e3e;
-      --color-background-mis-en-service: #98b63e;
+      --color-background-certain: #BFBFBF;
+      --color-background-potentiel: #8C8C8C;
+      --color-background-a-risque: #4D4D4D;
+      --color-background-abandonne: #1A1A1A;
+      --color-background-mis-en-service: #E5E5E5;
 
-      --color-background-n-a-: #E6E8E6;
-      --color-background-pas-besoin-d-aide: #D9E2DA;
-      --color-background-interet: #C8DEC8;
-      --color-background-engage: #B7D9B7;
+      --color-background-n-a-: #1A1A1A;
+      --color-background-pas-besoin-d-aide: #5C5C5C;
+      --color-background-interet: #E5E5E5;
+      --color-background-engage: #A6A6A6;
 
 
     }
@@ -884,8 +884,8 @@
         <div id="map-buttons">
           <button class="btn secondary" onclick="exportToExcel(currentDataExport,'Extraction_Base_Projet_filtrée.xlsx')"
             id="export-button-charts-procede">Exporter données</button>
-          <button class='btn secondary' onclick="hideShowButtons('canvas-charts-procede-1')"
-            id="hide-button-charts-procede">Cacher</button>
+          <button class='btn secondary' onclick="switchCumul('canvas-charts-procede-1')"
+            id="cumul-button-charts-procede">Abattement cumulé</button>
         </div>
       </header>
 
@@ -908,8 +908,8 @@
         <div id="map-buttons">
           <button class="btn secondary" onclick="exportToExcel(currentDataExport,'Extraction_Base_Projet_filtrée.xlsx')"
             id="export-button-charts-aide">Exporter données</button>
-          <button class='btn secondary' onclick="hideShowButtons('canvas-charts-aide-1')"
-            id="hide-button-charts-aide">Cacher</button>
+          <button class='btn secondary' onclick="switchCumul('canvas-charts-aide-1')"
+            id="cumul-button-charts-aide">Abattement cumulé</button>
         </div>
       </header>
 
@@ -1241,6 +1241,27 @@
           if (btn) btn.textContent = show ? 'Cacher' : 'Afficher';
         }
 
+        function switchCumul(idCible) {
+          const divCible = document.getElementById(idCible);
+          const boutonParId = {
+            'canvas-charts-procede-1': 'cumul-button-charts-procede',
+            'canvas-charts-aide-1': 'cumul-button-charts-aide',
+          };
+          const btn = document.getElementById(boutonParId[idCible]);
+
+          const estCumule = !(btn.textContent === 'Abattement cumulé');
+
+          btn.textContent = estCumule ? 'Abattement cumulé' : "Abattement à l'année de MES";
+
+          if (boutonParId[idCible].endsWith('procede')){
+            graphique_CO2_procede_annee(filtered_records_projets, false, !estCumule);
+          }
+          if (boutonParId[idCible].endsWith('aide')){
+            graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, false, !estCumule);
+          }
+          
+        }
+
 
         function areaMarkerfromEmission(emission, maxRadius, typeMarker) {
           const minRadius = 5;
@@ -1422,7 +1443,13 @@
         }
 
         function D_sum_CO2_etat_projet(record) {
-          CO2_par_etat = {};
+          CO2_par_etat = {
+            'Mis en service' : 0,
+            'Certain' : 0,
+            'Potentiel' : 0,
+            'A risque' : 0,
+            'Abandonné' : 0,
+          };
           etat_par_projet = record.Probabilite_de_mise_en_service_MES_Statut_du_projet || [];
           CO2_par_projet = record.Emissions_abattues_tCO2e_an_ || [];
           for (let i = 0; i < CO2_par_projet.length; i++) {
@@ -1463,11 +1490,34 @@
 
         function graphique_CO2_procede_annee(record, btnClear, cumule) {             // Trace le graphique à partir du dictionnaire construit par la fonction D_CO2_procede_annee
 
+          const btns = [document.getElementById('cumul-button-charts-procede'), document.getElementById('export-button-charts-procede')];
+          let doc = document.getElementById('canvas-charts-procede-1');
+          doc.className = 'canvas-charts-1-shown';
+
+          if (btnClear == true) {
+            btns[0].style.display = 'block';
+            btns[1].style.display = 'block';
+          }
+
+          const ctx = document.getElementById('barChartCO2parAnnee').getContext('2d');
+
+          if (chartCO2Procede) {
+            chartCO2Procede.destroy();
+            chartCO2Procede = null;
+          }
+
+          if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
+            if(btns[0].textContent == 'Abattement cumulé'){
+                cumule = false;
+            }
+            else{
+              cumule = true;
+            }
+          }
+
           const dict_donnees = D_CO2_procede_annee(record, cumule);
           const cles = Object.keys(dict_donnees);
           const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
-          const btns = [document.getElementById('hide-button-charts-procede'), document.getElementById('export-button-charts-procede')];
-          let doc = document.getElementById('canvas-charts-procede-1');
           if (!cles.length) {
             doc.className = 'canvas-charts-1-hidden';
             if (btnClear == true) {
@@ -1476,13 +1526,7 @@
             }
             return;
           }
-          doc.className = 'canvas-charts-1-shown';
-          if (btnClear == true) {
-            btns[0].style.display = 'block';
-            btns[0].textContent = 'Cacher';
-            btns[1].style.display = 'block';
-          }
-          const ctx = document.getElementById('barChartCO2parAnnee').getContext('2d');
+
           let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
           list_labels[list_labels.length - 1] = '2046-2050';
           list_annees[list_annees.length - 1] = 2048;
@@ -1580,7 +1624,7 @@
             skipNull: true,
           }))
 
-          const chart = new Chart(ctx, {
+          chartCO2Procede = new Chart(ctx, {
             type: 'bar',
             data: {
               labels: list_labels,
@@ -1665,7 +1709,7 @@
               maintainAspectRatio: false
             }
           });
-          return [chart, dataU];
+          return [chartCO2Procede, dataU];
         }
 
 
@@ -1675,6 +1719,10 @@
           const CO2_par_etat = D_sum_CO2_etat_projet(record);
           const data = Object.values(CO2_par_etat);
           const labels = Object.keys(CO2_par_etat);
+          let order = Array.from({ length: labels.length }, (_, i) => 0);
+          for (let i = 0 ; i < order.length ; i++){
+            order[i] = (labels[i] == 'Mis en service') ? 0 : (labels[i] == 'Certain') ? 1 : (labels[i] == 'Potentiel') ? 2 : (labels[i] == 'A risque') ? 3 : 4;
+          }
           if (!labels.length) return;
           const ctx = document.getElementById('pieChartCO2parEtat');
           const chart = new Chart(ctx, {
@@ -1683,7 +1731,8 @@
               datasets: [{
                 data: data,
                 backgroundColor: [... new Set(labels.map(l => window.getComputedStyle(document.head).getPropertyValue(`--color-background-${l.replaceAll(' ', '-').replaceAll('é', 'e').toLowerCase()}`)))],
-                borderColor: Array.from({ length: labels.length }, (_, i) => 'rgba(0,0,0,1)')
+                borderColor: Array.from({ length: labels.length }, (_, i) => 'rgba(0,0,0,1)'),
+                order: order
               }],
               labels: labels,
             },
@@ -2012,12 +2061,34 @@
 
 
         function graphique_abattement_par_annee_par_aide(records_aides, records_projets, btnClear, cumule) {
+          
+          const btns = [document.getElementById('cumul-button-charts-aide'), document.getElementById('export-button-charts-aide')];
+          let doc = document.getElementById('canvas-charts-aide-1');
+
+          doc.className = 'canvas-charts-1-shown';
+          if (btnClear == true) {
+            btns[0].style.display = 'block';
+            btns[1].style.display = 'block';
+          }
+          
+          if(chartCO2Aide){
+            chartCO2Aide.destroy();
+            chartCO2Aide = null;
+          }
+
+          if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
+            if(btns[0].textContent == 'Abattement cumulé'){
+                cumule = false;
+            }
+            else{
+              cumule = true;
+            }
+          }
 
           const dict_donnees = D_CO2_aide_annee(records_aides, records_projets, cumule);
           const cles = Object.keys(dict_donnees);
           const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
-          const btns = [document.getElementById('hide-button-charts-aide'), document.getElementById('export-button-charts-aide')];
-          let doc = document.getElementById('canvas-charts-aide-1');
+          
           if (!cles.length) {
             doc.className = 'canvas-charts-1-hidden';
             if (btnClear == true) {
@@ -2026,12 +2097,7 @@
             }
             return;
           }
-          doc.className = 'canvas-charts-1-shown';
-          if (btnClear == true) {
-            btns[0].style.display = 'block';
-            btns[0].textContent = 'Cacher';
-            btns[1].style.display = 'block';
-          }
+
           const ctx = document.getElementById('barChartCO2parAnneeAide').getContext('2d');
           let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
           list_labels[list_labels.length - 1] = '2046-2050';
@@ -2109,7 +2175,7 @@
             skipNull: true,
           }))
 
-          const chart = new Chart(ctx, {
+          chartCO2Aide = new Chart(ctx, {
             type: 'bar',
             data: {
               labels: list_labels,
@@ -2207,7 +2273,7 @@
               maintainAspectRatio: false
             }
           });
-          return chart;
+          return chartCO2Aide;
         }
 
 
@@ -2505,13 +2571,13 @@
           if (chartCO2Etat) chartCO2Etat.destroy();
           if (chartCO2Aide) chartCO2Aide.destroy();
           if (chartCO2PieAide) chartCO2PieAide.destroy();
-          resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true, true);
+          resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           if (resultCO2Procede) {
             chartCO2Procede = resultCO2Procede[0];
             currentDataExport = resultCO2Procede[1];
           }
           chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
-          chartCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, true);
+          chartCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           chartCO2Etat = graphique_CO2_etat_projet(filtered_records_projets);
           renderMap(filtered_records_sites, 'logarithmique');
         }
@@ -2749,11 +2815,11 @@
 
           renderMap(filtered_records_sites, 'logarithmique');
 
-          graphique_CO2_procede_annee(filtered_records_projets, true, true)[0];
+          graphique_CO2_procede_annee(filtered_records_projets, true, false)[0];
 
           graphique_CO2_etat_projet(filtered_records_projets);
 
-          graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, true);
+          graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, false);
 
           graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
 
