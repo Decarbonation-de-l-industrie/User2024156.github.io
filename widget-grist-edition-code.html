@@ -104,9 +104,9 @@
       --color-background-abandonne: #1A1A1A;
       --color-background-mis-en-service: #E5E5E5;
 
-      --color-background-n-a-: #1A1A1A;
+      --color-background-desengage: #1A1A1A;
       --color-background-pas-besoin-d-aide: #5C5C5C;
-      --color-background-interet: #E5E5E5;
+      --color-background-engage-et-mes: #E5E5E5;
       --color-background-engage: #A6A6A6;
 
 
@@ -2010,6 +2010,14 @@
         }
 
 
+        function D_Ab_AAP_Etat(record){
+          const anneesMES = record.Date_MES_estimee;
+          const co2_abattu = record.Gain_GES_an_tCO2eq_previsionnels;
+          const engagement = record.Engage_Desengage;
+          const montant = record.Montant_d_aide;
+          return [anneesMES, co2_abattu, engagement, montant];
+        }
+
         function D_CO2_aide_annee(records_aides,records_projets, cumule) {                     // Renvoie un dictionnaire du type : D { (année,aide) : CO2 abattu en MtCO2e/an }
 
           const D = {};
@@ -2070,7 +2078,7 @@
             btns[0].style.display = 'block';
             btns[1].style.display = 'block';
           }
-          
+
           if(chartCO2Aide){
             chartCO2Aide.destroy();
             chartCO2Aide = null;
@@ -2275,12 +2283,11 @@
           });
           return chartCO2Aide;
         }
-
+        
 
 
         function graphique_pie_CO2_aide_projet(record_aides,record_projets) {
-          const donnees = concatenation_Aides_Projets(records_aides,projets_Laureat_Aide(records_projets,records_aides));
-          // const aides = donnees[4];      
+          const donnees = D_Ab_AAP_Etat(records_aides); 
           const co2_abattu = donnees[1];
           const engagement = donnees[2];
           const montant = donnees[3];
