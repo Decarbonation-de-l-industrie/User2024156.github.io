@@ -1325,13 +1325,14 @@
 
         /* TRAITEMENT ET CALCUL SUR LES DONNEES */
 
-        function D_CO2_procede_annee(record) {                     // Renvoie un dictionnaire du type : D { (année,procédé) : CO2 abattu en MtCO2e/an }
+        function D_CO2_procede_annee(record, cumule) {                     // Renvoie un dictionnaire du type : D { (année,procédé) : CO2 abattu en MtCO2e/an }
 
           const D = {};
           const donnees_traitees = traitement_donnees_CO2_procede(record);
           const anneesMES = donnees_traitees[2];
           const procede = donnees_traitees[0];
           const co2_abattu = donnees_traitees[1];
+          const cles = Array.from({ length: 17 }, (_, i) => 2019 + i).concat([2038,2043,2048]);
 
           for (let i = 0; i < anneesMES.length; i++) {
             const annee = anneesMES[i];
@@ -1350,8 +1351,18 @@
               cleAnnee = annee;
             }
             if (cleAnnee != undefined) {
-              const cle = `${cleAnnee}|${procede[i]}`;                // cle String obtenues via la méthode .split()
-              D[cle] = (D[cle] ?? 0) + co2_abattu[i];                 // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+              if (cumule){
+                for (k of cles){
+                  if(k >= cleAnnee){
+                    const cle = `${k}|${procede[i]}`;                // cle String obtenues via la méthode .split()
+                    D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+                  }
+                }
+              }
+              else{
+                const cle = `${cleAnnee}|${procede[i]}`;                // cle String obtenues via la méthode .split()
+                D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0); 
+              }
             }
           }
           return D;
@@ -1450,9 +1461,9 @@
         let map;
         let markersLayer;
 
-        function graphique_CO2_procede_annee(record, btnClear) {             // Trace le graphique à partir du dictionnaire construit par la fonction D_CO2_procede_annee
+        function graphique_CO2_procede_annee(record, btnClear, cumule) {             // Trace le graphique à partir du dictionnaire construit par la fonction D_CO2_procede_annee
 
-          const dict_donnees = D_CO2_procede_annee(record);
+          const dict_donnees = D_CO2_procede_annee(record, cumule);
           const cles = Object.keys(dict_donnees);
           const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
           const btns = [document.getElementById('hide-button-charts-procede'), document.getElementById('export-button-charts-procede')];
@@ -1648,7 +1659,7 @@
                   stacked: true,
                   beginAtZero: false,
                   type: 'linear',
-                  suggestedMax: maxAnneeDataset(datasets)*1.1,
+                  //suggestedMax: maxAnneeDataset(datasets),
                 }
               },
               maintainAspectRatio: false
@@ -1950,7 +1961,7 @@
         }
 
 
-        function D_CO2_aide_annee(records_aides,records_projets) {                     // Renvoie un dictionnaire du type : D { (année,aide) : CO2 abattu en MtCO2e/an }
+        function D_CO2_aide_annee(records_aides,records_projets, cumule) {                     // Renvoie un dictionnaire du type : D { (année,aide) : CO2 abattu en MtCO2e/an }
 
           const D = {};
           const concat = concatenation_Aides_Projets(records_aides,projets_Laureat_Aide(records_projets,records_aides));
@@ -1959,6 +1970,7 @@
           const co2_abattu = concat[1];
           const engagement = concat[2];
           const montant = concat[3];
+          const cles = Array.from({ length: 17 }, (_, i) => 2019 + i).concat([2038,2043,2048]);
 
           for (let i = 0; i < anneesMES.length; i++) {
             const annee = anneesMES[i];
@@ -1979,9 +1991,19 @@
             else {
               cleAnnee = annee;
             }
-            if (cleAnnee != undefined && typeof cleAnnee == 'number') {
-              const cle = `${cleAnnee}|${aides[i]} : ${engagement[i]}`;                // cle String obtenues via la méthode .split()
-              D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                 // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+            if (cleAnnee != undefined) {
+              if (cumule){
+                for (k of cles){
+                  if(k >= cleAnnee){
+                    const cle = `${k}|${aides[i]} : ${engagement[i]}`;                 // cle String obtenues via la méthode .split()
+                    D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+                  }
+                }
+              }
+              else{
+                const cle = `${cleAnnee}|${aides[i]} : ${engagement[i]}`;              // cle String obtenues via la méthode .split()
+                D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0); 
+              }
             }
           }
           return D;
@@ -1989,9 +2011,9 @@
 
 
 
-        function graphique_abattement_par_annee_par_aide(records_aides, records_projets, btnClear) {
+        function graphique_abattement_par_annee_par_aide(records_aides, records_projets, btnClear, cumule) {
 
-          const dict_donnees = D_CO2_aide_annee(records_aides, records_projets);
+          const dict_donnees = D_CO2_aide_annee(records_aides, records_projets, cumule);
           const cles = Object.keys(dict_donnees);
           const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
           const btns = [document.getElementById('hide-button-charts-aide'), document.getElementById('export-button-charts-aide')];
@@ -2179,7 +2201,7 @@
                   stacked: true,
                   beginAtZero: false,
                   type: 'linear',
-                  suggestedMax: maxAnneeDataset(datasets)*1.1,
+                  //suggestedMax: maxAnneeDataset(datasets)*1.1,
                 }
               },
               maintainAspectRatio: false
@@ -2483,13 +2505,13 @@
           if (chartCO2Etat) chartCO2Etat.destroy();
           if (chartCO2Aide) chartCO2Aide.destroy();
           if (chartCO2PieAide) chartCO2PieAide.destroy();
-          resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
+          resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true, true);
           if (resultCO2Procede) {
             chartCO2Procede = resultCO2Procede[0];
             currentDataExport = resultCO2Procede[1];
           }
           chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
-          chartCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
+          chartCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, true);
           chartCO2Etat = graphique_CO2_etat_projet(filtered_records_projets);
           renderMap(filtered_records_sites, 'logarithmique');
         }
@@ -2727,11 +2749,11 @@
 
           renderMap(filtered_records_sites, 'logarithmique');
 
-          graphique_CO2_procede_annee(filtered_records_projets, true)[0];
+          graphique_CO2_procede_annee(filtered_records_projets, true, true)[0];
 
           graphique_CO2_etat_projet(filtered_records_projets);
 
-          graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
+          graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, true);
 
           graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
 
