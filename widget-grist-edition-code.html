@@ -2455,7 +2455,7 @@
             <div class="detail"><span class="k">Périmètre</span><span class="v">${htmlEscape(perimetre || "—")}</span></div>
             <div class="detail"><span class="k">ZIBaC</span><span class="v">${htmlEscape(zibac || "—")}</span></div>
             <div class="detail"><span class="k">Emissions GES 2025</span><span class="v">${htmlEscape(last_ges || "—")}</span><span class="k">${last_ges == null || typeof last_ges == 'string' ? '' : ' tCO2'}</span></div>
-            <div class="detail full"><span class="k">Adresse</span><span class="v">${htmlEscape([cp, commune].filter(Boolean).join(" ") || "—")}</span></div>
+            <div class="detail"><span class="k">Adresse</span><span class="v">${htmlEscape([cp, commune].filter(Boolean).join(" ") || "—")}</span></div>
           </div>
         `;
 
@@ -2494,10 +2494,12 @@
             matches.forEach(item => {
               const li = document.createElement("li");
               li.textContent = item;
-              li.addEventListener("click", () => {
+              li.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 input.value = item;
                 list.innerHTML = "";
-                applyFilters();
+                applyFilters(true); // true => on force la fermeture de la liste malgré le rebuild interne
               }, { signal });
               list.appendChild(li);
             });
@@ -2510,7 +2512,7 @@
           input.addEventListener("click", buildList, { signal });
 
           // Ferme si clic ailleurs
-          document.addEventListener("click", e => {
+          document.addEventListener("mousedown", e => {
             if (e.target !== input) list.innerHTML = "";
           }, { signal });
 
@@ -2695,7 +2697,7 @@
           return copy;
         }
 
-        function applyFilters() {
+        function applyFilters(closeSuggestions = false) {
           const filters = getFilters();
           filtered_records_projets = deepCopyRecord(records_projets);
           filtered_records_aides = deepCopyRecord(records_aides);
@@ -2741,7 +2743,7 @@
             filtered_records_aides = filterTable(filtered_records_aides, 'Nom_du_site', filters.search);
             filtered_records_sites = filterTable(filtered_records_sites, 'name_site', filters.search);
             renderList(filtered_records_sites, false);
-            renderSuggestion(filtered_records_sites, false, test_filtre);
+            renderSuggestion(filtered_records_sites, closeSuggestions, test_filtre);
           }
           if (filters.search.length < 3) {
             renderList(filtered_records_sites, true);
@@ -2843,7 +2845,7 @@
             t = setTimeout(applyFilters, 250);
           });
 
-          document.addEventListener("click", e => {
+          document.addEventListener("mousedown", e => {
             const input = document.getElementById("search-by-name");
             const list = document.getElementById("suggestions");
             if (e.target !== input) list.innerHTML = "";
