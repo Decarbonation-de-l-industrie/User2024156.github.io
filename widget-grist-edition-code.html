@@ -1259,7 +1259,9 @@
             currentDataExportProcede = graph[1];
           }
           if (boutonParId[idCible].endsWith('aide')){
-            graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, false, !estCumule);
+            const graph = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, false, !estCumule);
+            chartCO2Aide = graph[0];
+            currentDataExportAide = graph[1];
           }
           
         }
@@ -1289,7 +1291,7 @@
         function exportToExcel(dataU, filename) {
           const titre = ['Emissions abattues en ktCO2e/an'];
           const premLigne = dataU.data.map(dU => dU.annee);         // ['2019', '2020', ...]
-          const premColonne = dataU.labels;                          // ['Hydrogène', 'CCS', ...]
+          const premColonne = dataU.labels;                          // ['Hydrogène', 'CCS', ...] ou ['AOGPID : Engagé', '', ...]
 
           const colonnes = [titre.concat(premLigne), ...premColonne.map(p => [p, ...Array(premLigne.length).fill(0)])];
 
@@ -2126,7 +2128,15 @@
           let pointStyle = Array.from({ length: list_aide.length }, (_, i) => false);
           let order = Array.from({ length: list_aide.length }, (_, i) => 0);
           let aideOrderAlph = strSort([...new Set(cles.map(k => k.split('|')[1].split(' :')[0]))]);
-          
+
+          let dataU = {
+            labels: list_aide.map(a => a.startsWith(' : ') ? a.slice(3) : a),
+            data: list_annees.map((a, i) => ({
+              annee: list_labels[i],
+              emissions: Object.fromEntries(list_aide.map(p => [p.startsWith(' : ') ? p.slice(3) : p, isNaN(dict_donnees[`${a}|${p}`]) == false ? dict_donnees[`${a}|${p}`] : 0]),
+              ),
+            })),
+          };                                                                                                          // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
 
           ///  Style du graph avec couleurs par type d'aides  /// 
 
@@ -2283,7 +2293,7 @@
               maintainAspectRatio: false
             }
           });
-          return chartCO2Aide;
+          return [chartCO2Aide,dataU];
         }
         
 
@@ -2581,12 +2591,16 @@
           if (chartCO2Aide) chartCO2Aide.destroy();
           if (chartCO2PieAide) chartCO2PieAide.destroy();
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
+          resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           if (resultCO2Procede) {
             chartCO2Procede = resultCO2Procede[0];
             currentDataExportProcede = resultCO2Procede[1];
           }
+          if (resultCO2Aide) {
+            chartCO2Aide = resultCO2Aide[0];
+            currentDataExportAide = resultCO2Aide[1];
+          }
           chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
-          chartCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           chartCO2Etat = graphique_CO2_etat_projet(filtered_records_projets);
           renderMap(filtered_records_sites, 'logarithmique');
         }
@@ -2824,7 +2838,7 @@
 
           renderMap(filtered_records_sites, 'logarithmique');
 
-          graphique_CO2_procede_annee(filtered_records_projets, true, false)[0];
+          graphique_CO2_procede_annee(filtered_records_projets, true, false);
 
           graphique_CO2_etat_projet(filtered_records_projets);
 
