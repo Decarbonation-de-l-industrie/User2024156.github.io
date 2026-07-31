@@ -2057,13 +2057,17 @@
                 for (k of cles){
                   if(k >= cleAnnee){
                     const cle = `${k}|${aides[i]} : ${engagement[i]}`;                 // cle String obtenues via la méthode .split()
-                    D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+                    D[cle] = (D[cle] ?? [0,0]);
+                    D[cle][0] = D[cle][0] + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+                    D[cle][1] = D[cle][1] + (typeof montant[i] == 'number' ? montant[i] : 0);
                   }
                 }
               }
               else{
                 const cle = `${cleAnnee}|${aides[i]} : ${engagement[i]}`;              // cle String obtenues via la méthode .split()
-                D[cle] = (D[cle] ?? 0) + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0); 
+                D[cle] = (D[cle] ?? [0,0]);
+                D[cle][0] = D[cle][0] + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+                D[cle][1] = D[cle][1] + (typeof montant[i] == 'number' ? montant[i] : 0);
               }
             }
           }
@@ -2133,7 +2137,7 @@
             labels: list_aide.map(a => a.startsWith(' : ') ? a.slice(3) : a),
             data: list_annees.map((a, i) => ({
               annee: list_labels[i],
-              emissions: Object.fromEntries(list_aide.map(p => [p.startsWith(' : ') ? p.slice(3) : p, isNaN(dict_donnees[`${a}|${p}`]) == false ? dict_donnees[`${a}|${p}`] : 0]),
+              emissions: Object.fromEntries(list_aide.map(p => [p.startsWith(' : ') ? p.slice(3) : p, isNaN(typeof dict_donnees[`${a}|${p}`] == 'object' ? dict_donnees[`${a}|${p}`][0] : 'NaN') == false ? dict_donnees[`${a}|${p}`][0] : 0]),
               ),
             })),
           };                                                                                                          // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
@@ -2183,7 +2187,8 @@
 
           const datasets = list_aide.map((aide,i) => ({
             label: aide,
-            data: list_annees.map(a => dict_donnees[`${a}|${aide}`] ?? 0),
+            data: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][0] : 0),
+            montant: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][1] : 0),
             order : order[i],
             backgroundColor: backgroundColors[i % backgroundColors.length],
             borderColor: borderColors[i],
@@ -2268,10 +2273,12 @@
                       return `Prévisionnel des émissions abattues par dispositif d'aide en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
                     },
                     label: function (context) {
-                      const value = context.raw; // Raw data value (e.g., 1200)
+                      const value = context.raw; // Raw data value (e.g., 1200);
                       const labels = context.dataset.label;
+                      let mt = typeof context.dataset.montant[context.dataIndex] == 'number' ? context.dataset.montant[context.dataIndex] : 0;
                       const formatedValue = Math.floor(value / 1000);
-                      return `${labels} : ${formatedValue} kt CO2e`; // Custom label
+                      const formatedMontant = Math.floor(mt / 1000);
+                      return `${labels} : ${formatedValue} kt CO2e pour ${formatedMontant} k€ d'aides`; // Custom label
                     },
                   }
                 },
