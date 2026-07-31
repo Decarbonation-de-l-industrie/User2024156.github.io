@@ -2389,7 +2389,10 @@
           acc.innerHTML = "";
           emptyLeft.style.display = "none";
 
-          if (!records['name_site'].length || hide == true) {
+          if (hide == true){
+            return;
+          }
+          if (!records['name_site'].length) {
             emptyLeft.textContent = "Aucun résultat avec cette recherche.";
             emptyLeft.style.display = "block";
             return;
@@ -2404,7 +2407,7 @@
             const last_ges = records['ges_2025'][i] != -1 ? records['ges_2025'][i] : records['ges_2024'][i] != -1 ? records['ges_2024'][i] : '0 émissions ou données incomplètes';
             const entreprise = records['entreprise'][i];
             const perimetre = records['Perimetre'][i];
-            const zibac = records['ZIBaC'][i];
+            const zibac = records['ZIBaC_data'][i];
 
             const item = document.createElement("div");
             item.className = "company-item";
@@ -2714,7 +2717,7 @@
             renderSuggestion(filtered_records_sites, false, test_filtre);
           }
           if (filters.search.length < 3) {
-            renderList(filtered_records_sites, true, false);
+            renderList(filtered_records_sites, true);
           }
           majGraphiques();
         }
