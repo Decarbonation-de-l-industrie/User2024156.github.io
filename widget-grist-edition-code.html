@@ -280,6 +280,21 @@
       margin-top: 2px;
     }
 
+    /* La ligne recherche + bouton s'aligne sur le haut des champs (label vs label) */
+    .filters-row--search {
+      align-items: flex-start;
+    }
+
+    /* Label invisible pour que le bouton tombe au même niveau que l'input */
+    .label--hidden {
+      visibility: hidden;
+    }
+
+    /* Le groupe du bouton ne doit pas grandir */
+    .form-group--btn {
+      min-width: unset;
+    }
+
     /* Wrapper principal — reprend la forme pilule de .form-control */
     #selectRegion+.ts-wrapper .ts-control,
     .ts-wrapper .ts-control {
@@ -810,31 +825,36 @@
               <option value="">Toutes</option>
             </select>
           </div>
+
+          <div class="form-group">
+            <label for="selectLevier">Levier de décarbonation</label>
+            <select class="form-control" id="selectLevier">
+              <option value="">Tous</option>
+            </select>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="selectLevier">Levier de décarbonation</label>
-          <select class="form-control" id="selectLevier">
-            <option value="">Tous</option>
-          </select>
-        </div>
 
-        <div class="filters-row">
+        <div class="filters-row filters-row--search">
           <div class="form-group form-group--grow">
             <label for="search-by-name">Nom du site</label>
-            <input class="form-control" id="search-by-name" type="text" placeholder="Rechercher le nom d’un site..." />
+            <input class="form-control" id="search-by-name" type="text" placeholder="Rechercher le nom d'un site..." />
             <ul id="suggestions"></ul>
             <div class="hint">Astuce : tapez 3+ caractères pour filtrer rapidement.</div>
           </div>
 
-          <div class="form-group">
-            <button class="btn" type="button" id="btnSearch">Rechercher</button>
-          </div>
-
-          <div class="form-group">
+          <div class="form-group form-group--btn">
+            <label class="label--hidden">Action</label>
             <button class="btn secondary" type="button" id="btnClear">Effacer la sélection</button>
           </div>
         </div>
+
+          <!--
+          <div class="form-group">
+            <button class="btn" type="button" id="btnSearch">Rechercher</button>
+          </div>
+          -->
+
       </section>
 
 
@@ -2186,7 +2206,7 @@
 
 
           const datasets = list_aide.map((aide,i) => ({
-            label: aide,
+            label: aide.startsWith(' : ') ? aide.slice(3) : aide,
             data: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][0] : 0),
             montant: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][1] : 0),
             order : order[i],
@@ -2813,7 +2833,7 @@
           const ids = ["selectRegion", "selectZIBaC", "selectFiliere", "selectPerimetre", "selectLevier"];
           for (const id of ids) document.getElementById(id).addEventListener("change", applyFilters);
 
-          document.getElementById("btnSearch").addEventListener("click", applyFilters);
+          // document.getElementById("btnSearch").addEventListener("click", applyFilters);
           document.getElementById("btnClear").addEventListener("click", clearFilters);
 
           // recherche live (sans spam) : on attend 250ms
