@@ -1663,7 +1663,7 @@
                   font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'center',
                   display: true,
-                  text: cumule ? "Abattement cumulé par les projets déployés, ktCO2, 2019-2050 " : "Abattement annuel par les projets déployés, ktCO2e/an, 2019-2050",
+                  text: cumule ? "Abattement cumulé par les projets déployés, ktCO2e/an, 2019-2050 " : "Abattement annuel par les projets déployés, ktCO2e/an, 2019-2050",
                 },
                 tooltip: {
                   mode: 'x',
@@ -1685,7 +1685,7 @@
                     },
                     title: function (context) {
                       const anneeMES = context[0].label;
-                      return `Prévisionnel des émissions abattues par procédés en ${anneeMES.toLowerCase()} (en kt CO2e)`;
+                      return `Prévisionnel des émissions abattues par procédés en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
                     },
                     label: function (context) {
                       const value = context.raw; // Raw data value (e.g., 1200)
@@ -2243,7 +2243,7 @@
                   font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'center',
                   display: true,
-                  text: cumule ? "Abattement cumulé, par dispositif d'aide, ktCO2, 2019-2050 " : "Abattement annuel, par dispositif d'aide, ktCO2e/an, 2019-2050",
+                  text: cumule ? "Abattement cumulé, par dispositif d'aide, ktCO2e/an, 2019-2050 " : "Abattement annuel, par dispositif d'aide, ktCO2e/an, 2019-2050",
                 },
                 tooltip: {
                   mode: 'x',
@@ -2265,7 +2265,7 @@
                     },
                     title: function (context) {
                       const anneeMES = context[0].label;
-                      return `Prévisionnel des émissions abattues par dispositif d'aide en ${anneeMES.toLowerCase()} (en kt CO2e)`;
+                      return `Prévisionnel des émissions abattues par dispositif d'aide en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
                     },
                     label: function (context) {
                       const value = context.raw; // Raw data value (e.g., 1200)
