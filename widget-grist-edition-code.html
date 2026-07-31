@@ -882,7 +882,7 @@
       <header class='section-header'>
         <h1>Projets de décarbonation</h1>
         <div id="map-buttons">
-          <button class="btn secondary" onclick="exportToExcel(currentDataExport,'Extraction_Base_Projet_filtrée.xlsx')"
+          <button class="btn secondary" onclick="exportToExcel(currentDataExportProcede,'Extraction_abattement_par_procede.xlsx')"
             id="export-button-charts-procede">Exporter données</button>
           <button class='btn secondary' onclick="switchCumul('canvas-charts-procede-1')"
             id="cumul-button-charts-procede">Abattement cumulé</button>
@@ -906,7 +906,7 @@
       <header class='section-header'>
         <h1>Dispositifs de soutien</h1>
         <div id="map-buttons">
-          <button class="btn secondary" onclick="exportToExcel(currentDataExport,'Extraction_Base_Projet_filtrée.xlsx')"
+          <button class="btn secondary" onclick="exportToExcel(currentDataExportAide,'Extraction_abattement_par_dispositif.xlsx')"
             id="export-button-charts-aide">Exporter données</button>
           <button class='btn secondary' onclick="switchCumul('canvas-charts-aide-1')"
             id="cumul-button-charts-aide">Abattement cumulé</button>
@@ -941,7 +941,7 @@
         let filtered_records_projets;
         let filtered_records_aides;
         let filtered_records_sites;
-        let currentDataExport;
+        let currentDataExportProcede;
 
         /// PLUGINS POUR LES GRAPHS ///
 
@@ -1254,7 +1254,9 @@
           btn.textContent = estCumule ? 'Abattement cumulé' : "Abattement à l'année de MES";
 
           if (boutonParId[idCible].endsWith('procede')){
-            graphique_CO2_procede_annee(filtered_records_projets, false, !estCumule);
+            const graph = graphique_CO2_procede_annee(filtered_records_projets, false, !estCumule);
+            chartCO2Procede = graph[0];
+            currentDataExportProcede = graph[1];
           }
           if (boutonParId[idCible].endsWith('aide')){
             graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, false, !estCumule);
@@ -1545,8 +1547,8 @@
 
           let dataU = {
             labels: list_procede,
-            data: list_labels.map((a, i) => ({
-              annee: a,
+            data: list_annees.map((a, i) => ({
+              annee: list_labels[i],
               emissions: Object.fromEntries(list_procede.map(p => [p, isNaN(dict_donnees[`${a}|${p}`]) == false ? dict_donnees[`${a}|${p}`] : 0]),
               ),
             })),
@@ -1659,7 +1661,7 @@
                   font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'center',
                   display: true,
-                  text: 'Déploiement des projets (abandonnés exclus), ktCO2e/an, 2019-2050',
+                  text: cumule ? "Abattement cumulé par les projets déployés, ktCO2, 2019-2050 " : "Abattement annuel par les projets déployés, ktCO2e/an, 2019-2050",
                 },
                 tooltip: {
                   mode: 'x',
@@ -2231,7 +2233,7 @@
                   font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'center',
                   display: true,
-                  text: "Emissions abattues par des projets, par dispositif d'aide, ktCO2e/an, 2019-2050",
+                  text: cumule ? "Abattement cumulé, par dispositif d'aide, ktCO2, 2019-2050 " : "Abattement annuel, par dispositif d'aide, ktCO2e/an, 2019-2050",
                 },
                 tooltip: {
                   mode: 'x',
@@ -2581,7 +2583,7 @@
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           if (resultCO2Procede) {
             chartCO2Procede = resultCO2Procede[0];
-            currentDataExport = resultCO2Procede[1];
+            currentDataExportProcede = resultCO2Procede[1];
           }
           chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
           chartCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
