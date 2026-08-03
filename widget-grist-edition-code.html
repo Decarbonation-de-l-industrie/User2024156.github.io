@@ -276,6 +276,86 @@
       bottom: -30px;
     }
 
+    /*   Style des blocs en en-tête de chaque section   */
+
+    .block-wrapper {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      width:100%;
+      padding-top:10px;
+    }
+
+    .stat-block {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px 24px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* Label au-dessus de la valeur principale */
+    .stat-block__label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #6b7280;
+    }
+
+    /* Donnée principale : gros contraste visuel */
+    .stat-block__value {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--color-brand-blue, #1e3a8a);
+      line-height: 1.1;
+    }
+
+    .stat-block__unit {
+      font-size: 16px;
+      font-weight: 500;
+      color: #9ca3af;
+      margin-left: 6px;
+    }
+
+    /* Séparateur visuel avant les données secondaires */
+    .stat-block__secondary {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .stat-block__secondary-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .stat-block__secondary-label {
+      color: #6b7280;
+    }
+
+    .stat-block__secondary-value {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .stat-block__secondary-value--positive {
+      color: #16a34a;
+    }
+
+    .stat-block__secondary-value--negative {
+      color: #dc2626;
+    }
+
     /* La ligne recherche + bouton s'aligne sur le haut des champs (label vs label) */
     .filters-row--search {
       align-items: flex-start;
@@ -894,6 +974,8 @@
         </div>
       </header>
 
+      <div id="block-wrapper-procede" class="block-wrapper"></div>
+
 
       <div class="chart-wrapper">
         <div id='canvas-charts-procede-1' class='canvas-charts-1-shown'>
@@ -917,6 +999,10 @@
             id="export-button-charts-aide">Exporter données</button>
         </div>
       </header>
+
+      <div id="block-wrapper-aide" class="block-wrapper"></div>
+
+      <div id="block-wrapper-emission" class="block-wrapper"></div>
 
 
       <div class="chart-wrapper">
@@ -982,6 +1068,174 @@
             });
           }
         };
+
+        function createStatBlock({ label, value, unit, secondaryItems = [] }) {
+          // 1. Élément racine
+          const block = document.createElement('div');
+          block.classList.add('stat-block');
+
+          // 2. Label
+          const labelEl = document.createElement('div');
+          labelEl.classList.add('stat-block__label');
+          labelEl.textContent = label;
+          block.appendChild(labelEl);
+
+          // 3. Valeur principale + unité
+          const valueEl = document.createElement('div');
+          valueEl.classList.add('stat-block__value');
+          valueEl.textContent = value;
+
+          const unitEl = document.createElement('span');
+          unitEl.classList.add('stat-block__unit');
+          unitEl.textContent = unit;
+          valueEl.appendChild(unitEl);
+
+          block.appendChild(valueEl);
+
+          // 4. Bloc secondaire (uniquement si des items sont fournis)
+          if (secondaryItems.length > 0) {
+            const secondaryEl = document.createElement('div');
+            secondaryEl.classList.add('stat-block__secondary');
+
+            secondaryItems.forEach(item => {
+              const itemEl = document.createElement('div');
+              itemEl.classList.add('stat-block__secondary-item');
+
+              const itemLabel = document.createElement('span');
+              itemLabel.classList.add('stat-block__secondary-label');
+              itemLabel.textContent = item.label;
+
+              const itemValue = document.createElement('span');
+              itemValue.classList.add('stat-block__secondary-value');
+              if (item.variant) {
+                // classe modificatrice conditionnelle (ex: 'positive' / 'negative')
+                itemValue.classList.add(`stat-block__secondary-value--${item.variant}`);
+              }
+              itemValue.textContent = item.value;
+
+              itemEl.appendChild(itemLabel);
+              itemEl.appendChild(itemValue);
+              secondaryEl.appendChild(itemEl);
+            });
+
+            block.appendChild(secondaryEl);
+          }
+
+          // 5. On retourne l'élément prêt à être inséré, sans l'insérer nous-même
+          return block;
+        }
+
+        function insertStatBlock(item, idCible) {
+          const container = document.getElementById(idCible);
+          if (!container) {
+            console.error(`Conteneur introuvable : #${idCible}`);
+            return;
+          }
+          const block = createStatBlock({
+            label: item.label,
+            value: item.value,
+            unit: item.unit,
+            secondaryItems: item.secondaryItems
+          });
+          container.appendChild(block);
+        }
+
+        function buildStatBlocks(record_projets, record_sites, record_aides) {
+          const sections = {
+            procede: blockProcede(record_projets, record_sites),
+            aide: blockAide(record_aides),
+            emission: blockEmission(record_projets, record_sites)
+          };
+          for (const s of Object.keys(sections)) {
+            const wrapper = document.getElementById(`block-wrapper-${s}`);
+            wrapper.replaceChildren();
+            for (const b of Object.values(sections[s])) {
+              insertStatBlock(b, `block-wrapper-${s}`);
+            }
+          }
+        }
+
+        function blockProcede(record_projets, record_sites) {
+          const b1 = {};
+          const b2 = {};
+          const b3 = {};
+          const b4 = {};
+          const blocks = [b1, b2, b3, b4];
+          const data_traite = traitement_donnees_CO2_procede(record_projets);
+
+          const nb_projets = data_traite[0].length;
+          const nb_projets_MES = data_traite[3].filter(v => v === 'Mis en service').length;
+          b1.value = `${nb_projets}`;
+          b1.label = 'Nombre de Projets';
+          b1.unit = 'projets';
+          b1.secondaryItems = [{ label: "Mis en service", value: `${(nb_projets_MES / nb_projets) * 100} %` }];
+
+          const abat_tot = sumList(data_traite[1]);
+          b2.value = `${abat_tot / 1000}`;
+          b2.label = 'Montant total abattu';
+          b2.unit = 'kt CO2e/an';
+
+          const capex_tot = sumList(data_traite[4]);
+          b3.value = `${capex_tot}`;
+          b3.label = 'Montant total de CAPEX';
+          b3.unit = '€';
+
+          const puissance_elec_tot = sumList(data_traite[5]); // nécessite le fix ci-dessous dans traitement_donnees_CO2_procede
+          const nb_sites_raccord = record_sites.Besoin_de_raccordement.filter(v => v !== false).length;
+          b4.value = `${puissance_elec_tot}`;
+          b4.label = 'Puissance électrique totale';
+          b4.unit = 'MW';
+          b4.secondaryItems = [{ label: 'Sites avec besoin de raccordement', value: `${nb_sites_raccord} sites` }];
+
+          return blocks;
+        }
+
+        function blockAide(record) {
+          const b1 = {};
+          const b2 = {};
+          const b3 = {};
+          const blocks = [b1, b2, b3];
+
+          const nb_aides = etatBaseAide(record).Engage_Desengage.length;
+          const nb_aides_MES = record.Engage_Desengage.filter(v => v == 'Engagé et MES').length;
+          b1.value = `${nb_aides}`;
+          b1.label = "Nombre d'aides engagées";
+          b1.unit = 'aides';
+
+          const abat_tot_aides = sumList(etatBaseAide(record).Gain_GES_an_tCO2eq_previsionnels);
+          b2.value = `${abat_tot_aides / 1000}`;
+          b2.label = 'Abattement total des aides';
+          b2.unit = 'kt CO2e/an';
+
+          const abat_aides_MES = sumList(etatBaseAide(record, true).Gain_GES_an_tCO2eq_previsionnels);
+          b3.value = `${(abat_aides_MES / abat_tot_aides) * 100}`;
+          b3.label = 'Dispositifs mis en service';
+          b3.unit = "% de l'abattement total";
+          b3.secondaryItems = [{
+            label: 'Dispositifs désengagés',
+            value: `${((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100} % de dispositifs désengagés`
+          }];
+
+          return blocks;
+        }
+
+        function blockEmission(record) {
+          const b1 = {};
+          const b2 = {};
+          const b3 = {};
+          const b4 = {};
+          const blocks = [b1, b2, b3, b4];
+          for (const b of blocks) {
+            b.label = "Émissions évitées";
+            b.value = "1 248";
+            b.unit = "kt CO2e";
+            b.secondaryItems = [
+              { label: "Objectif 2030", value: "2 500 kt" },
+              { label: "Évolution", value: "+12,4 %", variant: "positive" }
+            ];
+          }
+          return blocks; 
+        }
 
 
         function getOrCreateLegendContainer(chart, containerId){
@@ -1347,6 +1601,14 @@
         }
         */
 
+        function sumList(list){
+          let S = 0;
+          for (e of list){
+            S += e;
+          }
+          return S;
+        }
+
         function maxAnneeDataset(dataset){
           const list_annees = Array.from({ length: 20 }, (_, i) => 0);
           for(let i = 0 ; i < dataset.length ; i++){
@@ -1408,55 +1670,51 @@
 
 
 
-        function traitement_donnees_CO2_procede(record) {                      // On s'affranchit des procédés non indiqués ou sans le bon format
-          procede_non_traite = record.Procede || [];
-          CO2_non_traite = record.Emissions_abattues_tCO2e_an_ || [];
-          annee_non_traite = record.Annee_MES_prevue || [];
-          etat_proj_non_traite = record.Probabilite_de_mise_en_service_MES_Statut_du_projet || [];
-          procede_traite = [];
-          CO2_traite = [];
-          annee_traite = [];
-          etat_proj_traite = [];
-          index = 0;
+        function traitement_donnees_CO2_procede(record) {
+          const procede_non_traite = record.Procede || [];
+          const CO2_non_traite = record.Emissions_abattues_tCO2e_an_ || [];
+          const annee_non_traite = record.Annee_MES_prevue || [];
+          const etat_proj_non_traite = record.Probabilite_de_mise_en_service_MES_Statut_du_projet || [];
+          const capex_proj_non_traite = record.CAPEX_prevus_ || [];
+          const P_raccord_non_traite = record.Puissance_elec_MW_ || [];
+          const bes_raccord_non_traite = record.Besoin_raccordement_elec || [];
+
+          const procede_traite = [];
+          const CO2_traite = [];
+          const annee_traite = [];
+          const etat_proj_traite = [];
+          const capex_proj_traite = [];
+          const P_raccord_traite = [];
+          const bes_raccord_traite = [];
+          let index = 0;
+
           for (let i = 0; i < procede_non_traite.length; i++) {
-            if (procede_non_traite[i] == null || procede_non_traite[i] == '0' || procede_non_traite[i] == '-1' || annee_non_traite[i] == 0 || typeof annee_non_traite[i] != 'number' || etat_proj_non_traite[i] == 'Abandonné') { }
-            else if (procede_non_traite[i].includes('Hydrogène')) {
-              procede_traite[index] = 'Hydrogène';
-              CO2_traite[index] = CO2_non_traite[i];
-              annee_traite[index] = annee_non_traite[i];
-              etat_proj_traite[index] = etat_proj_non_traite[i];
-              index += 1;
+            if (procede_non_traite[i] == null || procede_non_traite[i] == '0' || procede_non_traite[i] == '-1'
+                || annee_non_traite[i] == 0 || typeof annee_non_traite[i] != 'number'
+                || etat_proj_non_traite[i] == 'Abandonné') {
+              continue;
             }
-            else if (procede_non_traite[i].includes('Biogaz')) {
-              procede_traite[index] = 'Biogaz';
-              CO2_traite[index] = CO2_non_traite[i];
-              annee_traite[index] = annee_non_traite[i];
-              etat_proj_traite[index] = etat_proj_non_traite[i];
-              index += 1;
-            }
-            else if (procede_non_traite[i].includes('CCS')) {
-              procede_traite[index] = 'CCS';
-              CO2_traite[index] = CO2_non_traite[i];
-              annee_traite[index] = annee_non_traite[i];
-              etat_proj_traite[index] = etat_proj_non_traite[i];
-              index += 1;
-            }
-            else if (procede_non_traite[i].includes('Autre')) {
-              procede_traite[index] = 'Autre changement de procédé';
-              CO2_traite[index] = CO2_non_traite[i];
-              annee_traite[index] = annee_non_traite[i];
-              etat_proj_traite[index] = etat_proj_non_traite[i];
-              index += 1;
-            }
-            else {
-              CO2_traite[index] = CO2_non_traite[i];
-              annee_traite[index] = annee_non_traite[i];
-              procede_traite[index] = procede_non_traite[i];
-              etat_proj_traite[index] = etat_proj_non_traite[i];
-              index += 1;
-            }
+
+            let procedeNorm;
+            if (procede_non_traite[i].includes('Hydrogène')) procedeNorm = 'Hydrogène';
+            else if (procede_non_traite[i].includes('Biogaz')) procedeNorm = 'Biogaz';
+            else if (procede_non_traite[i].includes('CCS')) procedeNorm = 'CCS';
+            else if (procede_non_traite[i].includes('Autre')) procedeNorm = 'Autre changement de procédé';
+            else procedeNorm = procede_non_traite[i];
+
+            procede_traite[index] = procedeNorm;
+            CO2_traite[index] = CO2_non_traite[i];
+            annee_traite[index] = annee_non_traite[i];
+            etat_proj_traite[index] = etat_proj_non_traite[i];
+            capex_proj_traite[index] = typeof capex_proj_non_traite[i] == 'number' ? capex_proj_non_traite[i] : 0;
+            P_raccord_traite[index] = typeof P_raccord_non_traite[i] == 'number' ? P_raccord_non_traite[i] : 0;
+            bes_raccord_traite[index] = (typeof bes_raccord_non_traite[i] == 'string' && !bes_raccord_non_traite[i].includes('#'))
+              ? bes_raccord_non_traite[i]
+              : 'Non';
+            index += 1;
           }
-          return [procede_traite, CO2_traite, annee_traite, etat_proj_traite];
+
+          return [procede_traite, CO2_traite, annee_traite, etat_proj_traite, capex_proj_traite, P_raccord_traite, bes_raccord_traite];
         }
 
         function D_sum_CO2_etat_projet(record) {
@@ -2004,12 +2262,12 @@
           return laureats;
         }
 
-        function etatBaseAide(record){                      // Exclu les aides désengagées des données
+        function etatBaseAide(record,mes=false){                      // Exclu les aides désengagées des données
           const aideExclu = {};
           const keys = Object.keys(record);
           const indicesAGarder = [];
           for (let i = 0 ; i < record.Engage_Desengage.length ; i++){
-            if (record.Engage_Desengage[i] != 'Désengagé'){
+            if ((!mes && record.Engage_Desengage[i] != 'Désengagé') || (record.Engage_Desengage[i] == 'Engagé et MES')){
               indicesAGarder.push(i);
             }
           }
@@ -2620,6 +2878,7 @@
           if (chartCO2Etat) chartCO2Etat.destroy();
           if (chartCO2Aide) chartCO2Aide.destroy();
           if (chartCO2PieAide) chartCO2PieAide.destroy();
+          buildStatBlocks(records_projets,records_sites,records_aides);
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           if (resultCO2Procede) {
@@ -2855,7 +3114,7 @@
           document.addEventListener("DOMContentLoaded", function (event) {
             new TomSelect('select', settings);
           });
-
+          buildStatBlocks(records_projets,records_sites,records_aides);
 
 
           renderMap(filtered_records_sites, 'logarithmique');
