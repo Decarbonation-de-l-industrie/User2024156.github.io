@@ -293,20 +293,20 @@
       flex-direction: column;
       gap: 12px;
       padding: 20px 24px;
-      background: #fff;
+      background: #F0EBE3;
       border-radius: 12px;
       border: 1px solid rgba(0, 0, 0, 0.08);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: var(--font-primary);
     }
 
     /* Label au-dessus de la valeur principale */
     .stat-block__label {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: #6b7280;
+      color: #303339;
     }
 
     /* Donnée principale : gros contraste visuel */
@@ -318,9 +318,9 @@
     }
 
     .stat-block__unit {
-      font-size: 16px;
-      font-weight: 500;
-      color: #9ca3af;
+      font-size: 22px;
+      font-weight: 600;
+      color: #686d75;
       margin-left: 6px;
     }
 
@@ -336,11 +336,11 @@
     .stat-block__secondary-item {
       display: flex;
       justify-content: space-between;
-      font-size: 13px;
+      font-size: 16px;
     }
 
     .stat-block__secondary-label {
-      color: #6b7280;
+      color: #686d75;
     }
 
     .stat-block__secondary-value {
@@ -937,17 +937,20 @@
 
       <header class='section-header'>
         <h1>Cartographie des sites</h1>
+
+        <!--
         <div id="map-buttons">
-          <!--
           <button class="btn secondary" onclick="redrawMap('constant')" id="const-button-map">Rayons constants</button>
           <button class="btn secondary" onclick="redrawMap('linear')" id="linear-button-map">Relation linéaire</button>
           <button class="btn secondary" onclick="redrawMap('logarithmique')" id="log-button-map">Relation
             logarithmique</button>
-          -->
           <button class='btn secondary' onclick="hideShowButtons('map-container')" id="hide-button-map">-</button>
         </div>
+        -->
+
       </header>
 
+      <div id="block-wrapper-emission" class="block-wrapper"></div>
 
       <section>
         <div class="map-wrapper">
@@ -1001,8 +1004,6 @@
       </header>
 
       <div id="block-wrapper-aide" class="block-wrapper"></div>
-
-      <div id="block-wrapper-emission" class="block-wrapper"></div>
 
 
       <div class="chart-wrapper">
@@ -1168,23 +1169,23 @@
           b1.value = `${nb_projets}`;
           b1.label = 'Nombre de Projets';
           b1.unit = 'projets';
-          b1.secondaryItems = [{ label: "Mis en service", value: `${(nb_projets_MES / nb_projets) * 100} %` }];
+          b1.secondaryItems = [{ label: "Mis en service", value: `${uneDecimale((nb_projets_MES / nb_projets) * 100)} %` }];
 
           const abat_tot = sumList(data_traite[1]);
-          b2.value = `${abat_tot / 1000}`;
+          b2.value = `${unitAdaptee(abat_tot,'t CO2e/an')[0]}`;
           b2.label = 'Montant total abattu';
-          b2.unit = 'kt CO2e/an';
+          b2.unit = unitAdaptee(abat_tot,'t CO2e/an')[1];
 
           const capex_tot = sumList(data_traite[4]);
-          b3.value = `${capex_tot}`;
+          b3.value = `${unitAdaptee(capex_tot,'€')[0]}`;
           b3.label = 'Montant total de CAPEX';
-          b3.unit = '€';
+          b3.unit = unitAdaptee(capex_tot,'€')[1];
 
           const puissance_elec_tot = sumList(data_traite[5]); // nécessite le fix ci-dessous dans traitement_donnees_CO2_procede
           const nb_sites_raccord = record_sites.Besoin_de_raccordement.filter(v => v !== false).length;
-          b4.value = `${puissance_elec_tot}`;
-          b4.label = 'Puissance électrique totale';
-          b4.unit = 'MW';
+          b4.value = `${unitAdaptee(puissance_elec_tot*1000000,'W')[0]}`;
+          b4.label = 'Puissance électrique';
+          b4.unit = unitAdaptee(puissance_elec_tot*1000000,'W')[1];
           b4.secondaryItems = [{ label: 'Sites avec besoin de raccordement', value: `${nb_sites_raccord} sites` }];
 
           return blocks;
@@ -1203,17 +1204,17 @@
           b1.unit = 'aides';
 
           const abat_tot_aides = sumList(etatBaseAide(record).Gain_GES_an_tCO2eq_previsionnels);
-          b2.value = `${abat_tot_aides / 1000}`;
+          b2.value = `${unitAdaptee(abat_tot_aides,'t CO2e/an')[0]}`;
           b2.label = 'Abattement total des aides';
-          b2.unit = 'kt CO2e/an';
+          b2.unit = unitAdaptee(abat_tot_aides,'t CO2e/an')[1];
 
           const abat_aides_MES = sumList(etatBaseAide(record, true).Gain_GES_an_tCO2eq_previsionnels);
-          b3.value = `${(abat_aides_MES / abat_tot_aides) * 100}`;
+          b3.value = `${uneDecimale((abat_aides_MES / abat_tot_aides) * 100)}`;
           b3.label = 'Dispositifs mis en service';
           b3.unit = "% de l'abattement total";
           b3.secondaryItems = [{
             label: 'Dispositifs désengagés',
-            value: `${((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100} % de dispositifs désengagés`
+            value: `${uneDecimale(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100)} % de dispositifs désengagés`
           }];
 
           return blocks;
@@ -1609,6 +1610,29 @@
           return S;
         }
 
+        function uneDecimale(number){
+          string = '' + number.toFixed(1);
+          return string;
+        }
+
+        function unitAdaptee(number, unit){
+          let conversion = number;
+          let nouv_unit = unit;
+          if(conversion >= 1000){
+            conversion = uneDecimale(conversion/1000);
+            nouv_unit = 'k' + unit;
+          }
+          if(conversion >= 1000){
+            conversion = uneDecimale(conversion/1000);
+            nouv_unit = 'M' + unit;
+          }
+          if(conversion >= 1000){
+            conversion = uneDecimale(conversion/1000);
+            nouv_unit = 'G' + unit;
+          }
+          return [conversion, nouv_unit];
+        }
+
         function maxAnneeDataset(dataset){
           const list_annees = Array.from({ length: 20 }, (_, i) => 0);
           for(let i = 0 ; i < dataset.length ; i++){
@@ -1703,7 +1727,7 @@
             else procedeNorm = procede_non_traite[i];
 
             procede_traite[index] = procedeNorm;
-            CO2_traite[index] = CO2_non_traite[i];
+            CO2_traite[index] = typeof CO2_non_traite[i] == 'number' ? CO2_non_traite[i] : 0;
             annee_traite[index] = annee_non_traite[i];
             etat_proj_traite[index] = etat_proj_non_traite[i];
             capex_proj_traite[index] = typeof capex_proj_non_traite[i] == 'number' ? capex_proj_non_traite[i] : 0;
@@ -2878,7 +2902,7 @@
           if (chartCO2Etat) chartCO2Etat.destroy();
           if (chartCO2Aide) chartCO2Aide.destroy();
           if (chartCO2PieAide) chartCO2PieAide.destroy();
-          buildStatBlocks(records_projets,records_sites,records_aides);
+          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           if (resultCO2Procede) {
@@ -3114,7 +3138,7 @@
           document.addEventListener("DOMContentLoaded", function (event) {
             new TomSelect('select', settings);
           });
-          buildStatBlocks(records_projets,records_sites,records_aides);
+          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
 
 
           renderMap(filtered_records_sites, 'logarithmique');
