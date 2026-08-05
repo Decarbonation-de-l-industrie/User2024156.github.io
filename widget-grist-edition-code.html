@@ -284,6 +284,7 @@
       gap: 10px;
       width:100%;
       padding-top:10px;
+      padding-bottom:20px;
     }
 
     .stat-block {
@@ -1197,18 +1198,18 @@
           const b3 = {};
           const blocks = [b1, b2, b3];
 
-          const nb_aides = etatBaseAide(record).Engage_Desengage.length;
+          const nb_aides = filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' ).Engage_Desengage.length;
           const nb_aides_MES = record.Engage_Desengage.filter(v => v == 'Engagé et MES').length;
           b1.value = `${nb_aides}`;
           b1.label = "Nombre d'aides engagées";
           b1.unit = 'aides';
 
-          const abat_tot_aides = sumList(etatBaseAide(record).Gain_GES_an_tCO2eq_previsionnels);
+          const abat_tot_aides = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' ).Gain_GES_an_tCO2eq_previsionnels);
           b2.value = `${unitAdaptee(abat_tot_aides,'t CO2e/an')[0]}`;
           b2.label = 'Abattement total des aides';
           b2.unit = unitAdaptee(abat_tot_aides,'t CO2e/an')[1];
 
-          const abat_aides_MES = sumList(etatBaseAide(record, true).Gain_GES_an_tCO2eq_previsionnels);
+          const abat_aides_MES = sumList(filtreRecord(record, (r,i) => r.Engage_Desengage[i] == 'Engagé et MES').Gain_GES_an_tCO2eq_previsionnels);
           b3.value = `${uneDecimale((abat_aides_MES / abat_tot_aides) * 100)}`;
           b3.label = 'Dispositifs mis en service';
           b3.unit = "% de l'abattement total";
@@ -1633,6 +1634,44 @@
           return [conversion, nouv_unit];
         }
 
+        function triDecroissantParColonne(record, cols, indexColCible){
+          const n = record[cols[0]].length;
+          const colsTriees = cols.map(c => Array.from(record[c]));
+  
+          for (let i = 1; i < n; i++) {
+            // On sauvegarde toute la "ligne" AVANT de commencer à décaler
+            const ligneCourante = colsTriees.map(col => col[i]);
+            const elementCourant = ligneCourante[indexColCible];
+
+            let j = i - 1;
+            while (j >= 0 && colsTriees[indexColCible][j] < elementCourant) {
+              for (let i_c = 0; i_c < colsTriees.length; i_c++) {
+                colsTriees[i_c][j + 1] = colsTriees[i_c][j];
+              }
+              j--;
+            }
+            for (let i_c = 0; i_c < colsTriees.length; i_c++) {
+              colsTriees[i_c][j + 1] = ligneCourante[i_c];
+            }
+          }
+          return colsTriees;
+        }
+
+        function filtreRecord(record,conditionFiltre){                      // Exclu les lignes d'un record ne respectant pas conditionFiltre
+          const lignesGardee = {};
+          const keys = Object.keys(record);
+          const indicesAGarder = [];
+          for (let i = 0 ; i < record.id.length ; i++){
+            if (conditionFiltre(record, i)){
+              indicesAGarder.push(i);
+            }
+          }
+          for (const key of keys){
+            lignesGardee[key] = indicesAGarder.map(i => record[key][i]);
+          }
+          return lignesGardee;
+        }
+
         function maxAnneeDataset(dataset){
           const list_annees = Array.from({ length: 20 }, (_, i) => 0);
           for(let i = 0 ; i < dataset.length ; i++){
@@ -1979,6 +2018,25 @@
                     labelTextColor: function (context) {
                       return 'rgba(0,0,0,1)';
                     },
+                    labelColor: function (context) {
+                      // on cible la même série que dans generateLabels
+                      if (context.dataset.label === 'Variation de production sans décarbonation') {
+                        return {
+                          borderColor: '#000000',
+                          backgroundColor: 'transparent', // case non remplie
+                          borderWidth: 1,
+                          borderDash: [4, 2],             // pointillés, cohérent avec la légende
+                          borderRadius: 0,
+                        };
+                      }
+                      // comportement par défaut pour les autres séries
+                      return {
+                        borderColor: context.dataset.borderColor ?? context.dataset.backgroundColor,
+                        backgroundColor: context.dataset.backgroundColor,
+                        borderWidth: 1,
+                        borderRadius: 0,
+                      };
+                    },
                     title: function (context) {
                       const anneeMES = context[0].label;
                       return `Prévisionnel des émissions abattues par procédés en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
@@ -2286,23 +2344,8 @@
           return laureats;
         }
 
-        function etatBaseAide(record,mes=false){                      // Exclu les aides désengagées des données
-          const aideExclu = {};
-          const keys = Object.keys(record);
-          const indicesAGarder = [];
-          for (let i = 0 ; i < record.Engage_Desengage.length ; i++){
-            if ((!mes && record.Engage_Desengage[i] != 'Désengagé') || (record.Engage_Desengage[i] == 'Engagé et MES')){
-              indicesAGarder.push(i);
-            }
-          }
-          for (const key of keys){
-            aideExclu[key] = indicesAGarder.map(i => record[key][i]);
-          }
-          return aideExclu;
-        }
-
         function concatenation_Aides_Projets(record_aide, projets_laureats){
-          const base_Aide_Filtre = etatBaseAide(record_aide);
+          const base_Aide_Filtre = filtreRecord(record_aide, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' );
           const anneesMES = base_Aide_Filtre.Date_MES_estimee.concat(projets_laureats['anneeMES']);
           const co2_abattu = base_Aide_Filtre.Gain_GES_an_tCO2eq_previsionnels.concat(projets_laureats['co2_abattu']);
           const engagement = base_Aide_Filtre.Engage_Desengage.map(e => 'Engagé').concat(projets_laureats['etat']);
@@ -2566,6 +2609,25 @@
                   callbacks: {
                     labelTextColor: function (context) {
                       return 'rgba(0,0,0,1)';
+                    },
+                    labelColor: function (context) {
+                      // on cible la même série que dans generateLabels
+                      if (context.dataset.label === 'Variation de production sans décarbonation') {
+                        return {
+                          borderColor: '#000000',
+                          backgroundColor: 'transparent', // case non remplie
+                          borderWidth: 1,
+                          borderDash: [4, 2],             // pointillés, cohérent avec la légende
+                          borderRadius: 0,
+                        };
+                      }
+                      // comportement par défaut pour les autres séries
+                      return {
+                        borderColor: context.dataset.borderColor ?? context.dataset.backgroundColor,
+                        backgroundColor: context.dataset.backgroundColor,
+                        borderWidth: 1,
+                        borderRadius: 0,
+                      };
                     },
                     title: function (context) {
                       const anneeMES = context[0].label;
@@ -3150,7 +3212,7 @@
           graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, false);
 
           graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
-
+          
         }
 
 
