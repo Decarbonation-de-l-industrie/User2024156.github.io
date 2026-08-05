@@ -67,7 +67,7 @@
       --color-aide-fonds-chaleur: #89471A;
       --color-aide-bciat: #A3881F;
       --color-aide-if: #73891A;
-      --color-aide-df: #54A31F;
+      --color-aide-decarb-flash: #54A31F;
       --color-aide-piiec:  #1A891A;
       --color-aide-zibac: #1FA354;
       --color-aide-ao-h2: #1A8973;
@@ -76,7 +76,7 @@
       --color-aide-induss-ee: #1F1FA3;
       --color-aide-demibac: #471A89;
       --color-aide-solinbac: #881FA3;
-      --color-aide-di: #891A73; 
+      --color-aide-decarb-ind: #891A73; 
       --color-aide-autre-aide: #373435;
 
 
@@ -303,7 +303,7 @@
 
     /* Label au-dessus de la valeur principale */
     .stat-block__label {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -440,7 +440,12 @@
 
     .chart-wrapper {
       position: relative;
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      width: 100%;
       margin-bottom: 40px;
+      gap: 20px;
+      height:600px;
     }
 
 
@@ -534,11 +539,209 @@
     }
 
     /* Principales lignes des données */
+
     .dropdown-list{
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+
+        overflow-y:auto;
+        height:100%;
+        min-height:0;
+
+        background:transparent;
+
+
+        font-family:var(--font-primary);
     }
+
+
+    /* ===========================
+      Carte projet/site/aide
+      =========================== */
+
+    .main-list-item{
+
+        display:flex;
+        flex-direction:column;
+
+        gap:7px;
+
+        padding:9px 14px;
+
+        background:var(--color-light-blue-bg);
+
+        border:1px solid rgba(0,0,0,.06);
+        border-radius:10px;
+
+        box-shadow:0 1px 3px rgba(0,0,0,.05);
+
+        transition:.15s ease;
+    }
+
+
+    .main-list-item:hover{
+        transform:translateY(-1px);
+        box-shadow:0 4px 10px rgba(0,0,0,.08);
+    }
+
+
+
+    /* ===========================
+      Ligne 1 : titre
+      =========================== */
+
+    .main-list-header{
+
+        padding-bottom:6px;
+
+        border-bottom:1px solid rgba(0,0,0,.08);
+    }
+
+
+    .main-list__description,
+    .main-list__dispositif{
+
+        font-size:16px;
+        font-weight:700;
+
+        color:var(--color-brand-blue);
+
+        line-height:1.35;
+    }
+
+
+
+    /* ===========================
+      Ligne 2 : indicateur principal
+      =========================== */
+
+    .main-list-highlight{
+
+        padding-bottom:7px;
+
+        border-bottom:1px solid rgba(0,0,0,.08);
+    }
+
+
+    .main-list__abattement,
+    .main-list__emissions{
+
+        font-size:14px;
+        font-weight:800;
+    }
+
+
+    /* CO2 évité */
+
+    .main-list__abattement{
+        color:#16a34a;
+    }
+
+
+    /* émissions */
+
+    .main-list__emissions{
+        color:#dc2626;
+    }
+
+
+
+    /* ===========================
+      Zone détails
+      2 colonnes compactes
+      =========================== */
+
+    .main-list-details{
+
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+
+    }
+
+
+    .main-list-detail{
+
+        display:flex;
+
+        justify-content:space-between;
+
+        gap:12px;
+
+        min-width:0;
+
+        font-size:.78rem;
+    }
+
+
+
+    /* nom du champ */
+
+    .main-list-detail .label{
+
+        color:#686d75;
+
+        white-space:nowrap;
+    }
+
+
+
+    /* valeur */
+
+    .main-list-detail .value{
+
+        font-weight:600;
+
+        color:#374151;
+
+        text-align:right;
+
+        overflow:hidden;
+
+        text-overflow:ellipsis;
+
+        white-space:nowrap;
+    }
+
+
+
+    /* ===========================
+      Valeurs spécifiques
+      =========================== */
+
+    .main-list__montant,
+    .main-list__annee-mes,
+    .main-list__site,
+    .main-list__nom-site,
+    .main-list__beneficiaire,
+    .main-list__entreprise,
+    .main-list__procede{
+
+        color:#374151;
+
+    }
+
+
+    .main-list__entreprise{
+
+        font-style:italic;
+
+    }
+
+
+
+    .main-list__region,
+    .main-list__perimetre,
+    .main-list__filiere,
+    .main-list__capex{
+
+        color:#686d75;
+
+    }
+
+
+
 
 
 
@@ -648,9 +851,10 @@
       position: relative;
       margin-bottom: 40px;
       display:grid;
-      grid-template-columns: 3fr 1fr;
+      grid-template-columns: 2fr 1fr;
       width: 100%;
       gap : 20px;
+      height: 600px;
     }
 
     .map-container-shown {
@@ -883,14 +1087,8 @@
             <div id="leaflet-map"></div>
             <div id="empty-map" class="empty" style="display:none;"></div>
           </div>
-          <div class="dropdown-list">
-            <div class="item">Pomme</div>
-            <div class="item">Banane</div>
-            <div class="item">Cerise</div>
-            <div class="item">Datte</div>
-            <div class="item">Figue</div>
-            <div class="item">Goyave</div>
-            <div class="item">Kiwi</div>
+          <div class="dropdown-list" id="listeSites">
+            
           </div>
         </div>
       </section>
@@ -911,15 +1109,13 @@
 
       <div class="chart-wrapper">
         <div id='canvas-charts-procede-1' class='canvas-charts-1-shown'>
-          <div class='pie-chart'>
-            <canvas id="pieChartCO2parEtat"></canvas>
-          </div>
           <div class='bar-chart-annee'>
             <canvas id="barChartCO2parAnnee"></canvas>
             <button class='btn secondary' onclick="switchCumul('canvas-charts-procede-1')"
             id="cumul-button-charts-procede">Abattement cumulé</button>
           </div>
         </div>
+        <div class="dropdown-list" id="listeProjets"></div>
       </div>
 
       <!-- Graphs des émissions abattues par aides par années -->
@@ -937,9 +1133,6 @@
 
       <div class="chart-wrapper">
         <div id='canvas-charts-aide-1' class='canvas-charts-1-shown'>
-          <div class='pie-chart'>
-            <canvas id="pieChartCO2parEtatAide"></canvas>
-          </div>
           <div class='bar-chart-annee'>
             <canvas id="barChartCO2parAnneeAide"></canvas>
             <div class="hint" id="below-graph">Si un projet est soutenu par plusieurs dispositifs, il est représenté dans le dispositif principal.<br>Certains projets représentés peuvent ne pas figurer dans la base projets s’ils n’y ont pas été ajoutés.</div>
@@ -950,6 +1143,7 @@
             <div id="legend-container"></div>
           </div>
         </div>
+        <div class="dropdown-list" id="listeAides"></div>
       </div>
 
 
@@ -1534,7 +1728,7 @@
         function sumList(list){
           let S = 0;
           for (e of list){
-            S += e;
+            S += typeof e == 'number' ? e : 0;
           }
           return S;
         }
@@ -1611,13 +1805,132 @@
           return Math.max(...list_annees);
         }
 
-        function listMainProjets(record_projets,record_sites){
-          const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => typeof r.Emissions_abattues_tCO2e_an_[i] == 'number'),['Emissions_abattues_tCO2e_an_'],0)
-          const data_triee_sites =
+        function listMainProjets(record_projets){
+          const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => typeof r.Emissions_abattues_tCO2e_an_[i] == 'number'),
+          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_'],0);
           let result = {
-            description:
+            description: data_triee_projets[1],
+            abattement: data_triee_projets[0],
+            nom_site: data_triee_projets[2],
+            region: data_triee_projets[3],
+            procede: data_triee_projets[4],
+            filiere: data_triee_projets[5],
+            annee: data_triee_projets[6],
+            capex: data_triee_projets[7],
+
           }
+          return result;
         }
+
+        function listMainSites(record_sites){
+          const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => typeof r.ges_2024[i] == 'number'),
+          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data'],0);
+          let result = {
+            emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),                 // On prend ges_2025 si la donnée est disponible, ges_2024 sinon
+            nom_site: data_triee_sites[2],
+            region: data_triee_sites[3],
+            perimetre: data_triee_sites[4],
+            filiere: data_triee_sites[5],
+            entreprise: data_triee_sites[6],
+            zibac: data_triee_sites[7],
+          }
+          return result;
+        }
+
+        function listMainAides(record_aides){
+          const data_triee_aides = triDecroissantParColonne(filtreRecord(record_aides, (r,i) => typeof r.Gain_GES_an_tCO2eq_previsionnels[i] == 'number'),
+          ['Gain_GES_an_tCO2eq_previsionnels','Nom_du_projet','Porteur_de_projet_beneficiaire_','Montant_d_aide','Date_MES_estimee','Nom_du_dispositif'],0);
+          let result = {
+            description: data_triee_aides[1],
+            abattement: data_triee_aides[0],
+            porteur: data_triee_aides[2],
+            montant: data_triee_aides[3],
+            annee: data_triee_aides[4],
+            dispositif: data_triee_aides[5],
+          }
+          return result;
+        }
+
+        function createListItem(title, highlight, details){
+
+          const item = document.createElement("div");
+          item.className = "main-list-item";
+
+
+          // Ligne 1 : titre
+          const header = document.createElement("div");
+          header.className = "main-list-header";
+
+          const titleElement = document.createElement("div");
+          titleElement.className = `main-list__${title.name}`;
+          titleElement.textContent = title.value;
+
+          header.appendChild(titleElement);
+
+
+
+          // Ligne 2 : valeur principale
+          const main = document.createElement("div");
+          main.className = "main-list-highlight";
+
+          const highlightElement = document.createElement("div");
+          highlightElement.className = `main-list__${highlight.name}`;
+          highlightElement.textContent = highlight.value;
+
+          main.appendChild(highlightElement);
+
+
+
+          // Détails en 2 colonnes
+          const detailsContainer = document.createElement("div");
+          detailsContainer.className = "main-list-details";
+
+
+          details.forEach(detail => {
+
+              const row = document.createElement("div");
+              row.className = "main-list-detail";
+
+
+              const label = document.createElement("span");
+              label.className = "label";
+              label.textContent = detail.name;
+
+
+              const value = document.createElement("span");
+              value.className = `main-list__${detail.name.toLowerCase().replace('é','e').replace('è','e').replace(' ','-')}`;
+              value.classList.add("value");
+              value.textContent = detail.value;
+
+
+              row.appendChild(label);
+              row.appendChild(value);
+
+              detailsContainer.appendChild(row);
+
+          });
+
+
+          item.appendChild(header);
+          item.appendChild(main);
+          item.appendChild(detailsContainer);
+
+
+          return item;
+      }
+
+
+
+      function remplirListe(containerId, nbElements, builder){
+
+          const container = document.getElementById(containerId);
+          container.innerHTML = "";
+
+          for(let i=0;i<nbElements;i++){
+              container.appendChild(builder(i));
+          }
+      }
+
 
         /* INTRODUCTION D'OBJETS + OUTILS + PARAMETRAGE GRIST */
 
@@ -2092,10 +2405,10 @@
               return 'BCIAT';
             }
             else if (a_norm.includes('di') || a_norm.includes('carbind')){
-              return 'DI';
+              return "Decarb'Ind";
             }
             else if (a_norm.includes('df')){
-              return 'DF';
+              return "Decarb'Flash";
             }
             else if (a_norm.includes('aogpid')){
               return 'AOGPID';
@@ -2429,7 +2742,7 @@
               else {
                 order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
               }
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`);
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').replace("'",'-').toLowerCase()}`);
             }
             else if (list_aide[i].endsWith('Intérêt')) {
               if (list_aide[i].includes('Autre Aide')){
@@ -2439,7 +2752,7 @@
                 order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
               }
               order[i] += 100;
-              backgroundColors[i] = Chart.helpers.color(window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`)).alpha(0.2).rgbString();
+              backgroundColors[i] = Chart.helpers.color(window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').replace("'",'-').toLowerCase()}`)).alpha(0.2).rgbString();
               // borderColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`);
               // borderWidths[i] = 2;
               // backgroundColors[i] = pattern.draw('square',window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`));
@@ -2745,6 +3058,59 @@
         }
         */
 
+        function renderListsMain(record_projets,record_sites,record_aides){
+
+          const projets = listMainProjets(record_projets);
+
+
+          if(sumList(projets.abattement) != 0){
+            remplirListe("listeProjets", Math.min(15,projets.description.length), i =>
+
+              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${unitAdaptee(projets.abattement[i],'tCO2e/an')} abattues`}, 
+              [
+                  {name: "Site",value: projets.nom_site[i]},
+                  {name: "Annee MES",value: projets.annee[i]},
+                  {name: "Procédé",value: projets.procede[i]},
+                  {name: "CAPEX",value: `CAPEX : ${unitAdaptee(projets.capex[i],'€')}`},
+              ])
+            );
+          }
+          else{
+
+          }
+
+          const sites = listMainSites(record_sites);
+          if(sumList(sites.emissions) != 0){
+            remplirListe("listeSites", Math.min(15,sites.emissions.length), i =>
+              createListItem({name: "description",value: sites.nom_site[i]}, {name: "emissions",value: `Emissions ETS 2025 : ${unitAdaptee(sites.emissions[i],'tCO2e')}`},
+              [
+                  {name: "Région",value: sites.region[i]},
+                  {name: "Entreprise",value: sites.entreprise[i]},
+                  {name: "Périmètre",value: sites.perimetre[i]},
+                  {name: "Filiere",value: sites.filiere[i]},
+              ])
+            );
+          }
+          else{
+
+          }
+
+          const aides = listMainAides(record_aides);
+          if(sumList(aides.abattement) != 0){
+            remplirListe("listeAides", Math.min(15,aides.description.length), i =>
+              createListItem({name: 'description',value: regroupAides(aides.dispositif)[i] + ' : ' + ((typeof aides.description[i] == 'string' && aides.description[i] != '') ? aides.description[i] : aides.porteur[i])}, {name: "abattement",value: `${unitAdaptee(aides.abattement[i],('tCO2e/an'))} abattues`},
+              [
+                  {name: "Bénéficiaire",value: aides.porteur[i]},
+                  {name: "Montant",value: `${unitAdaptee(aides.montant[i],'€')}`},
+                  {name: "Annee MES",value: aides.annee[i]},
+              ])
+            );
+          }
+          else{
+
+          }
+        }
+
         let suggestionAbortController = null;
 
         function renderSuggestion(records, reset, filtre_on) {
@@ -2899,9 +3265,10 @@
         function majGraphiques() {
           if (chartCO2Procede) chartCO2Procede.destroy();
           if (chartCO2Etat) chartCO2Etat.destroy();
-          if (chartCO2Aide) chartCO2Aide.destroy();
-          if (chartCO2PieAide) chartCO2PieAide.destroy();
+          // if (chartCO2Aide) chartCO2Aide.destroy();
+          // if (chartCO2PieAide) chartCO2PieAide.destroy();
           buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
+          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           if (resultCO2Procede) {
@@ -2912,8 +3279,8 @@
             chartCO2Aide = resultCO2Aide[0];
             currentDataExportAide = resultCO2Aide[1];
           }
-          chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
-          chartCO2Etat = graphique_CO2_etat_projet(filtered_records_projets);
+          // chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
+          // chartCO2Etat = graphique_CO2_etat_projet(filtered_records_projets);
           renderMap(filtered_records_sites, 'logarithmique');
         }
 
@@ -3139,16 +3506,17 @@
           });
           buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
 
+          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
 
           renderMap(filtered_records_sites, 'logarithmique');
 
           graphique_CO2_procede_annee(filtered_records_projets, true, false);
 
-          graphique_CO2_etat_projet(filtered_records_projets);
+          // graphique_CO2_etat_projet(filtered_records_projets);
 
           graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, false);
 
-          graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
+          // graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
           
         }
 
