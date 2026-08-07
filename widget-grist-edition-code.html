@@ -454,6 +454,13 @@
       height: 800px;
     }
 
+    #wrapper-traj {
+      width: 100%;
+      height: 600px;
+      display: grid;
+      grid-template-columns: 1fr;   /* une seule colonne au lieu de 3fr 1fr */
+    }
+
 
     .canvas-charts-1-hidden {
       display: none !important;
@@ -465,6 +472,12 @@
       height: 100%;
       gap: 10px;
       align-items: stretch;
+    }
+
+    #canvas-charts-traj-1{
+      min-height: 0;
+      width:100%;
+      box-sizing: border-box;
     }
 
     #canvas-charts-aide-1 {
@@ -1130,19 +1143,23 @@
       <header class='section-header'>
         <h1>Trajectoires d'émission des sites ETS</h1>
 
-        <!--
         <div id="map-buttons">
-          <button class="btn secondary" onclick="redrawMap('constant')" id="const-button-map">Rayons constants</button>
-          <button class="btn secondary" onclick="redrawMap('linear')" id="linear-button-map">Relation linéaire</button>
-          <button class="btn secondary" onclick="redrawMap('logarithmique')" id="log-button-map">Relation
-            logarithmique</button>
-          <button class='btn secondary' onclick="hideShowButtons('map-container')" id="hide-button-map">-</button>
+          <button class="btn secondary" onclick="exportToExcel(currentDataExportTraj,'Extraction_trajectoire_emissions.xlsx')"
+            id="export-button-charts-traj">Exporter données</button>
         </div>
-        -->
 
       </header>
 
       <div id="block-wrapper-emission" class="block-wrapper"></div>
+
+      <div class="chart-wrapper" id="wrapper-traj">
+        <div id='canvas-charts-traj-1' class='canvas-charts-1-shown'>
+          <div class='bar-chart-annee'>
+            <canvas id="lineChartTrajEmissions"></canvas>
+          </div>
+        </div>
+      </div>
+
 
       <section>
         <div class="map-wrapper">
@@ -1226,6 +1243,7 @@
         let records_projets;
         let records_aides;
         let records_sites;
+        let baisse_SNBC;
         let filtered_records_projets;
         let filtered_records_aides;
         let filtered_records_sites;
@@ -1336,7 +1354,7 @@
           const sections = {
             procede: blockProcede(record_projets, record_sites),
             aide: blockAide(record_aides),
-            emission: blockEmission(record_projets, record_sites)
+            emission: blockEmission(record_sites)
           };
           for (const s of Object.keys(sections)) {
             const wrapper = document.getElementById(`block-wrapper-${s}`);
@@ -1396,7 +1414,7 @@
 
           const abat_tot_aides = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' ).Gain_GES_an_tCO2eq_previsionnels);
           b2.value = `${unitAdaptee(abat_tot_aides,'t CO2e/an')[0]}`;
-          b2.label = 'Abattement total des aides';
+          b2.label = 'Abattement total des dispositifs de base Aide';
           b2.unit = unitAdaptee(abat_tot_aides,'t CO2e/an')[1];
 
           const abat_aides_MES = sumList(filtreRecord(record, (r,i) => r.Engage_Desengage[i] == 'Engagé et MES').Gain_GES_an_tCO2eq_previsionnels);
@@ -1414,18 +1432,19 @@
         function blockEmission(record) {
           const b1 = {};
           const b2 = {};
-          const b3 = {};
-          const b4 = {};
-          const blocks = [b1, b2, b3, b4];
-          for (const b of blocks) {
-            b.label = "Émissions évitées";
-            b.value = "1 248";
-            b.unit = "kt CO2e";
-            b.secondaryItems = [
-              { label: "Objectif 2030", value: "2 500 kt" },
-              { label: "Évolution", value: "+12,4 %", variant: "positive" }
-            ];
-          }
+          const blocks = [b1, b2];
+
+          const nb_sites_ETS = filtreRecord(record, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).Perimetre.length;
+          b1.value = `${nb_sites_ETS}`;
+          b1.label = "Nombre de sites ETS";
+          b1.unit = 'sites';
+
+          const ges2024 = filtreRecord(record, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).ges_2024;
+          const ges2025 = filtreRecord(record, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).ges_2025;
+          const em_tot = sumList(ges2025.map((g,i) => g != -1 ? g : (ges2024[i] != -1) ? ges2024[i] : 0));
+          b2.value = `${unitAdaptee(em_tot,'tCO2e')[0]}`;
+          b2.label = "Total des dernières émissions ETS";
+          b2.unit = unitAdaptee(em_tot,'tCO2e')[1];
           return blocks; 
         }
 
@@ -1732,7 +1751,6 @@
             chartCO2Aide = graph[0];
             currentDataExportAide = graph[1];
           }
-          
         }
 
 
@@ -2172,12 +2190,153 @@
         /* CONSTRUCTION DES GRAPHIQUES */
 
         let chartCO2Procede = null;
-        let chartCO2Etat = null;
         let chartCO2Aide = null;
-        let chartCO2PieAide = null;
+        let chartTrajEmissions = null;
 
         let map;
         let markersLayer;
+
+
+        function graphique_traj_emissions(record_projets, record_sites) {   // Trace le graphique des trajectoires d'émissions à partir des données ETS de 2019 et de l'abattement cumulé des projets
+
+          let doc = document.getElementById('canvas-charts-traj-1');
+          doc.className = 'canvas-charts-1-shown';
+
+          const ctx = document.getElementById('lineChartTrajEmissions').getContext('2d');
+
+          if (chartTrajEmissions) {
+            chartTrajEmissions.destroy();
+            chartTrajEmissions = null;
+          }
+
+          const dict_donnees = D_traj_emissions(record_projets, record_sites);
+          const cles = Object.keys(dict_donnees);
+
+          if (!cles.length) {
+            doc.className = 'canvas-charts-1-hidden';
+            return;
+          }
+
+          // On extrait la liste des années présentes dans le dictionnaire, triées par ordre croissant
+          const annees = [...new Set(cles.map(k => Number(k.split('|')[0])))].sort((a, b) => a - b);
+          const list_labels = annees.map(a => a.toString());
+
+          // Construction des deux séries à partir des clés 'annee|Emissions' et 'annee|Abattement'
+          const dataEmissions = annees.map(a => dict_donnees[`${a}|Emissions`] ?? null);
+          const dataAbattement = annees.map(a => dict_donnees[`${a}|Abattement`] ?? null);
+
+          const colorEmissions = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue') || 'rgba(200,0,0,1)';
+          const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf') || 'rgba(0,150,0,1)';
+          const colorSNBC = window.getComputedStyle(document.head).getPropertyValue('--color-aide-aogpid');
+
+          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*baisse_SNBC.SNBC_Nat[i] ?? null);;
+
+          const datasets = [
+            {
+              label: 'Ajout de la variation de production aux emissions 2019',
+              data: dataEmissions,
+              borderColor: colorEmissions,
+              backgroundColor: colorEmissions,
+              fill: false,
+              tension: 0.2,
+              spanGaps: true,       // relie les points malgré les valeurs null
+              pointRadius: 3,
+            },
+            {
+              label: 'Emissions ETS estimées par les feuilles de route',
+              data: dataAbattement,
+              borderColor: colorAbattement,
+              backgroundColor: colorAbattement,
+              fill: false,
+              tension: 0.2,
+              spanGaps: true,
+              pointRadius: 3,
+            },
+            {
+              label: 'Trajectoire projetée par la SNBC',
+              data: traj_snbc,
+              borderColor: colorSNBC,
+              backgroundColor: colorSNBC,
+              fill: false,
+              tension: 0.2,
+              spanGaps: true,       
+              pointRadius: 3,
+            }
+          ];
+
+          let dataU = list_labels.map((label, i) => ({                    // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
+            annee: label,
+            Emissions: dataEmissions[i],
+            Abattement: dataAbattement[i],
+          }));
+
+          chartTrajEmissions = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: list_labels,
+              datasets: datasets
+            },
+            options: {
+              interaction: {
+                mode: 'x',
+              },
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                },
+                title: {
+                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  align: 'start',
+                  display: true,
+                  padding: 20,
+                  text: "Trajectoire des émissions ETS selon les feuilles de route, ktCO2e/an, 2019-2035",
+                },
+                tooltip: {
+                  mode: 'point',
+                  displayColors: true,
+                  padding: '15',
+                  titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
+                  bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
+                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  backgroundColor: '#F6F7FF',
+                  filter: function (tooltipItem) {
+                    return tooltipItem.raw !== null;
+                  },
+                  callbacks: {
+                    labelTextColor: function (context) {
+                      return 'rgba(0,0,0,1)';
+                    },
+                    title: function (context) {
+                      return `Prospective des émissions ETS en ${context[0].label}`;
+                    },
+                    label: function (context) {
+                      const value = context.raw;
+                      if (value === null) return null;
+                      const label = context.dataset.label;
+                      const formatedValue = unitAdaptee(value,'tCO2e/an');
+
+                      return `${label} : ${formatedValue[0]} ${formatedValue[1]}`;
+                    },
+                  }
+                },
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                },
+                y: {
+                  beginAtZero: true,
+                  type: 'linear',
+                }
+              },
+              maintainAspectRatio: false,
+              devicePixelRatio: window.devicePixelRatio || 2,
+            }
+          });
+
+          return [chartTrajEmissions, dataU];
+        }
 
         function graphique_CO2_procede_annee(record, btnClear, cumule) {             // Trace le graphique à partir du dictionnaire construit par la fonction D_CO2_procede_annee
 
@@ -2417,7 +2576,8 @@
                   //suggestedMax: maxAnneeDataset(datasets),
                 }
               },
-              maintainAspectRatio: false
+              maintainAspectRatio: false,
+              devicePixelRatio: window.devicePixelRatio || 2,
             }
           });
           return [chartCO2Procede, dataU];
@@ -3368,13 +3528,12 @@
 
         function majGraphiques() {
           if (chartCO2Procede) chartCO2Procede.destroy();
-          if (chartCO2Etat) chartCO2Etat.destroy();
-          // if (chartCO2Aide) chartCO2Aide.destroy();
-          // if (chartCO2PieAide) chartCO2PieAide.destroy();
+          if (chartCO2Aide) chartCO2Aide.destroy();
           buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
           renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
+          resultTrajCO2 = graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
           if (resultCO2Procede) {
             chartCO2Procede = resultCO2Procede[0];
             currentDataExportProcede = resultCO2Procede[1];
@@ -3383,8 +3542,10 @@
             chartCO2Aide = resultCO2Aide[0];
             currentDataExportAide = resultCO2Aide[1];
           }
-          // chartCO2PieAide = graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
-          // chartCO2Etat = graphique_CO2_etat_projet(filtered_records_projets);
+          if (resultTrajCO2) {
+            chartTrajEmissions = resultTrajCO2[0];
+            currentDataExportTraj = resultTrajCO2[1];
+          }
           renderMap(filtered_records_sites, 'logarithmique');
         }
 
@@ -3602,6 +3763,7 @@
           records_projets = await grist.docApi.fetchTable('Base_projets');
           records_aides = await grist.docApi.fetchTable('Base_aides');
           records_sites = await grist.docApi.fetchTable('Base_sites');
+          baisse_SNBC = await grist.docApi.fetchTable('Baisse_SNBC_projetee');
           fillFilterOptionsFromData();
           applyFilters();
           renderSuggestion(filtered_records_sites, false, false);
@@ -3616,11 +3778,9 @@
 
           graphique_CO2_procede_annee(filtered_records_projets, true, false);
 
-          // graphique_CO2_etat_projet(filtered_records_projets);
-
           graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, false);
 
-          // graphique_pie_CO2_aide_projet(filtered_records_aides,filtered_records_projets);
+          graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
           
         }
 
