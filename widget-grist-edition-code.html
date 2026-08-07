@@ -451,7 +451,7 @@
     }
 
     #wrapper-projets {
-      height: 600px;
+      height: 800px;
     }
 
 
@@ -489,7 +489,7 @@
     .bar-chart-annee {
       flex: 1 1 auto;   /* prend l'espace restant après la légende */
       position: relative;
-      min-width: 0;     /* important pour que le graphique puisse rétrécir */
+      min-width: 0;     /* important pour que le f puisse rétrécir */
       min-height: 0;
       width: 100% !important;
       height: 100% !important;
@@ -507,7 +507,7 @@
       width: 100%;
       flex: 0 0 auto;    /* garde sa hauteur naturelle, ne s'étire pas */
       max-height: 240px;  /* borne la légende pour garantir de la place au canvas — ajuste selon besoin */
-      overflow-y: auto;    /* si le contenu dépasse cette hauteur, scroll interne plutôt que débordement */
+      /*overflow-y: auto;    /* si le contenu dépasse cette hauteur, scroll interne plutôt que débordement */
       box-sizing: border-box;
     }
 
@@ -915,7 +915,7 @@
       grid-template-columns: 2fr 1fr;
       width: 100%;
       gap : 20px;
-      height: 600px;
+      height: 700px;
       overflow:hidden;
     }
 
@@ -935,7 +935,6 @@
       border: 1px solid #E7E9FF;
       border-radius: 16px;
       background: #fff;
-      box-shadow: var(--shadow-default);
       position: sticky;
       top: 10px;
       height: 100%;       /* AJOUT : occupe exactement la hauteur de sa cellule (600px) */
@@ -1209,8 +1208,8 @@
           </div>
           <div class="legend-wrapper">
             <div id="legend-container"></div>
-            <div class="hint" id="below-graph">Si un projet est soutenu par plusieurs dispositifs, il est représenté dans le dispositif principal.<br>Certains projets représentés peuvent ne pas figurer dans la base projets s’ils n’y ont pas été ajoutés.</div>
           </div>
+           <div class="hint" id="below-graph">Si un projet est soutenu par plusieurs dispositifs, il est représenté dans le dispositif principal.<br>Certains projets représentés peuvent ne pas figurer dans la base projets s’ils n’y ont pas été ajoutés.</div>
         </div>
         <div class="dropdown-list" id="listeAides"></div>
       </div>
@@ -1373,7 +1372,7 @@
           b3.label = 'Montant total de CAPEX';
           b3.unit = unitAdaptee(capex_tot,'€')[1];
 
-          const puissance_elec_tot = sumList(data_traite[5]); // nécessite le fix ci-dessous dans traitement_donnees_CO2_procede
+          const puissance_elec_tot = sumList(data_traite[5]); 
           const nb_sites_raccord = record_sites.Besoin_de_raccordement.filter(v => v !== false).length;
           b4.value = `${unitAdaptee(puissance_elec_tot*1000000,'W')[0]}`;
           b4.label = 'Puissance électrique';
@@ -1887,7 +1886,7 @@
         }
 
         function listMainProjets(record_projets){
-          const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => typeof r.Emissions_abattues_tCO2e_an_[i] == 'number'),
+          const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => (typeof r.Emissions_abattues_tCO2e_an_[i] == 'number' && r.Procede[i] != null && r.Procede[i] != '0' & r.Procede[i] != '-1' && r.Annee_MES_prevue[i] != 0 && typeof r.Annee_MES_prevue[i] == 'number')),
           ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_'],0);
           let result = {
             description: data_triee_projets[1],
@@ -1904,7 +1903,7 @@
         }
 
         function listMainSites(record_sites){
-          const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => typeof r.ges_2024[i] == 'number'),
+          const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r.ges_2024[i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
           ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data'],0);
           let result = {
             emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),                 // On prend ges_2025 si la donnée est disponible, ges_2024 sinon
@@ -2060,6 +2059,34 @@
         }
 
 
+        function D_traj_emissions(record_projets,record_sites){
+          let D = {'2019|Emissions' : sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2019),'2019|Abattement' : sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2019)};
+          const donnees_traitees = traitement_donnees_CO2_procede(record_projets);
+          const anneesMES = donnees_traitees[2];
+          const co2_abattu = donnees_traitees[1];
+          const procede = donnees_traitees[0];
+          const annees_emissions = Array.from({ length: 17 }, (_, i) => 2019 + i);
+          for (let i = 0; i < anneesMES.length; i++){
+            if (anneesMES[i] <= 2035 && anneesMES[i] > 2019){
+              for (a of annees_emissions){
+                if(procede[i] == 'Variation de production sans décarbonation'){
+                  if (a >= anneesMES[i]){
+                    D[`${a}|Emissions`] = (D[`${a}|Emissions`] ?? D['2019|Emissions']) - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
+                  }
+                }
+                else{
+                   if (a >= anneesMES[i]){
+                    D[`${a}|Abattement`] = (D[`${a}|Abattement`] ?? D['2019|Emissions']) - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
+                  }
+                }
+                
+              }
+            }
+          }
+          return D;
+        }
+
+
 
         function traitement_donnees_CO2_procede(record) {
           const procede_non_traite = record.Procede || [];
@@ -2080,9 +2107,7 @@
           let index = 0;
 
           for (let i = 0; i < procede_non_traite.length; i++) {
-            if (procede_non_traite[i] == null || procede_non_traite[i] == '0' || procede_non_traite[i] == '-1'
-                || annee_non_traite[i] == 0 || typeof annee_non_traite[i] != 'number'
-                || etat_proj_non_traite[i] == 'Abandonné') {
+            if (procede_non_traite[i] == null || procede_non_traite[i] == '0' || procede_non_traite[i] == '-1' || annee_non_traite[i] == 0 || typeof annee_non_traite[i] != 'number' || etat_proj_non_traite[i] == 'Abandonné') {
               continue;
             }
 
@@ -3148,7 +3173,7 @@
               createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${unitAdaptee(projets.abattement[i],'tCO2e/an')[0] + ' ' + unitAdaptee(projets.abattement[i],'tCO2e/an')[1]} abattues`}, 
               [
                   {name: "Site",value: projets.nom_site[i]},
-                  {name: "Annee MES",value: projets.annee[i]},
+                  {name: "Année MES",value: projets.annee[i]},
                   {name: "Procédé",value: projets.procede[i]},
                   {name: "CAPEX",value: `CAPEX : ${unitAdaptee(projets.capex[i],'€')[0] + ' ' + unitAdaptee(projets.capex[i],'€')[1]}`},
               ])
@@ -3166,7 +3191,7 @@
                   {name: "Région",value: sites.region[i]},
                   {name: "Entreprise",value: sites.entreprise[i]},
                   {name: "Périmètre",value: sites.perimetre[i]},
-                  {name: "Filiere",value: sites.filiere[i]},
+                  {name: "Filière",value: sites.filiere[i]},
               ])
             );
           }
@@ -3181,7 +3206,7 @@
               [
                   {name: "Bénéficiaire",value: aides.porteur[i]},
                   {name: "Montant",value: `${unitAdaptee(aides.montant[i],'€')[0] + ' ' + unitAdaptee(aides.montant[i],'€')[1]}`},
-                  {name: "Annee MES",value: aides.annee[i]},
+                  {name: "Année MES",value: aides.annee[i]},
               ])
             );
           }
