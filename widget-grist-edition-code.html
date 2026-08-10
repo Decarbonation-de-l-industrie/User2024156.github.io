@@ -1,1066 +1,1066 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cartographie des entreprises (Grist)</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Cartographie des entreprises (Grist)</title>
+
+    <!-- Grist API -->
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
+    <!-- Chart.js (Graphs) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Librairie motifs de remplissage Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/patternomaly/1.3.2/patternomaly.min.js"></script>
+
+    <!-- Leaflet (carte) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Sheet JS (extraction tableur Excel)-->
+
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+
+    <style>
+      :root {
+        --font-primary: "Marianne", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        --color-brand-blue: #000091;
+        --color-light-blue-bg: #F0F0FF;
+        --color-transparent-light-blue: rgba(240, 240, 255, 0.5);
+        --color-accent: #6A6AF4;
+        --color-text-default: #0b0b0b;
+        --color-text-placeholder: #6b7280;
+        --color-surface: #FFF;
+        --color-border: #A8A8A8;
+        --shadow-default: 0 4px 12px rgba(0, 0, 145, 0.18);
+
+        --color-both-pastille: #F7CA18;
+        --color-impact: #F95C5E;
+        --color-conformity: #D282CD;
+        --color-lack-data-pastille: #E2E2E2;
+        --color-aucune-habilitation-pastille: #CBCBCB;
+
+        --color-msg-lack-data: #929292;
+
+        --color-procede-electrification: #0070C0;
+        --color-procede-eaf: #203864;
+        --color-procede-ccs: #7F7F7F;
+        --color-procede-biomasse: #9DC3E6;
+        --color-procede-biogaz: #DEEBF7;
+        --color-procede-csr: #ADB9CA;
+        --color-procede-efficacite: #548235;
+        --color-procede-reduction-clinker: #70AD47;
+        --color-procede-recyclage: #A9D18E;
+        --color-procede-chgmnt-procede: #7030A0;
+        --color-procede-hydrogene: #CC66FF;
+        --color-procede-recuperation-chaleur: #E0D6A5;
+        --color-procede-anode-inerte: #000000;
+        --color-procede-intrant-decarb: #A4FF90;
+        --color-procede-report-gaz-nat: #C7835E;
+
+        --color-aide-aogpid: #A31F1F;
+        --color-aide-fonds-chaleur: #89471A;
+        --color-aide-bciat: #A3881F;
+        --color-aide-if: #73891A;
+        --color-aide-decarb-flash: #54A31F;
+        --color-aide-piiec:  #1A891A;
+        --color-aide-zibac: #1FA354;
+        --color-aide-ao-h2: #1A8973;
+        --color-aide-ibac-pme: #1F88A3;
+        --color-aide-cee: #1A4789;
+        --color-aide-induss-ee: #1F1FA3;
+        --color-aide-demibac: #471A89;
+        --color-aide-solinbac: #881FA3;
+        --color-aide-decarb-ind: #891A73; 
+        --color-aide-autre-aide: #373435;
+
+
+
+        --color-sante: #BFBFBF;
+        --color-acier-et-fonte: #BFBFBF;
+        --color-raffinage: #330000;
+        --color-chimie: #8C2237;
+        --color-ciment: #B67E54;
+        --color-chaux: #CFA98D;
+        --color-aluminium: #BFBFBF;
+        --color-agroalimentaire: #BFA000;
+        --color-verre: #0070C0;
+        --color-autre: #ffffe6;
+        --color-autre-materiaux: #ffffe6;
+        --color-papier-carton: #ffdf80;
+        --color-platre: #ffffb3;
+        --color-secteur-non-industriel: #ffffe6;
+        --color-energie: #000099;
+
+
+        --color-background-certain: #BFBFBF;
+        --color-background-potentiel: #8C8C8C;
+        --color-background-a-risque: #4D4D4D;
+        --color-background-abandonne: #1A1A1A;
+        --color-background-mis-en-service: #E5E5E5;
 
-  <!-- Grist API -->
-  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+        --color-background-desengage: #1A1A1A;
+        --color-background-pas-besoin-d-aide: #5C5C5C;
+        --color-background-engage-et-mes: #E5E5E5;
+        --color-background-engage: #A6A6A6;
 
-  <!-- Chart.js (Graphs) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Librairie motifs de remplissage Chart.js -->
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/patternomaly/1.3.2/patternomaly.min.js"></script>
 
-  <!-- Leaflet (carte) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <!-- Sheet JS (extraction tableur Excel)-->
+      }
 
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
-  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap4.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
-
-  <style>
-    :root {
-      --font-primary: "Marianne", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      --color-brand-blue: #000091;
-      --color-light-blue-bg: #F0F0FF;
-      --color-transparent-light-blue: rgba(240, 240, 255, 0.5);
-      --color-accent: #6A6AF4;
-      --color-text-default: #0b0b0b;
-      --color-text-placeholder: #6b7280;
-      --color-surface: #FFF;
-      --color-border: #A8A8A8;
-      --shadow-default: 0 4px 12px rgba(0, 0, 145, 0.18);
-
-      --color-both-pastille: #F7CA18;
-      --color-impact: #F95C5E;
-      --color-conformity: #D282CD;
-      --color-lack-data-pastille: #E2E2E2;
-      --color-aucune-habilitation-pastille: #CBCBCB;
-
-      --color-msg-lack-data: #929292;
-
-      --color-procede-electrification: #0070C0;
-      --color-procede-eaf: #203864;
-      --color-procede-ccs: #7F7F7F;
-      --color-procede-biomasse: #9DC3E6;
-      --color-procede-biogaz: #DEEBF7;
-      --color-procede-csr: #ADB9CA;
-      --color-procede-efficacite: #548235;
-      --color-procede-reduction-clinker: #70AD47;
-      --color-procede-recyclage: #A9D18E;
-      --color-procede-chgmnt-procede: #7030A0;
-      --color-procede-hydrogene: #CC66FF;
-      --color-procede-recuperation-chaleur: #E0D6A5;
-      --color-procede-anode-inerte: #000000;
-      --color-procede-intrant-decarb: #A4FF90;
-      --color-procede-report-gaz-nat: #C7835E;
-
-      --color-aide-aogpid: #A31F1F;
-      --color-aide-fonds-chaleur: #89471A;
-      --color-aide-bciat: #A3881F;
-      --color-aide-if: #73891A;
-      --color-aide-decarb-flash: #54A31F;
-      --color-aide-piiec:  #1A891A;
-      --color-aide-zibac: #1FA354;
-      --color-aide-ao-h2: #1A8973;
-      --color-aide-ibac-pme: #1F88A3;
-      --color-aide-cee: #1A4789;
-      --color-aide-induss-ee: #1F1FA3;
-      --color-aide-demibac: #471A89;
-      --color-aide-solinbac: #881FA3;
-      --color-aide-decarb-ind: #891A73; 
-      --color-aide-autre-aide: #373435;
-
-
-
-      --color-sante: #BFBFBF;
-      --color-acier-et-fonte: #BFBFBF;
-      --color-raffinage: #330000;
-      --color-chimie: #8C2237;
-      --color-ciment: #B67E54;
-      --color-chaux: #CFA98D;
-      --color-aluminium: #BFBFBF;
-      --color-agroalimentaire: #BFA000;
-      --color-verre: #0070C0;
-      --color-autre: #ffffe6;
-      --color-autre-materiaux: #ffffe6;
-      --color-papier-carton: #ffdf80;
-      --color-platre: #ffffb3;
-      --color-secteur-non-industriel: #ffffe6;
-      --color-energie: #000099;
-
-
-      --color-background-certain: #BFBFBF;
-      --color-background-potentiel: #8C8C8C;
-      --color-background-a-risque: #4D4D4D;
-      --color-background-abandonne: #1A1A1A;
-      --color-background-mis-en-service: #E5E5E5;
-
-      --color-background-desengage: #1A1A1A;
-      --color-background-pas-besoin-d-aide: #5C5C5C;
-      --color-background-engage-et-mes: #E5E5E5;
-      --color-background-engage: #A6A6A6;
-
-
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: var(--font-primary);
-      background: var(--color-surface);
-      color: var(--color-text-default);
-      font-size: 13px;
-    }
-
-    .page-wrapper {
-      display: flex;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .main-content {
-      width: 100%;
-      max-width: 1200px;
-    }
-
-    .page-header {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      height: 120px;
-      margin-bottom: 16px;
-      padding: 0 22px;
-      background: #F6F7FF;
-      color: var(--color-brand-blue);
-      border-radius: 16px;
-    }
-
-    .page-header h1 {
-      font-size: 25px;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      height: 60px;
-      padding: 0 22px;
-      color: #F6F7FF;
-      background: var(--color-brand-blue);
-      border-radius: 16px;
-      margin: 5px;
-    }
-
-    .section-header h1 {
-      font-size: 20px;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    /* Filters */
-    .filters-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-
-    .filters-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: flex-end;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 13px;
-      min-width: 220px;
-    }
-
-    .form-group--grow {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .form-control {
-      height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      background: #fff;
-      box-shadow: var(--shadow-default);
-      font-size: 14px;
-      outline: none;
-    }
-
-    select.form-control {
-      cursor: pointer;
-    }
-
-    .form-control::placeholder {
-      color: var(--color-text-placeholder);
-    }
-
-    .btn {
-      min-height: 34px;
-      padding: 8px 16px;
-      line-height: 1.3;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-weight: 700;
-      box-shadow: var(--shadow-default);
-      background: var(--color-brand-blue);
-      color: #fff;
-    }
-
-    .btn.secondary {
-      background: #fff;
-      color: var(--color-brand-blue);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-    }
-
-    #cumul-button-charts-procede{
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 10;
-      padding: 6px 10px;
-      font-size: 12px;
-    }
-
-    #cumul-button-charts-aide{
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 10;
-      padding: 6px 10px;
-      font-size: 12px;
-    }
-
-
-    #hide-button-map {
-      font-size:20px;
-      font-weight:1200;
-    }
-
-    .hint {
-      color: #6b7280;
-      font-size: 12px;
-      margin-top: 2px;
-    }
-
-    #below-graph{
-      position: absolute;
-      bottom: -30px;
-      margin-top: 10px;
-    }
-
-    /*   Style des blocs en en-tête de chaque section   */
-
-    .block-wrapper {
-      display: flex;
-      flex-direction: row;
-      gap: 10px;
-      width:100%;
-      padding-top:10px;
-      padding-bottom:20px;
-    }
-
-    .stat-block {
-      flex: 1 1 0;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 20px 24px;
-      background: rgba(240, 235, 227, 0.5);
-      border-radius: 12px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-      font-family: var(--font-primary);
-    }
-
-    /* Label au-dessus de la valeur principale */
-    .stat-block__label {
-      font-size: 15px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #303339;
-    }
-
-    /* Donnée principale : gros contraste visuel */
-    .stat-block__value {
-      font-size: 36px;
-      font-weight: 800;
-      color: var(--color-brand-blue, #1e3a8a);
-      line-height: 1.1;
-    }
-
-    .stat-block__unit {
-      font-size: 22px;
-      font-weight: 600;
-      color: #686d75;
-      margin-left: 6px;
-    }
-
-    /* Séparateur visuel avant les données secondaires */
-    .stat-block__secondary {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
-    }
-
-    .stat-block__secondary-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 16px;
-    }
-
-    .stat-block__secondary-label {
-      color: #686d75;
-    }
-
-    .stat-block__secondary-value {
-      font-weight: 600;
-      color: #374151;
-    }
-
-    .stat-block__secondary-value--positive {
-      color: #16a34a;
-    }
-
-    .stat-block__secondary-value--negative {
-      color: #dc2626;
-    }
-
-    /* La ligne recherche + bouton s'aligne sur le haut des champs (label vs label) */
-    .filters-row--search {
-      align-items: flex-start;
-    }
-
-    /* Label invisible pour que le bouton tombe au même niveau que l'input */
-    .label--hidden {
-      visibility: hidden;
-    }
-
-    /* Le groupe du bouton ne doit pas grandir */
-    .form-group--btn {
-      min-width: unset;
-    }
-
-    /* Wrapper principal — reprend la forme pilule de .form-control */
-    #selectRegion+.ts-wrapper .ts-control,
-    .ts-wrapper .ts-control {
-      min-height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      background: #fff;
-      box-shadow: var(--shadow-default);
-      font-size: 14px;
-      cursor: pointer;
-      flex-wrap: wrap;
-      /* tags sur plusieurs lignes si besoin */
-      align-items: center;
-    }
-
-    div.ts-wrapper.form-group.form-control.multi {
-      /* Override des rectangles blancs par défaut du plugin derrière les filtres */
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-    }
-
-    /* Supprimer le style par défaut de Tom Select */
-    .ts-wrapper.form-control {
-      padding: 0;
-      height: auto;
-    }
-
-    /* Champ de recherche interne */
-    .ts-control input {
-      font-size: 14px;
-      margin: 0;
-    }
-
-    /* Tags (choix multiples) */
-    .ts-control .item {
-      background: #e8edf5;
-      border-radius: 999px;
-      padding: 2px 10px;
-      font-size: 12px;
-      margin: 2px 4px 2px 0;
-    }
-
-    /* Dropdown */
-    .ts-dropdown {
-      border-radius: 12px;
-      border: 1px solid rgba(0, 0, 0, 0.12);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    /* Options au survol */
-    .ts-dropdown .option:hover,
-    .ts-dropdown .option.active {
-      background: #e8edf5;
-      color: inherit;
-    }
-
-    select:has(+ .ts-wrapper) {
-      /* S'assure que le select original n'est plus visible derrière l'affichage TomSelect */
-      display: none;
-    }
-
-    .chart-wrapper {
-      position: relative;
-      display: grid;
-      grid-template-columns: 3fr 1fr;
-      width: 100%;
-      margin-bottom: 40px;
-      gap: 20px;
-    }
-
-    #wrapper-aides {
-      height: 800px;
-    }
-
-    #wrapper-projets {
-      height: 800px;
-    }
-
-    #wrapper-traj {
-      width: 100%;
-      height: 600px;
-      display: grid;
-      grid-template-columns: 1fr;   /* une seule colonne au lieu de 3fr 1fr */
-    }
-
-
-    .canvas-charts-1-hidden {
-      display: none !important;
-    }
-
-    .canvas-charts-1-shown {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      gap: 10px;
-      align-items: stretch;
-    }
-
-    #canvas-charts-traj-1{
-      min-height: 0;
-      width:100%;
-      box-sizing: border-box;
-    }
-
-    #canvas-charts-aide-1 {
-      min-width: 0;
-      min-height : 0;
-      flex-direction: column;
-      height: 100%;     /* occupe la hauteur de la cellule de grille (600px) */
-      overflow: hidden; /* évite que le contenu pousse .dropdown-list en dehors */
-      box-sizing: border-box;
-    }
-
-    #canvas-charts-procede-1 {
-      flex-direction: column;
-      min-width: 0;
-      min-height: 0;
-      height: 100%;
-      overflow: hidden;
-      box-sizing: border-box;
-    }
-
-
-    .bar-chart-annee {
-      flex: 1 1 auto;   /* prend l'espace restant après la légende */
-      position: relative;
-      min-width: 0;     /* important pour que le f puisse rétrécir */
-      min-height: 0;
-      width: 100% !important;
-      height: 100% !important;
-      box-sizing: border-box;
-    }
-
-    .bar-chart-annee canvas {
-      max-width: 100%;
-      max-height: 100%;
-    }
-
-
-    .legend-wrapper{
-      position: relative;
-      width: 100%;
-      flex: 0 0 auto;    /* garde sa hauteur naturelle, ne s'étire pas */
-      max-height: 240px;  /* borne la légende pour garantir de la place au canvas — ajuste selon besoin */
-      /*overflow-y: auto;    /* si le contenu dépasse cette hauteur, scroll interne plutôt que débordement */
-      box-sizing: border-box;
-    }
-
-    #legend-container {
-      display: flex;
-      flex-direction: row;      
-      flex-wrap: nowrap;          
-      align-content: flex-start;
-      justify-content: flex-start;
-      gap: 10px 15px;           
-      height: auto;             
-    }
-
-    .legend-col {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex : 1 1 0;
-      min-width: 0;
-    }
-
-    /* Bloc "dispositifs" : titre unique + colonnes de 3 en dessous, sur toute la largeur */
-    .legend-dispositifs-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 3 1 0; /* force le passage à la ligne dans #legend-container */
-    }
-
-    .legend-dispositifs-cols {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      gap: 8px;   /* était: 16px */
-      width: 100%;
-    }
-
-    .legend-col--dispositifs {
-      flex: 1 1 0;
-      min-width: 0;
-    }
-
-    .legend-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 150px;
-      flex: 0 1 auto;
-    }
-
-    .legend-group-title {
-      font-weight: 700;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      color: var(--color-brand-blue);
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 4px;
-      margin-bottom: 2px;
-    }
-  
-    .legend-group ul {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .legend-group li {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      user-select: none;
-    }
-
-    .legend-group li.hidden {
-      opacity: 0.4;
-      text-decoration: line-through;
-    }
-
-
-    .legend-group .swatch {
-      width: 13px;
-      height: 13px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-
-    /* Principales lignes des données */
-
-    .dropdown-list{
-        display:flex;
-        flex-direction:column;
-        gap:6px;
-        min-width:0;
-        overflow-y:auto;
-        height:100%;
-        min-height:0;
+      * {
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-        background:transparent;
+      body {
+        font-family: var(--font-primary);
+        background: var(--color-surface);
+        color: var(--color-text-default);
+        font-size: 13px;
+      }
+
+      .page-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .main-content {
+        width: 100%;
+        max-width: 1200px;
+      }
+
+      .page-header {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 120px;
+        margin-bottom: 16px;
+        padding: 0 22px;
+        background: #F6F7FF;
+        color: var(--color-brand-blue);
+        border-radius: 16px;
+      }
+
+      .page-header h1 {
+        font-size: 25px;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 60px;
+        padding: 0 22px;
+        color: #F6F7FF;
+        background: var(--color-brand-blue);
+        border-radius: 16px;
+        margin: 5px;
+      }
+
+      .section-header h1 {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      /* Filters */
+      .filters-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .filters-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: flex-end;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13px;
+        min-width: 220px;
+      }
+
+      .form-group--grow {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .form-control {
+        height: 34px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: #fff;
+        box-shadow: var(--shadow-default);
+        font-size: 14px;
+        outline: none;
+      }
+
+      select.form-control {
+        cursor: pointer;
+      }
+
+      .form-control::placeholder {
+        color: var(--color-text-placeholder);
+      }
+
+      .btn {
+        min-height: 34px;
+        padding: 8px 16px;
+        line-height: 1.3;
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        box-shadow: var(--shadow-default);
+        background: var(--color-brand-blue);
+        color: #fff;
+      }
+
+      .btn.secondary {
+        background: #fff;
+        color: var(--color-brand-blue);
+        border: 1px solid rgba(0, 0, 0, 0.15);
+      }
+
+      #cumul-button-charts-procede{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      #cumul-button-charts-aide{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
 
 
-        font-family:var(--font-primary);
-    }
+      #hide-button-map {
+        font-size:20px;
+        font-weight:1200;
+      }
+
+      .hint {
+        color: #6b7280;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      #below-graph{
+        position: absolute;
+        bottom: -30px;
+        margin-top: 10px;
+      }
+
+      /*   Style des blocs en en-tête de chaque section   */
+
+      .block-wrapper {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        width:100%;
+        padding-top:10px;
+        padding-bottom:20px;
+      }
+
+      .stat-block {
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px 24px;
+        background: rgba(240, 235, 227, 0.5);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        font-family: var(--font-primary);
+      }
+
+      /* Label au-dessus de la valeur principale */
+      .stat-block__label {
+        font-size: 15px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #303339;
+      }
+
+      /* Donnée principale : gros contraste visuel */
+      .stat-block__value {
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--color-brand-blue, #1e3a8a);
+        line-height: 1.1;
+      }
+
+      .stat-block__unit {
+        font-size: 22px;
+        font-weight: 600;
+        color: #686d75;
+        margin-left: 6px;
+      }
+
+      /* Séparateur visuel avant les données secondaires */
+      .stat-block__secondary {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+      }
+
+      .stat-block__secondary-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+      }
+
+      .stat-block__secondary-label {
+        color: #686d75;
+      }
+
+      .stat-block__secondary-value {
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .stat-block__secondary-value--positive {
+        color: #16a34a;
+      }
+
+      .stat-block__secondary-value--negative {
+        color: #dc2626;
+      }
+
+      /* La ligne recherche + bouton s'aligne sur le haut des champs (label vs label) */
+      .filters-row--search {
+        align-items: flex-start;
+      }
+
+      /* Label invisible pour que le bouton tombe au même niveau que l'input */
+      .label--hidden {
+        visibility: hidden;
+      }
+
+      /* Le groupe du bouton ne doit pas grandir */
+      .form-group--btn {
+        min-width: unset;
+      }
+
+      /* Wrapper principal — reprend la forme pilule de .form-control */
+      #selectRegion+.ts-wrapper .ts-control,
+      .ts-wrapper .ts-control {
+        min-height: 34px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: #fff;
+        box-shadow: var(--shadow-default);
+        font-size: 14px;
+        cursor: pointer;
+        flex-wrap: wrap;
+        /* tags sur plusieurs lignes si besoin */
+        align-items: center;
+      }
+
+      div.ts-wrapper.form-group.form-control.multi {
+        /* Override des rectangles blancs par défaut du plugin derrière les filtres */
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+
+      /* Supprimer le style par défaut de Tom Select */
+      .ts-wrapper.form-control {
+        padding: 0;
+        height: auto;
+      }
+
+      /* Champ de recherche interne */
+      .ts-control input {
+        font-size: 14px;
+        margin: 0;
+      }
+
+      /* Tags (choix multiples) */
+      .ts-control .item {
+        background: #e8edf5;
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 12px;
+        margin: 2px 4px 2px 0;
+      }
+
+      /* Dropdown */
+      .ts-dropdown {
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      /* Options au survol */
+      .ts-dropdown .option:hover,
+      .ts-dropdown .option.active {
+        background: #e8edf5;
+        color: inherit;
+      }
+
+      select:has(+ .ts-wrapper) {
+        /* S'assure que le select original n'est plus visible derrière l'affichage TomSelect */
+        display: none;
+      }
+
+      .chart-wrapper {
+        position: relative;
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        width: 100%;
+        margin-bottom: 40px;
+        gap: 20px;
+      }
+
+      #wrapper-aides {
+        height: 800px;
+      }
+
+      #wrapper-projets {
+        height: 800px;
+      }
+
+      #wrapper-traj {
+        width: 100%;
+        height: 600px;
+        display: grid;
+        grid-template-columns: 1fr;   /* une seule colonne au lieu de 3fr 1fr */
+      }
 
 
-    /* ===========================
-      Carte projet/site/aide
-      =========================== */
+      .canvas-charts-1-hidden {
+        display: none !important;
+      }
 
-    .main-list-item{
+      .canvas-charts-1-shown {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      #canvas-charts-traj-1{
+        min-height: 0;
+        width:100%;
+        box-sizing: border-box;
+      }
+
+      #canvas-charts-aide-1 {
+        min-width: 0;
+        min-height : 0;
+        flex-direction: column;
+        height: 100%;     /* occupe la hauteur de la cellule de grille (600px) */
+        overflow: hidden; /* évite que le contenu pousse .dropdown-list en dehors */
+        box-sizing: border-box;
+      }
+
+      #canvas-charts-procede-1 {
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+
+      .bar-chart-annee {
+        flex: 1 1 auto;   /* prend l'espace restant après la légende */
+        position: relative;
+        min-width: 0;     /* important pour que le f puisse rétrécir */
+        min-height: 0;
+        width: 100% !important;
+        height: 100% !important;
+        box-sizing: border-box;
+      }
+
+      .bar-chart-annee canvas {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+
+      .legend-wrapper{
+        position: relative;
+        width: 100%;
+        flex: 0 0 auto;    /* garde sa hauteur naturelle, ne s'étire pas */
+        max-height: 240px;  /* borne la légende pour garantir de la place au canvas — ajuste selon besoin */
+        /*overflow-y: auto;    /* si le contenu dépasse cette hauteur, scroll interne plutôt que débordement */
+        box-sizing: border-box;
+      }
+
+      #legend-container {
+        display: flex;
+        flex-direction: row;      
+        flex-wrap: nowrap;          
+        align-content: flex-start;
+        justify-content: flex-start;
+        gap: 10px 15px;           
+        height: auto;             
+      }
+
+      .legend-col {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex : 1 1 0;
+        min-width: 0;
+      }
+
+      /* Bloc "dispositifs" : titre unique + colonnes de 3 en dessous, sur toute la largeur */
+      .legend-dispositifs-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 3 1 0; /* force le passage à la ligne dans #legend-container */
+      }
+
+      .legend-dispositifs-cols {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 8px;   /* était: 16px */
+        width: 100%;
+      }
+
+      .legend-col--dispositifs {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+
+      .legend-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 150px;
+        flex: 0 1 auto;
+      }
+
+      .legend-group-title {
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-brand-blue);
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 4px;
+        margin-bottom: 2px;
+      }
+    
+      .legend-group ul {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .legend-group li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        user-select: none;
+      }
+
+      .legend-group li.hidden {
+        opacity: 0.4;
+        text-decoration: line-through;
+      }
+
+
+      .legend-group .swatch {
+        width: 13px;
+        height: 13px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+
+      /* Principales lignes des données */
+
+      .dropdown-list{
+          display:flex;
+          flex-direction:column;
+          gap:6px;
+          min-width:0;
+          overflow-y:auto;
+          height:100%;
+          min-height:0;
+          box-sizing: border-box;
+
+          background:transparent;
+
+
+          font-family:var(--font-primary);
+      }
+
+
+      /* ===========================
+        Carte projet/site/aide
+        =========================== */
+
+      .main-list-item{
+
+          display:flex;
+          flex-direction:column;
+
+          gap:7px;
+
+          padding:9px 14px;
+
+          background:var(--color-transparent-light-blue);
+
+          border:1px solid rgba(0,0,0,.06);
+          border-radius:10px;
+
+          box-shadow:0 1px 3px rgba(0,0,0,.05);
+
+          transition:.15s ease;
+      }
+
+
+      .main-list-item:hover{
+          transform:translateY(-1px);
+          box-shadow:0 4px 10px rgba(0,0,0,.08);
+      }
+
+
+
+      /* ===========================
+        Ligne 1 : titre
+        =========================== */
+
+      .main-list-header{
+
+          padding-bottom:6px;
+
+          border-bottom:1px solid rgba(0,0,0,.08);
+      }
+
+
+      .main-list__description,
+      .main-list__dispositif{
+
+          font-size:16px;
+          font-weight:700;
+
+          color:var(--color-brand-blue);
+
+          line-height:1.35;
+      }
+
+
+
+      /* ===========================
+        Ligne 2 : indicateur principal
+        =========================== */
+
+      .main-list-highlight{
+
+          padding-bottom:7px;
+
+          border-bottom:1px solid rgba(0,0,0,.08);
+      }
+
+
+      .main-list__abattement,
+      .main-list__emissions{
+
+          font-size:14px;
+          font-weight:600;
+      }
+
+
+      /* CO2 évité */
+
+      .main-list__abattement{
+          color:#16a34a;
+      }
+
+
+      /* émissions */
+
+      .main-list__emissions{
+          color:#dc2626;
+      }
+
+
+
+      /* ===========================
+        Zone détails
+        2 colonnes compactes
+        =========================== */
+
+      .main-list-details{
 
         display:flex;
         flex-direction:column;
+        gap:4px;
 
-        gap:7px;
-
-        padding:9px 14px;
-
-        background:var(--color-transparent-light-blue);
-
-        border:1px solid rgba(0,0,0,.06);
-        border-radius:10px;
-
-        box-shadow:0 1px 3px rgba(0,0,0,.05);
-
-        transition:.15s ease;
-    }
+      }
 
 
-    .main-list-item:hover{
-        transform:translateY(-1px);
-        box-shadow:0 4px 10px rgba(0,0,0,.08);
-    }
+      .main-list-detail{
+
+          display:flex;
+
+          justify-content:space-between;
+
+          gap:12px;
+
+          min-width:0;
+
+          font-size:.78rem;
+      }
 
 
 
-    /* ===========================
-      Ligne 1 : titre
-      =========================== */
+      /* nom du champ */
 
-    .main-list-header{
+      .main-list-detail .label{
 
-        padding-bottom:6px;
+          color:#686d75;
 
-        border-bottom:1px solid rgba(0,0,0,.08);
-    }
-
-
-    .main-list__description,
-    .main-list__dispositif{
-
-        font-size:16px;
-        font-weight:700;
-
-        color:var(--color-brand-blue);
-
-        line-height:1.35;
-    }
+          white-space:nowrap;
+      }
 
 
 
-    /* ===========================
-      Ligne 2 : indicateur principal
-      =========================== */
+      /* valeur */
 
-    .main-list-highlight{
+      .main-list-detail .value{
 
-        padding-bottom:7px;
+          font-weight:600;
 
-        border-bottom:1px solid rgba(0,0,0,.08);
-    }
+          color:#374151;
 
+          text-align:right;
 
-    .main-list__abattement,
-    .main-list__emissions{
+          overflow:hidden;
 
-        font-size:14px;
-        font-weight:600;
-    }
+          text-overflow:ellipsis;
 
-
-    /* CO2 évité */
-
-    .main-list__abattement{
-        color:#16a34a;
-    }
-
-
-    /* émissions */
-
-    .main-list__emissions{
-        color:#dc2626;
-    }
+          white-space:nowrap;
+      }
 
 
 
-    /* ===========================
-      Zone détails
-      2 colonnes compactes
-      =========================== */
+      /* ===========================
+        Valeurs spécifiques
+        =========================== */
 
-    .main-list-details{
+      .main-list__montant,
+      .main-list__annee-mes,
+      .main-list__site,
+      .main-list__nom-site,
+      .main-list__beneficiaire,
+      .main-list__entreprise,
+      .main-list__procede{
 
-      display:flex;
-      flex-direction:column;
-      gap:4px;
+          color:#374151;
 
-    }
+      }
 
 
-    .main-list-detail{
+      .main-list__entreprise{
 
-        display:flex;
+          font-style:italic;
 
-        justify-content:space-between;
-
-        gap:12px;
-
-        min-width:0;
-
-        font-size:.78rem;
-    }
+      }
 
 
 
-    /* nom du champ */
+      .main-list__region,
+      .main-list__perimetre,
+      .main-list__filiere,
+      .main-list__capex{
 
-    .main-list-detail .label{
+          color:#686d75;
 
-        color:#686d75;
-
-        white-space:nowrap;
-    }
+      }
 
 
 
-    /* valeur */
 
-    .main-list-detail .value{
 
-        font-weight:600;
 
-        color:#374151;
+      /* Résultats */
+      .results-section {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
 
-        text-align:right;
+      .company-list-container {
+        flex: 1;
+        min-width: 320px;
+      }
 
+      #map-container {
+        flex: 1;
+        min-width: 320px;
+      }
+
+
+
+
+
+
+
+      /* Accordéon */
+      #company-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .company-item {
+        border: 1px solid #E7E9FF;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      }
+
+      .company-item__header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .company-item__name {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--color-brand-blue);
+      }
+
+      .company-item__meta {
+        margin-left: auto;
+        color: rgba(22, 21, 19, 0.99);
+        font-size: 12px;
+      }
+
+      .company-item__details {
+        display: none;
+        padding: 14px 16px;
+        background: var(--color-light-blue-bg);
+      }
+
+      .company-item.is-open .company-item__details {
+        display: block;
+      }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        background: #fff;
+        border-radius: 12px;
+      }
+
+      .detail .k {
+        color: #6b7280;
+      }
+
+      .detail .v {
+        font-weight: 700;
+        color: #111827;
+        text-align: right;
+      }
+
+      .detail.full {
+        grid-column: 1 / -1;
+      }
+
+      /* Plan Carte */
+
+
+      .map-wrapper {
+        margin-bottom: 40px;
+        display:grid;
+        grid-template-columns: 2fr 1fr;
+        width: 100%;
+        gap : 20px;
+        height: 700px;
         overflow:hidden;
-
-        text-overflow:ellipsis;
-
-        white-space:nowrap;
-    }
-
-
-
-    /* ===========================
-      Valeurs spécifiques
-      =========================== */
-
-    .main-list__montant,
-    .main-list__annee-mes,
-    .main-list__site,
-    .main-list__nom-site,
-    .main-list__beneficiaire,
-    .main-list__entreprise,
-    .main-list__procede{
-
-        color:#374151;
-
-    }
-
-
-    .main-list__entreprise{
-
-        font-style:italic;
-
-    }
-
-
-
-    .main-list__region,
-    .main-list__perimetre,
-    .main-list__filiere,
-    .main-list__capex{
-
-        color:#686d75;
-
-    }
-
-
-
-
-
-
-    /* Résultats */
-    .results-section {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      align-items: flex-start;
-    }
-
-    .company-list-container {
-      flex: 1;
-      min-width: 320px;
-    }
-
-    #map-container {
-      flex: 1;
-      min-width: 320px;
-    }
-
-
-
-
-
-
-
-    /* Accordéon */
-    #company-accordion {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .company-item {
-      border: 1px solid #E7E9FF;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #fff;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-    }
-
-    .company-item__header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 16px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .company-item__name {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--color-brand-blue);
-    }
-
-    .company-item__meta {
-      margin-left: auto;
-      color: rgba(22, 21, 19, 0.99);
-      font-size: 12px;
-    }
-
-    .company-item__details {
-      display: none;
-      padding: 14px 16px;
-      background: var(--color-light-blue-bg);
-    }
-
-    .company-item.is-open .company-item__details {
-      display: block;
-    }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .detail {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 8px 10px;
-      background: #fff;
-      border-radius: 12px;
-    }
-
-    .detail .k {
-      color: #6b7280;
-    }
-
-    .detail .v {
-      font-weight: 700;
-      color: #111827;
-      text-align: right;
-    }
-
-    .detail.full {
-      grid-column: 1 / -1;
-    }
-
-    /* Plan Carte */
-
-
-    .map-wrapper {
-      margin-bottom: 40px;
-      display:grid;
-      grid-template-columns: 2fr 1fr;
-      width: 100%;
-      gap : 20px;
-      height: 700px;
-      overflow:hidden;
-    }
-
-    .map-container-shown {
-      display: inline;
-    }
-
-    .map-container-hidden {
-      display: none !important;
-    }
-
-    #map-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 14px;
-      border: 1px solid #E7E9FF;
-      border-radius: 16px;
-      background: #fff;
-      position: sticky;
-      top: 10px;
-      height: 100%;       /* AJOUT : occupe exactement la hauteur de sa cellule (600px) */
-      min-height: 0;       /* AJOUT : autorise à rétrécir sous la taille de son contenu */
-      overflow: hidden;    
-    }
-
-    #map-buttons {
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-      align-items: center;
-    }
-
-    #map-header {
-      display: flex;
-      justify-content: space-between;
-      align-content: flex-end;
-      gap: 12px;
-    }
-
-    #map-title {
-      font-size: 18px;
-      font-weight: 900;
-      color: var(--color-brand-blue);
-    }
-
-    #map-legend {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 15px;
-      font-family: var(--font-primary);
-      font-weight: 900;
-      color: var(--color-brand-blue);
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .legend-swatch {
-      width: 14px;
-      height: 10px;
-      border-radius: 999px;
-    }
-
-    .sw-both {
-      background: var(--color-both-pastille);
-    }
-
-    .sw-impact {
-      background: var(--color-impact);
-    }
-
-    .sw-conf {
-      background: var(--color-conformity);
-    }
-
-    .sw-none {
-      background: var(--color-aucune-habilitation-pastille);
-    }
-
-    .sw-nodata {
-      background: var(--color-lack-data-pastille);
-    }
-
-    #leaflet-map {
-      flex: 1 1 auto;
-      min-height: 0;
-      width: 100%;
-      height: 600px;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid #E7E9FF;
-    }
-
-    .empty {
-      padding: 14px;
-      border-radius: 14px;
-      border: 1px dashed #C7CBFF;
-      background: #FBFBFF;
-      color: #6b7280;
-    }
-
-
-    #suggestions {
-      border: 1px solid #ccc;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    #suggestions li {
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    #suggestions li:hover {
-      background: #f0f0f0;
-    }
-  </style>
-
-</head>
-
-<body>
-  <div class="page-wrapper">
-    <main class="main-content">
+      }
+
+      .map-container-shown {
+        display: inline;
+      }
+
+      .map-container-hidden {
+        display: none !important;
+      }
+
+      #map-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px;
+        border: 1px solid #E7E9FF;
+        border-radius: 16px;
+        background: #fff;
+        position: sticky;
+        top: 10px;
+        height: 100%;       /* AJOUT : occupe exactement la hauteur de sa cellule (600px) */
+        min-height: 0;       /* AJOUT : autorise à rétrécir sous la taille de son contenu */
+        overflow: hidden;    
+      }
+
+      #map-buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+      }
+
+      #map-header {
+        display: flex;
+        justify-content: space-between;
+        align-content: flex-end;
+        gap: 12px;
+      }
+
+      #map-title {
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--color-brand-blue);
+      }
+
+      #map-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 15px;
+        font-family: var(--font-primary);
+        font-weight: 900;
+        color: var(--color-brand-blue);
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .legend-swatch {
+        width: 14px;
+        height: 10px;
+        border-radius: 999px;
+      }
+
+      .sw-both {
+        background: var(--color-both-pastille);
+      }
+
+      .sw-impact {
+        background: var(--color-impact);
+      }
+
+      .sw-conf {
+        background: var(--color-conformity);
+      }
+
+      .sw-none {
+        background: var(--color-aucune-habilitation-pastille);
+      }
+
+      .sw-nodata {
+        background: var(--color-lack-data-pastille);
+      }
+
+      #leaflet-map {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+        height: 600px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #E7E9FF;
+      }
+
+      .empty {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px dashed #C7CBFF;
+        background: #FBFBFF;
+        color: #6b7280;
+      }
+
+
+      #suggestions {
+        border: 1px solid #ccc;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      #suggestions li {
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      #suggestions li:hover {
+        background: #f0f0f0;
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <main class="main-content">
 
       <header class="page-header">
         <h1>Feuilles de route de décarbonation</h1>
@@ -1402,7 +1402,7 @@
           b4.value = puissance_elec_tot != 0 ? `${unitAdaptee(puissance_elec_tot*1000000,'W')[0]}` : null;
           b4.label = 'Puissance électrique';
           b4.unit = unitAdaptee(puissance_elec_tot*1000000,'W')[1];
-          b4.secondaryItems = [{ label: 'Sites avec besoin de raccordement', value: puissance_elec_tot != 0 ? `${nb_sites_raccord} sites` : null}];
+          b4.secondaryItems = [{ label: 'Sites avec besoin de raccordement', value: nb_sites_raccord != 0 ? `${nb_sites_raccord}` : null}];
 
           return blocks;
         }
@@ -3829,22 +3829,9 @@
           graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, false);
 
           graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
-          
         }
-
-
         chargerDonnees();
 
-
-
-
       </script>
-
-
-</body>
-
-
-
-
-
+  </body>
 </html>
