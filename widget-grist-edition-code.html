@@ -1402,7 +1402,7 @@
           b4.value = puissance_elec_tot != 0 ? `${unitAdaptee(puissance_elec_tot*1000000,'W')[0]}` : null;
           b4.label = 'Puissance électrique';
           b4.unit = unitAdaptee(puissance_elec_tot*1000000,'W')[1];
-          b4.secondaryItems = [{ label: 'Sites avec besoin de raccordement', value: nb_sites_raccord != 0 ? `${nb_sites_raccord} sites` : null}];
+          b4.secondaryItems = [{ label: 'Sites avec besoin de raccordement', value: puissance_elec_tot != 0 ? `${nb_sites_raccord} sites` : null}];
 
           return blocks;
         }
@@ -2226,8 +2226,11 @@
             chartTrajEmissions = null;
           }
 
+          const btn = document.getElementById('export-button-charts-traj');
           const dict_donnees = D_traj_emissions(record_projets, record_sites);
+
           if (dict_donnees == undefined){
+            btn.style.display = 'none';
             return;
           }
 
@@ -2526,7 +2529,7 @@
                   labels: {
                     font: {
                       family: '--font-primary',
-                      size: 10,
+                      size: 14,
                     },
                     generateLabels(chart) {
                       const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
