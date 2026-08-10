@@ -1384,12 +1384,13 @@
           const nb_projets_MES = data_traite[3].filter(v => v === 'Mis en service').length;
           b1.value = nb_projets != 0 ? `${nb_projets}` : null;
           b1.label = 'Nombre de Projets';
-          b1.unit = 'projets';
+          b1.unit = '';
           b1.secondaryItems = [{ label: "Mis en service", value: nb_projets_MES != 0 ? `${uneDecimale((nb_projets_MES / nb_projets) * 100)} %` : null}];
 
           const abat_tot = sumList(data_traite[1]);
           b2.value = abat_tot != 0 ? `${unitAdaptee(abat_tot,'t CO2e/an')[0]}` : null;
           b2.unit = unitAdaptee(abat_tot,'t CO2e/an')[1];
+          b2.label = 'Abattement total';
 
           const capex_tot = sumList(data_traite[4]);
           b3.value = capex_tot != 0 ? `${unitAdaptee(capex_tot,'€')[0]}` : null;
@@ -1416,7 +1417,7 @@
           const nb_aides_MES = record.Engage_Desengage.filter(v => v == 'Engagé et MES').length;
           b1.value = nb_aides != 0 ? `${nb_aides}` : null;
           b1.label = "Nombre d'aides engagées";
-          b1.unit = 'aides';
+          b1.unit = '';
 
           const abat_tot_aides = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' ).Gain_GES_an_tCO2eq_previsionnels);
           b2.value = abat_tot_aides != 0 ? `${unitAdaptee(abat_tot_aides,'t CO2e/an')[0]}` : null;
@@ -1443,7 +1444,7 @@
           const nb_sites_ETS = filtreRecord(record, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).Perimetre.length;
           b1.value = nb_sites_ETS != 0 ? `${nb_sites_ETS}` : null;
           b1.label = "Nombre de sites ETS";
-          b1.unit = 'sites';
+          b1.unit = '';
 
           const ges2024 = filtreRecord(record, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).ges_2024;
           const ges2025 = filtreRecord(record, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).ges_2025;
@@ -2114,7 +2115,6 @@
                     D[`${a}|Abattement`] = D[`${a}|Abattement`] - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
                   }
                 }
-                
               }
             }
           }
@@ -2250,11 +2250,11 @@
           const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf') || 'rgba(0,150,0,1)';
           const colorSNBC = window.getComputedStyle(document.head).getPropertyValue('--color-aide-aogpid');
 
-          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*baisse_SNBC.SNBC_Nat[i] ?? null);;
+          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*baisse_SNBC.SNBC_Nat[i] ?? null);
 
           const datasets = [
             {
-              label: 'Ajout de la variation de production aux emissions 2019',
+              label: 'Ajout de la variation de production aux émissions 2019',
               data: dataEmissions,
               borderColor: colorEmissions,
               backgroundColor: colorEmissions,
@@ -2285,11 +2285,17 @@
             }
           ];
 
-          let dataU = list_labels.map((label, i) => ({                    // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
-            annee: label,
-            Emissions: dataEmissions[i],
-            Abattement: dataAbattement[i],
-          }));
+          let dataU = {
+            labels: datasets.map(d => d.label),   // ['Ajout de la variation...', 'Emissions ETS estimées...', 'Trajectoire projetée...']
+            data: annees.map((a, i) => ({
+              annee: a,
+              emissions: {
+                [datasets[0].label]: dataEmissions[i],
+                [datasets[1].label]: dataAbattement[i],
+                [datasets[2].label]: traj_snbc[i],
+              },
+            })),
+          };
 
           chartTrajEmissions = new Chart(ctx, {
             type: 'line',
@@ -2304,6 +2310,12 @@
               plugins: {
                 legend: {
                   position: 'bottom',
+                  labels:{
+                    font: {
+                      size:15,
+                      family:'--font-primary',
+                    },
+                  },
                 },
                 title: {
                   color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
@@ -2512,6 +2524,10 @@
                 legend: {
                   position: 'bottom',
                   labels: {
+                    font: {
+                      family: '--font-primary',
+                      size: 10,
+                    },
                     generateLabels(chart) {
                       const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
                       border.forEach(label => {
@@ -3144,7 +3160,7 @@
                     },
                     labelColor: function (context) {
                       // on cible la même série que dans generateLabels
-                      if (context.dataset.label === 'Variation de production sans décarbonation') {
+                      if (context.dataset.label === 'n.a.') {
                         return {
                           borderColor: '#000000',
                           backgroundColor: 'transparent', // case non remplie
