@@ -273,6 +273,7 @@
     #below-graph{
       position: absolute;
       bottom: -30px;
+      margin-top: 10px;
     }
 
     /*   Style des blocs en en-tête de chaque section   */
@@ -2981,10 +2982,8 @@
           
           if (!cles.length) {
             doc.className = 'canvas-charts-1-hidden';
-            if (btnClear == true) {
-              btns[0].style.display = 'none';
-              btns[1].style.display = 'none';
-            }
+            btns[0].style.display = 'none';
+            btns[1].style.display = 'none';
             return;
           }
 
