@@ -2499,13 +2499,49 @@
 
 
 
-
      /* ======================
         TRAITEMENT DES DONNEES
         ====================== */
 
 
 
+
+        function D_traj_emissions(record_projets,record_sites){
+          const em_2019 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2019);
+          if(em_2019 == 0){
+            document.getElementById('wrapper-traj').style.display = 'none';
+            return;
+          }
+          else{
+            document.getElementById('wrapper-traj').style.display = 'grid';
+          }
+          let D = {'2019|Emissions' : em_2019,'2019|Abattement' : em_2019};
+          const donnees_traitees = traitement_donnees_CO2_procede(record_projets);
+          const anneesMES = donnees_traitees[2];
+          const co2_abattu = donnees_traitees[1];
+          const procede = donnees_traitees[0];
+          const annees_emissions = Array.from({ length: 17 }, (_, i) => 2019 + i);
+          
+          for (a of annees_emissions){
+            D[`${a}|Abattement`] = D['2019|Emissions'];
+            D[`${a}|Emissions`] = D['2019|Emissions'];
+            for (let i = 0; i < anneesMES.length; i++){
+              if (anneesMES[i] <= 2035 && anneesMES[i] > 2019){
+                if(procede[i] == 'Variation de production sans décarbonation'){
+                  if (a >= anneesMES[i]){
+                    D[`${a}|Emissions`] = D[`${a}|Emissions`] - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
+                  }
+                }
+                else{
+                  if (a >= anneesMES[i]){
+                    D[`${a}|Abattement`] = D[`${a}|Abattement`] - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
+                  }
+                }
+              }
+            }
+          }
+          return D;
+        }
 
 
         function D_CO2_procede_annee(record, cumule) {                     // Renvoie un dictionnaire du type : D { (année,procédé) : CO2 abattu en MtCO2e/an }
@@ -2552,44 +2588,6 @@
         }
 
 
-        function D_traj_emissions(record_projets,record_sites){
-          const em_2019 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2019);
-          if(em_2019 == 0){
-            document.getElementById('wrapper-traj').style.display = 'none';
-            return;
-          }
-          else{
-            document.getElementById('wrapper-traj').style.display = 'grid';
-          }
-          let D = {'2019|Emissions' : em_2019,'2019|Abattement' : em_2019};
-          const donnees_traitees = traitement_donnees_CO2_procede(record_projets);
-          const anneesMES = donnees_traitees[2];
-          const co2_abattu = donnees_traitees[1];
-          const procede = donnees_traitees[0];
-          const annees_emissions = Array.from({ length: 17 }, (_, i) => 2019 + i);
-          
-          for (a of annees_emissions){
-            D[`${a}|Abattement`] = D['2019|Emissions'];
-            D[`${a}|Emissions`] = D['2019|Emissions'];
-            for (let i = 0; i < anneesMES.length; i++){
-              if (anneesMES[i] <= 2035 && anneesMES[i] > 2019){
-                if(procede[i] == 'Variation de production sans décarbonation'){
-                  if (a >= anneesMES[i]){
-                    D[`${a}|Emissions`] = D[`${a}|Emissions`] - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
-                  }
-                }
-                else{
-                  if (a >= anneesMES[i]){
-                    D[`${a}|Abattement`] = D[`${a}|Abattement`] - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
-                  }
-                }
-              }
-            }
-          }
-          return D;
-        }
-
-
         function traitement_donnees_CO2_procede(record) {
           const procede_non_traite = record.Procede || [];
           const CO2_non_traite = record.Emissions_abattues_tCO2e_an_ || [];
@@ -2612,7 +2610,6 @@
             if (procede_non_traite[i] == null || procede_non_traite[i] == '0' || procede_non_traite[i] == '-1' || annee_non_traite[i] == 0 || typeof annee_non_traite[i] != 'number' || etat_proj_non_traite[i] == 'Abandonné') {
               continue;
             }
-
             let procedeNorm;
             if (procede_non_traite[i].includes('Hydrogène')) procedeNorm = 'Hydrogène';
             else if (procede_non_traite[i].includes('Biogaz')) procedeNorm = 'Biogaz';
@@ -2631,41 +2628,7 @@
               : 'Non';
             index += 1;
           }
-
           return [procede_traite, CO2_traite, annee_traite, etat_proj_traite, capex_proj_traite, P_raccord_traite, bes_raccord_traite];
-        }
-
-
-        function D_sum_CO2_etat_projet(record) {
-          CO2_par_etat = {
-            'Mis en service' : 0,
-            'Certain' : 0,
-            'Potentiel' : 0,
-            'A risque' : 0,
-            'Abandonné' : 0,
-          };
-          etat_par_projet = record.Probabilite_de_mise_en_service_MES_Statut_du_projet || [];
-          CO2_par_projet = record.Emissions_abattues_tCO2e_an_ || [];
-          for (let i = 0; i < CO2_par_projet.length; i++) {
-            if (etat_par_projet[i] == 'Mis en service' && typeof CO2_par_projet[i] == "number") {
-              CO2_par_etat[etat_par_projet[i]] = (CO2_par_etat[etat_par_projet[i]] ?? 0) + CO2_par_projet[i];
-            }
-            else if ((etat_par_projet[i] == 'Potentiel' || etat_par_projet[i] == '') && typeof CO2_par_projet[i] == "number") {
-              CO2_par_etat['Potentiel'] = (CO2_par_etat['Potentiel'] ?? 0) + CO2_par_projet[i];
-            }
-            else if (etat_par_projet[i] == 'Certain' && typeof CO2_par_projet[i] == "number") {
-              CO2_par_etat[etat_par_projet[i]] = (CO2_par_etat[etat_par_projet[i]] ?? 0) + CO2_par_projet[i];
-            }
-            else if (etat_par_projet[i] == 'A risque' && typeof CO2_par_projet[i] == "number") {
-              CO2_par_etat[etat_par_projet[i]] = (CO2_par_etat[etat_par_projet[i]] ?? 0) + CO2_par_projet[i];
-            }
-            else {
-              if (typeof CO2_par_projet[i] == "number") {
-                CO2_par_etat[etat_par_projet[i]] = (CO2_par_etat[etat_par_projet[i]] ?? 0) + CO2_par_projet[i];
-              }
-            }
-          }
-          return CO2_par_etat;
         }
 
                
@@ -2873,7 +2836,7 @@
           const montant = record.Montant_d_aide;
           return [anneesMES, co2_abattu, engagement, montant];
         }
-        
+
 
         function D_CO2_aide_annee(records_aides,records_projets, cumule) {                     // Renvoie un dictionnaire du type : D { (année,aide) : CO2 abattu en MtCO2e/an }
 
@@ -2900,7 +2863,6 @@
               cleAnnee = 2048;
             }
             else if (annee < 2019 || annee > 2050) { 
-              
             }
             else {
               cleAnnee = annee;
