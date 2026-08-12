@@ -28,6 +28,11 @@
 
 
     <style>
+
+      /* ====================
+      CODES COULEURS UTILISES
+      ==================== */
+
       :root {
         --font-primary: "Marianne", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         --color-brand-blue: #000091;
@@ -174,7 +179,11 @@
         margin: 0;
       }
 
-      /* Filters */
+
+      /* ============================ 
+      STYLE DE LA SECTION DES FILTRES
+      ============================ */
+
       .filters-panel {
         display: flex;
         flex-direction: column;
@@ -221,6 +230,76 @@
         color: var(--color-text-placeholder);
       }
 
+      /* Wrapper principal — reprend la forme pilule de .form-control */
+      #selectRegion+.ts-wrapper .ts-control,
+      .ts-wrapper .ts-control {
+        min-height: 34px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: #fff;
+        box-shadow: var(--shadow-default);
+        font-size: 14px;
+        cursor: pointer;
+        flex-wrap: wrap;
+        /* tags sur plusieurs lignes si besoin */
+        align-items: center;
+      }
+
+      div.ts-wrapper.form-group.form-control.multi {
+        /* Override des rectangles blancs par défaut du plugin derrière les filtres */
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+
+      /* Supprimer le style par défaut de Tom Select */
+      .ts-wrapper.form-control {
+        padding: 0;
+        height: auto;
+      }
+
+      /* Champ de recherche interne */
+      .ts-control input {
+        font-size: 14px;
+        margin: 0;
+      }
+
+      /* Tags (choix multiples) */
+      .ts-control .item {
+        background: #e8edf5;
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 12px;
+        margin: 2px 4px 2px 0;
+      }
+
+      /* Dropdown */
+      .ts-dropdown {
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      /* Options au survol */
+      .ts-dropdown .option:hover,
+      .ts-dropdown .option.active {
+        background: #e8edf5;
+        color: inherit;
+      }
+
+      select:has(+ .ts-wrapper) {
+        display: none;
+      }
+
+
+      /* ============== 
+      STYLE DES BOUTONS
+      ============== */ 
+
       .btn {
         min-height: 34px;
         padding: 8px 16px;
@@ -258,6 +337,16 @@
         font-size: 12px;
       }
 
+      /* Label invisible pour que le bouton tombe au même niveau que l'input */
+      .label--hidden {
+        visibility: hidden;
+      }
+
+      /* Le groupe du bouton ne doit pas grandir */
+      .form-group--btn {
+        min-width: unset;
+      }
+
 
       #hide-button-map {
         font-size:20px;
@@ -276,7 +365,10 @@
         margin-top: 10px;
       }
 
-      /*   Style des blocs en en-tête de chaque section   */
+
+      /* ================================================
+      Style des blocks de stats en tête de chaque section
+      ================================================ */
 
       .block-wrapper {
         display: flex;
@@ -362,566 +454,10 @@
         align-items: flex-start;
       }
 
-      /* Label invisible pour que le bouton tombe au même niveau que l'input */
-      .label--hidden {
-        visibility: hidden;
-      }
 
-      /* Le groupe du bouton ne doit pas grandir */
-      .form-group--btn {
-        min-width: unset;
-      }
-
-      /* Wrapper principal — reprend la forme pilule de .form-control */
-      #selectRegion+.ts-wrapper .ts-control,
-      .ts-wrapper .ts-control {
-        min-height: 34px;
-        padding: 0 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-        background: #fff;
-        box-shadow: var(--shadow-default);
-        font-size: 14px;
-        cursor: pointer;
-        flex-wrap: wrap;
-        /* tags sur plusieurs lignes si besoin */
-        align-items: center;
-      }
-
-      div.ts-wrapper.form-group.form-control.multi {
-        /* Override des rectangles blancs par défaut du plugin derrière les filtres */
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-      }
-
-      /* Supprimer le style par défaut de Tom Select */
-      .ts-wrapper.form-control {
-        padding: 0;
-        height: auto;
-      }
-
-      /* Champ de recherche interne */
-      .ts-control input {
-        font-size: 14px;
-        margin: 0;
-      }
-
-      /* Tags (choix multiples) */
-      .ts-control .item {
-        background: #e8edf5;
-        border-radius: 999px;
-        padding: 2px 10px;
-        font-size: 12px;
-        margin: 2px 4px 2px 0;
-      }
-
-      /* Dropdown */
-      .ts-dropdown {
-        border-radius: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        font-size: 14px;
-        margin-top: 4px;
-      }
-
-      /* Options au survol */
-      .ts-dropdown .option:hover,
-      .ts-dropdown .option.active {
-        background: #e8edf5;
-        color: inherit;
-      }
-
-      select:has(+ .ts-wrapper) {
-        /* S'assure que le select original n'est plus visible derrière l'affichage TomSelect */
-        display: none;
-      }
-
-      .chart-wrapper {
-        position: relative;
-        display: grid;
-        grid-template-columns: 3fr 1fr;
-        width: 100%;
-        margin-bottom: 40px;
-        gap: 20px;
-      }
-
-      #wrapper-aides {
-        height: 800px;
-      }
-
-      #wrapper-projets {
-        height: 800px;
-      }
-
-      #wrapper-traj {
-        width: 100%;
-        height: 600px;
-        display: grid;
-        grid-template-columns: 1fr;   /* une seule colonne au lieu de 3fr 1fr */
-      }
-
-
-      .canvas-charts-1-hidden {
-        display: none !important;
-      }
-
-      .canvas-charts-1-shown {
-        display: flex;
-        width: 100%;
-        height: 100%;
-        gap: 10px;
-        align-items: stretch;
-      }
-
-      #canvas-charts-traj-1{
-        min-height: 0;
-        width:100%;
-        box-sizing: border-box;
-      }
-
-      #canvas-charts-aide-1 {
-        min-width: 0;
-        min-height : 0;
-        flex-direction: column;
-        height: 100%;     /* occupe la hauteur de la cellule de grille (600px) */
-        overflow: hidden; /* évite que le contenu pousse .dropdown-list en dehors */
-        box-sizing: border-box;
-      }
-
-      #canvas-charts-procede-1 {
-        flex-direction: column;
-        min-width: 0;
-        min-height: 0;
-        height: 100%;
-        overflow: hidden;
-        box-sizing: border-box;
-      }
-
-
-      .bar-chart-annee {
-        flex: 1 1 auto;   /* prend l'espace restant après la légende */
-        position: relative;
-        min-width: 0;     /* important pour que le f puisse rétrécir */
-        min-height: 0;
-        width: 100% !important;
-        height: 100% !important;
-        box-sizing: border-box;
-      }
-
-      .bar-chart-annee canvas {
-        max-width: 100%;
-        max-height: 100%;
-      }
-
-
-      .legend-wrapper{
-        position: relative;
-        width: 100%;
-        flex: 0 0 auto;    /* garde sa hauteur naturelle, ne s'étire pas */
-        max-height: 240px;  /* borne la légende pour garantir de la place au canvas — ajuste selon besoin */
-        /*overflow-y: auto;    /* si le contenu dépasse cette hauteur, scroll interne plutôt que débordement */
-        box-sizing: border-box;
-      }
-
-      #legend-container {
-        display: flex;
-        flex-direction: row;      
-        flex-wrap: nowrap;          
-        align-content: flex-start;
-        justify-content: flex-start;
-        gap: 10px 15px;           
-        height: auto;             
-      }
-
-      .legend-col {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        flex : 1 1 0;
-        min-width: 0;
-      }
-
-      /* Bloc "dispositifs" : titre unique + colonnes de 3 en dessous, sur toute la largeur */
-      .legend-dispositifs-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 3 1 0; /* force le passage à la ligne dans #legend-container */
-      }
-
-      .legend-dispositifs-cols {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        gap: 8px;   /* était: 16px */
-        width: 100%;
-      }
-
-      .legend-col--dispositifs {
-        flex: 1 1 0;
-        min-width: 0;
-      }
-
-      .legend-group {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 150px;
-        flex: 0 1 auto;
-      }
-
-      .legend-group-title {
-        font-weight: 700;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: var(--color-brand-blue);
-        border-bottom: 2px solid #ddd;
-        padding-bottom: 4px;
-        margin-bottom: 2px;
-      }
-    
-      .legend-group ul {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-      .legend-group li {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        user-select: none;
-      }
-
-      .legend-group li.hidden {
-        opacity: 0.4;
-        text-decoration: line-through;
-      }
-
-
-      .legend-group .swatch {
-        width: 13px;
-        height: 13px;
-        border-radius: 4px;
-        flex-shrink: 0;
-      }
-
-      /* Principales lignes des données */
-
-      .dropdown-list{
-          display:flex;
-          flex-direction:column;
-          gap:6px;
-          min-width:0;
-          overflow-y:auto;
-          height:100%;
-          min-height:0;
-          box-sizing: border-box;
-
-          background:transparent;
-
-
-          font-family:var(--font-primary);
-      }
-
-
-      /* ===========================
-        Carte projet/site/aide
-        =========================== */
-
-      .main-list-item{
-
-          display:flex;
-          flex-direction:column;
-
-          gap:7px;
-
-          padding:9px 14px;
-
-          background:var(--color-transparent-light-blue);
-
-          border:1px solid rgba(0,0,0,.06);
-          border-radius:10px;
-
-          box-shadow:0 1px 3px rgba(0,0,0,.05);
-
-          transition:.15s ease;
-      }
-
-
-      .main-list-item:hover{
-          transform:translateY(-1px);
-          box-shadow:0 4px 10px rgba(0,0,0,.08);
-      }
-
-
-
-      /* ===========================
-        Ligne 1 : titre
-        =========================== */
-
-      .main-list-header{
-
-          padding-bottom:6px;
-
-          border-bottom:1px solid rgba(0,0,0,.08);
-      }
-
-
-      .main-list__description,
-      .main-list__dispositif{
-
-          font-size:16px;
-          font-weight:700;
-
-          color:var(--color-brand-blue);
-
-          line-height:1.35;
-      }
-
-
-
-      /* ===========================
-        Ligne 2 : indicateur principal
-        =========================== */
-
-      .main-list-highlight{
-
-          padding-bottom:7px;
-
-          border-bottom:1px solid rgba(0,0,0,.08);
-      }
-
-
-      .main-list__abattement,
-      .main-list__emissions{
-
-          font-size:14px;
-          font-weight:600;
-      }
-
-
-      /* CO2 évité */
-
-      .main-list__abattement{
-          color:#16a34a;
-      }
-
-
-      /* émissions */
-
-      .main-list__emissions{
-          color:#dc2626;
-      }
-
-
-
-      /* ===========================
-        Zone détails
-        2 colonnes compactes
-        =========================== */
-
-      .main-list-details{
-
-        display:flex;
-        flex-direction:column;
-        gap:4px;
-
-      }
-
-
-      .main-list-detail{
-
-          display:flex;
-
-          justify-content:space-between;
-
-          gap:12px;
-
-          min-width:0;
-
-          font-size:.78rem;
-      }
-
-
-
-      /* nom du champ */
-
-      .main-list-detail .label{
-
-          color:#686d75;
-
-          white-space:nowrap;
-      }
-
-
-
-      /* valeur */
-
-      .main-list-detail .value{
-
-          font-weight:600;
-
-          color:#374151;
-
-          text-align:right;
-
-          overflow:hidden;
-
-          text-overflow:ellipsis;
-
-          white-space:nowrap;
-      }
-
-
-
-      /* ===========================
-        Valeurs spécifiques
-        =========================== */
-
-      .main-list__montant,
-      .main-list__annee-mes,
-      .main-list__site,
-      .main-list__nom-site,
-      .main-list__beneficiaire,
-      .main-list__entreprise,
-      .main-list__procede{
-
-          color:#374151;
-
-      }
-
-
-      .main-list__entreprise{
-
-          font-style:italic;
-
-      }
-
-
-
-      .main-list__region,
-      .main-list__perimetre,
-      .main-list__filiere,
-      .main-list__capex{
-
-          color:#686d75;
-
-      }
-
-
-
-
-
-
-      /* Résultats */
-      .results-section {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        align-items: flex-start;
-      }
-
-      .company-list-container {
-        flex: 1;
-        min-width: 320px;
-      }
-
-      #map-container {
-        flex: 1;
-        min-width: 320px;
-      }
-
-
-
-
-
-
-
-      /* Accordéon */
-      #company-accordion {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .company-item {
-        border: 1px solid #E7E9FF;
-        border-radius: 16px;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-      }
-
-      .company-item__header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 14px 16px;
-        cursor: pointer;
-        user-select: none;
-      }
-
-      .company-item__name {
-        font-size: 16px;
-        font-weight: 800;
-        color: var(--color-brand-blue);
-      }
-
-      .company-item__meta {
-        margin-left: auto;
-        color: rgba(22, 21, 19, 0.99);
-        font-size: 12px;
-      }
-
-      .company-item__details {
-        display: none;
-        padding: 14px 16px;
-        background: var(--color-light-blue-bg);
-      }
-
-      .company-item.is-open .company-item__details {
-        display: block;
-      }
-
-      .detail-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-      }
-
-      .detail {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        padding: 8px 10px;
-        background: #fff;
-        border-radius: 12px;
-      }
-
-      .detail .k {
-        color: #6b7280;
-      }
-
-      .detail .v {
-        font-weight: 700;
-        color: #111827;
-        text-align: right;
-      }
-
-      .detail.full {
-        grid-column: 1 / -1;
-      }
-
-      /* Plan Carte */
-
+      /* ==============================
+      STYLE ET MISE EN PAGE DE LA CARTE
+      ============================== */
 
       .map-wrapper {
         margin-bottom: 40px;
@@ -931,6 +467,11 @@
         gap : 20px;
         height: 700px;
         overflow:hidden;
+      }
+
+      #map-container {
+        flex: 1;
+        min-width: 320px;
       }
 
       .map-container-shown {
@@ -1037,6 +578,310 @@
       }
 
 
+      /* =================================
+      STYLE ET MISE EN PAGE DES GRAPHIQUES
+      ================================= */
+
+      .chart-wrapper {
+        position: relative;
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        width: 100%;
+        margin-bottom: 40px;
+        gap: 20px;
+      }
+
+      #wrapper-aides {
+        height: 800px;
+      }
+
+      #wrapper-projets {
+        height: 800px;
+      }
+
+      #wrapper-traj {
+        width: 100%;
+        height: 600px;
+        display: grid;
+        grid-template-columns: 1fr;   /* une seule colonne au lieu de 3fr 1fr */
+      }
+
+
+      .canvas-charts-1-hidden {
+        display: none !important;
+      }
+
+      .canvas-charts-1-shown {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      #canvas-charts-traj-1{
+        min-height: 0;
+        width:100%;
+        box-sizing: border-box;
+      }
+
+      #canvas-charts-aide-1 {
+        min-width: 0;
+        min-height : 0;
+        flex-direction: column;
+        height: 100%;     /* occupe la hauteur de la cellule de grille (600px) */
+        overflow: hidden; /* évite que le contenu pousse .dropdown-list en dehors */
+        box-sizing: border-box;
+      }
+
+      #canvas-charts-procede-1 {
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+
+      .bar-chart-annee {
+        flex: 1 1 auto;   /* prend l'espace restant après la légende */
+        position: relative;
+        min-width: 0;     /* important pour que le f puisse rétrécir */
+        min-height: 0;
+        width: 100% !important;
+        height: 100% !important;
+        box-sizing: border-box;
+      }
+
+      .bar-chart-annee canvas {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      /* =====================================
+      Légende du graphique dispositifs d'aides
+      ===================================== */
+
+
+      .legend-wrapper{
+        position: relative;
+        width: 100%;
+        flex: 0 0 auto;    
+        max-height: 240px;  
+        box-sizing: border-box;
+      }
+
+      #legend-container {
+        display: flex;
+        flex-direction: row;      
+        flex-wrap: nowrap;          
+        align-content: flex-start;
+        justify-content: flex-start;
+        gap: 10px 15px;           
+        height: auto;             
+      }
+
+      .legend-col {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex : 1 1 0;
+        min-width: 0;
+      }
+
+      /* Bloc "dispositifs" : titre unique + colonnes de 3 en dessous, sur toute la largeur */
+      .legend-dispositifs-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 3 1 0; /* force le passage à la ligne dans #legend-container */
+      }
+
+      .legend-dispositifs-cols {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 8px;   /* était: 16px */
+        width: 100%;
+      }
+
+      .legend-col--dispositifs {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+
+      .legend-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 150px;
+        flex: 0 1 auto;
+      }
+
+      .legend-group-title {
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-brand-blue);
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 4px;
+        margin-bottom: 2px;
+      }
+    
+      .legend-group ul {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .legend-group li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        user-select: none;
+      }
+
+      .legend-group li.hidden {
+        opacity: 0.4;
+        text-decoration: line-through;
+      }
+
+
+      .legend-group .swatch {
+        width: 13px;
+        height: 13px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+
+      /* 	===============================================
+       Style des listes de principaux sites/projets/aides
+       ================================================ */
+
+      .dropdown-list{
+          display:flex;
+          flex-direction:column;
+          gap:6px;
+          min-width:0;
+          overflow-y:auto;
+          height:100%;
+          min-height:0;
+          box-sizing: border-box;
+          background:transparent;
+          font-family:var(--font-primary);
+      }
+
+      .main-list-item{
+          display:flex;
+          flex-direction:column;
+          gap:7px;
+          padding:9px 14px;
+          background:var(--color-transparent-light-blue);
+          border:1px solid rgba(0,0,0,.06);
+          border-radius:10px;
+          box-shadow:0 1px 3px rgba(0,0,0,.05);
+          transition:.15s ease;
+      }
+
+      .main-list-item:hover{
+          transform:translateY(-1px);
+          box-shadow:0 4px 10px rgba(0,0,0,.08);
+      }
+
+      .main-list-header{
+          padding-bottom:6px;
+          border-bottom:1px solid rgba(0,0,0,.08);
+      }
+
+
+      .main-list__description,
+      .main-list__dispositif{
+          font-size:16px;
+          font-weight:700;
+          color:var(--color-brand-blue);
+          line-height:1.35;
+      }
+
+      .main-list-highlight{
+          padding-bottom:7px;
+          border-bottom:1px solid rgba(0,0,0,.08);
+      }
+
+
+      .main-list__abattement,
+      .main-list__emissions{
+          font-size:14px;
+          font-weight:600;
+      }
+
+      .main-list__abattement{
+          color:#16a34a;
+      }
+
+      .main-list__emissions{
+          color:#dc2626;
+      }
+
+      .main-list-details{
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+      }
+
+      .main-list-detail{
+          display:flex;
+          justify-content:space-between;
+          gap:12px;
+          min-width:0;
+          font-size:.78rem;
+      }
+
+      .main-list-detail .label{
+          color:#686d75;
+          white-space:nowrap;
+      }
+
+      .main-list-detail .value{
+          font-weight:600;
+          color:#374151;
+          text-align:right;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+      }
+
+      .main-list__montant,
+      .main-list__annee-mes,
+      .main-list__site,
+      .main-list__nom-site,
+      .main-list__beneficiaire,
+      .main-list__entreprise,
+      .main-list__procede{
+          color:#374151;
+      }
+
+      .main-list__entreprise{
+          font-style:italic;
+      }
+
+      .main-list__region,
+      .main-list__perimetre,
+      .main-list__filiere,
+      .main-list__capex{
+          color:#686d75;
+      }
+
+
+      /* ===========================================================
+      AFFICHAGE DE LA LISTE DE SUGGESTION POUR LA RECHERCHE DE SITES
+      =========================================================== */
+
       #suggestions {
         border: 1px solid #ccc;
         list-style: none;
@@ -1066,7 +911,10 @@
         <h1>Feuilles de route de décarbonation</h1>
       </header>
 
-      <!-- Choix des filtres pour la vue des données affichées -->
+
+ <!-- ===============
+      SECTION FILTRES
+      =============== -->
 
       <section class="filters-panel">
         <div class="filters-row">
@@ -1120,26 +968,12 @@
           </div>
         </div>
 
-          <!--
-          <div class="form-group">
-            <button class="btn" type="button" id="btnSearch">Rechercher</button>
-          </div>
-          -->
-
       </section>
 
 
-      <!-- Résultats de la recherche par Nom de Site 
-
-      <section class="results-section">
-        <div class="company-list-container">
-          <div id="company-accordion"></div>
-          <div id="empty-left" class="empty" style="display:none;"></div>
-        </div>
-      </section>
-      -->
-
-      <!-- Carte des sites ETS sélectionnés par les filtres -->
+ <!-- =========================================================
+      CARTE DES SITES ETS ET GRAPH DES TRAJECTOIRES D'EMISSIONS
+      ========================================================= -->
 
       <header class='section-header'>
         <h1>Trajectoires d'émission des sites ETS</h1>
@@ -1178,7 +1012,9 @@
       </section>
 
 
-      <!-- Graph des émissions abattues par procédé par années et du potentiel d'abattement selon l'état d'avancement des projets -->
+ <!-- ===================================================
+      SECTION DE L'ABATTEMENT PAR LEVIER DE DECARBONATION 
+      =================================================== -->
 
       <header class='section-header'>
         <h1>Projets de décarbonation</h1>
@@ -1202,7 +1038,10 @@
         <div class="dropdown-list" id="listeProjets"></div>
       </div>
 
-      <!-- Graphs des émissions abattues par aides par années -->
+
+ <!-- =============================================
+      SECTION DE L'ABATTEMENT PAR DISPOSITIF D'AIDE 
+      ============================================= -->
 
       <header class='section-header'>
         <h1>Dispositifs de soutien</h1>
@@ -1233,63 +1072,50 @@
 
       <script type="text/javascript">
 
-        /* INTRODUCTION D'OBJETS + OUTILS + PARAMETRAGE GRIST */
+     /* ===================================
+        INTRODUCTION DES VARIABLES GLOBALES
+        =================================== */
 
         grist.ready({ requiredAccess: 'full' });
-
         const annees_etudiees = Array.from({ length: 17 }, (_, i) => 2024 + i);
 
-        let records_projets;
+        // Données importées depuis Grist (version vierge et filtrée)
+        let records_projets;           
         let records_aides;
         let records_sites;
         let baisse_SNBC;
         let filtered_records_projets;
         let filtered_records_aides;
         let filtered_records_sites;
-        let currentDataExportProcede;
 
-        /// PLUGINS POUR LES GRAPHS ///
+        // Introduction des graphiques 
+        let chartCO2Procede = null;
+        let chartCO2Aide = null;
+        let chartTrajEmissions = null;
+        let map;
+        let markersLayer;
 
-        const dashedBorderPlugin = {                                                                      // Plugin pour pouvoir afficher des barres en pointillés
-          id: 'dashedBorder',
-          afterDatasetsDraw(chart) {
-            const { ctx } = chart;
-            chart.data.datasets.forEach((dataset, datasetIndex) => {
-              if (!dataset.dashed) return;  // on cible uniquement les datasets marqués
-              if (dataset.hidden) return;
-              const meta = chart.getDatasetMeta(datasetIndex);
-              if (meta.hidden) return;  // masqué via meta 
-              meta.data.forEach(bar => {
-                if (!bar.active && bar.hidden) return;  // barre individuellement masquée
-                const props = bar.getProps(['x', 'y', 'width', 'base'], true);
-                const { x, width } = props;
-                const top = Math.min(props.y, props.base);
-                const bottom = Math.max(props.y, props.base);
-                const height = bottom - top;
-                if (height === 0) return;
-                ctx.save();
-                ctx.setLineDash([4, 3]);
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = dataset.borderColor;
-                ctx.strokeRect(x - width / 2, top, width, height);
-                ctx.restore();
-              });
-            });
-          }
-        };
+
+
+     /* ===================
+        CODE DES GRAPHIQUES
+        =================== */
+
+
+        // BLOCKS DE STATISTIQUES SUR LA SECTION //
+
+
+
 
         function createStatBlock({ label, value, unit, secondaryItems = [] }) {
-          // 1. Élément racine
           const block = document.createElement('div');
           block.classList.add('stat-block');
 
-          // 2. Label
           const labelEl = document.createElement('div');
           labelEl.classList.add('stat-block__label');
           labelEl.textContent = label;
           block.appendChild(labelEl);
 
-          // 3. Valeur principale + unité
           const valueEl = document.createElement('div');
           valueEl.classList.add('stat-block__value');
           valueEl.textContent = value;
@@ -1301,7 +1127,7 @@
 
           block.appendChild(valueEl);
 
-          // 4. Bloc secondaire (uniquement si des items sont fournis)
+
           if (secondaryItems.length > 0) {
             const secondaryEl = document.createElement('div');
             secondaryEl.classList.add('stat-block__secondary');
@@ -1317,7 +1143,6 @@
               const itemValue = document.createElement('span');
               itemValue.classList.add('stat-block__secondary-value');
               if (item.variant) {
-                // classe modificatrice conditionnelle (ex: 'positive' / 'negative')
                 itemValue.classList.add(`stat-block__secondary-value--${item.variant}`);
               }
               itemValue.textContent = item.value;
@@ -1330,9 +1155,9 @@
             block.appendChild(secondaryEl);
           }
 
-          // 5. On retourne l'élément prêt à être inséré, sans l'insérer nous-même
           return block;
         }
+
 
         function insertStatBlock(item, idCible) {
           const container = document.getElementById(idCible);
@@ -1349,6 +1174,7 @@
           container.style.display = 'flex';
           container.appendChild(block);
         }
+
 
         function buildStatBlocks(record_projets, record_sites, record_aides) {
 
@@ -1371,6 +1197,7 @@
             }
           }
         }
+
 
         function blockProcede(record_projets, record_sites) {
           const b1 = {};
@@ -1407,6 +1234,7 @@
           return blocks;
         }
 
+
         function blockAide(record) {
           const b1 = {};
           const b2 = {};
@@ -1436,6 +1264,7 @@
           return blocks;
         }
 
+
         function blockEmission(record) {
           const b1 = {};
           const b2 = {};
@@ -1454,6 +1283,940 @@
           b2.unit = unitAdaptee(em_tot,'tCO2e')[1];
           return blocks; 
         }
+
+
+
+
+        // LISTE DES PRINCIPAUX SITES/PROJETS/AIDES //
+
+
+
+
+        function renderListsMain(record_projets,record_sites,record_aides){
+
+          const projets = listMainProjets(record_projets);
+          const wrapper_projet = document.getElementById('wrapper-projets');
+          if(sumList(projets.abattement) != 0){
+            if (wrapper_projet.style.display == 'none'){
+              wrapper_projet.style.display = 'grid';
+            }
+
+            remplirListe("listeProjets", Math.min(15,projets.description.length), i =>
+              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${unitAdaptee(projets.abattement[i],'tCO2e/an')[0] + ' ' + unitAdaptee(projets.abattement[i],'tCO2e/an')[1]} abattues`}, 
+              [
+                  {name: "Site",value: projets.nom_site[i]},
+                  {name: "Année MES",value: projets.annee[i]},
+                  {name: "Procédé",value: projets.procede[i]},
+                  {name: "CAPEX",value: `CAPEX : ${unitAdaptee(projets.capex[i],'€')[0] + ' ' + unitAdaptee(projets.capex[i],'€')[1]}`},
+              ])
+            );
+          }
+          else{
+            wrapper_projet.style.display = 'none';
+          }
+
+          const sites = listMainSites(record_sites);
+          const wrapper_site = document.getElementById('wrapper-sites');
+          if(sumList(sites.emissions) != 0){
+            if (wrapper_site.style.display == 'none'){
+              wrapper_site.style.display = 'grid';
+            }
+            remplirListe("listeSites", Math.min(15,sites.emissions.length), i =>
+              createListItem({name: "description",value: sites.nom_site[i]}, {name: "emissions",value: `Dernières émissions ETS : ${unitAdaptee(sites.emissions[i],'tCO2e')[0] + ' ' + unitAdaptee(sites.emissions[i],'tCO2e')[1]}`},
+              [
+                  {name: "Région",value: sites.region[i]},
+                  {name: "Entreprise",value: sites.entreprise[i]},
+                  {name: "Périmètre",value: sites.perimetre[i]},
+                  {name: "Filière",value: sites.filiere[i]},
+              ])
+            );
+          }
+          else{
+            wrapper_site.style.display = 'none';
+          }
+
+          const aides = listMainAides(record_aides);
+          const wrapper_aide = document.getElementById('wrapper-aides');
+          if(sumList(aides.abattement) != 0){
+            if (wrapper_aide.style.display == 'none'){
+              wrapper_aide.style.display = 'grid';
+            }
+            remplirListe("listeAides", Math.min(15,aides.description.length), i =>
+              createListItem({name: 'description',value: regroupAides(aides.dispositif)[i] + ' : ' + ((typeof aides.description[i] == 'string' && aides.description[i] != '') ? aides.description[i] : aides.porteur[i])}, {name: "abattement",value: `${unitAdaptee(aides.abattement[i],('tCO2e/an'))[0] + ' ' + unitAdaptee(aides.abattement[i],('tCO2e/an'))[1]} abattues`},
+              [
+                  {name: "Bénéficiaire",value: aides.porteur[i]},
+                  {name: "Montant",value: `${unitAdaptee(aides.montant[i],'€')[0] + ' ' + unitAdaptee(aides.montant[i],'€')[1]}`},
+                  {name: "Année MES",value: aides.annee[i]},
+              ])
+            );
+          }
+          else{
+            wrapper_aide.style.display = 'none';
+          }
+        }
+
+        function listMainProjets(record_projets){
+          const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => (typeof r.Emissions_abattues_tCO2e_an_[i] == 'number' && r.Procede[i] != null && r.Procede[i] != '0' & r.Procede[i] != '-1' && r.Annee_MES_prevue[i] != 0 && typeof r.Annee_MES_prevue[i] == 'number')),
+          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_'],0);
+          let result = {
+            description: data_triee_projets[1],
+            abattement: data_triee_projets[0],
+            nom_site: data_triee_projets[2],
+            region: data_triee_projets[3],
+            procede: data_triee_projets[4],
+            filiere: data_triee_projets[5],
+            annee: data_triee_projets[6],
+            capex: data_triee_projets[7],
+
+          }
+          return result;
+        }
+
+        function listMainSites(record_sites){
+          const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r.ges_2024[i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
+          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data'],0);
+          let result = {
+            emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),                 // On prend ges_2025 si la donnée est disponible, ges_2024 sinon
+            nom_site: data_triee_sites[2],
+            region: data_triee_sites[3],
+            perimetre: data_triee_sites[4],
+            filiere: data_triee_sites[5],
+            entreprise: data_triee_sites[6],
+            zibac: data_triee_sites[7],
+          }
+          return result;
+        }
+
+        function listMainAides(record_aides){
+          const data_triee_aides = triDecroissantParColonne(filtreRecord(record_aides, (r,i) => typeof r.Gain_GES_an_tCO2eq_previsionnels[i] == 'number'),
+          ['Gain_GES_an_tCO2eq_previsionnels','Nom_du_projet','Porteur_de_projet_beneficiaire_','Montant_d_aide','Date_MES_estimee','Nom_du_dispositif'],0);
+          let result = {
+            description: data_triee_aides[1],
+            abattement: data_triee_aides[0],
+            porteur: data_triee_aides[2],
+            montant: data_triee_aides[3],
+            annee: data_triee_aides[4],
+            dispositif: data_triee_aides[5],
+          }
+          return result;
+        }
+
+        function createListItem(title, highlight, details){
+
+          const item = document.createElement("div");
+          item.className = "main-list-item";
+
+
+          // Ligne 1 : titre
+          const header = document.createElement("div");
+          header.className = "main-list-header";
+
+          const titleElement = document.createElement("div");
+          titleElement.className = `main-list__${title.name}`;
+          titleElement.textContent = title.value;
+
+          header.appendChild(titleElement);
+
+
+
+          // Ligne 2 : valeur principale
+          const main = document.createElement("div");
+          main.className = "main-list-highlight";
+
+          const highlightElement = document.createElement("div");
+          highlightElement.className = `main-list__${highlight.name}`;
+          highlightElement.textContent = highlight.value;
+
+          main.appendChild(highlightElement);
+
+
+          const detailsContainer = document.createElement("div");
+          detailsContainer.className = "main-list-details";
+
+
+          details.forEach(detail => {
+
+              const row = document.createElement("div");
+              row.className = "main-list-detail";
+
+
+              const label = document.createElement("span");
+              label.className = "label";
+              label.textContent = detail.name;
+
+
+              const value = document.createElement("span");
+              value.className = `main-list__${detail.name.toLowerCase().replace('é','e').replace('è','e').replace(' ','-')}`;
+              value.classList.add("value");
+              value.textContent = detail.value;
+
+
+              row.appendChild(label);
+              row.appendChild(value);
+
+              detailsContainer.appendChild(row);
+
+          });
+
+
+          item.appendChild(header);
+          item.appendChild(main);
+          item.appendChild(detailsContainer);
+
+
+          return item;
+      }
+
+
+
+      function remplirListe(containerId, nbElements, builder){
+
+          const container = document.getElementById(containerId);
+          container.innerHTML = "";
+
+          for(let i=0;i<nbElements;i++){
+              container.appendChild(builder(i));
+          }
+      }
+
+
+
+
+        // TRAJECTOIRES EMISSIONS //
+
+
+
+
+
+
+        function graphique_traj_emissions(record_projets, record_sites) {   // Trace le graphique des trajectoires d'émissions à partir des données ETS de 2019 et de l'abattement cumulé des projets
+
+          let doc = document.getElementById('canvas-charts-traj-1');
+          doc.className = 'canvas-charts-1-shown';
+          const ctx = document.getElementById('lineChartTrajEmissions').getContext('2d');
+          if (chartTrajEmissions) {
+            chartTrajEmissions.destroy();
+            chartTrajEmissions = null;
+          }
+
+          const btn = document.getElementById('export-button-charts-traj');
+          const dict_donnees = D_traj_emissions(record_projets, record_sites);
+          if (dict_donnees == undefined){
+            btn.style.display = 'none';
+            return;
+          }
+          else{
+            btn.style.display = 'inline';
+          }
+
+          const cles = Object.keys(dict_donnees);
+          if (!cles.length) {
+            doc.className = 'canvas-charts-1-hidden';
+            return;
+          }
+
+          // On extrait la liste des années présentes dans le dictionnaire, triées par ordre croissant
+          const annees = [...new Set(cles.map(k => Number(k.split('|')[0])))].sort((a, b) => a - b);
+          const list_labels = annees.map(a => a.toString());
+
+          // Construction des deux séries à partir des clés 'annee|Emissions' et 'annee|Abattement'
+          const dataEmissions = annees.map(a => dict_donnees[`${a}|Emissions`] ?? null);
+          const dataAbattement = annees.map(a => dict_donnees[`${a}|Abattement`] ?? null);
+          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*baisse_SNBC.SNBC_Nat[i] ?? null);
+
+          const colorEmissions = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue') || 'rgba(200,0,0,1)';
+          const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf') || 'rgba(0,150,0,1)';
+          const colorSNBC = window.getComputedStyle(document.head).getPropertyValue('--color-aide-aogpid');
+
+          const datasets = [
+            {
+              label: 'Ajout de la variation de production aux émissions 2019',
+              data: dataEmissions,
+              borderColor: colorEmissions,
+              backgroundColor: colorEmissions,
+              fill: false,
+              tension: 0.2,
+              spanGaps: true,       
+              pointRadius: 3,
+            },
+            {
+              label: 'Emissions ETS estimées par les feuilles de route',
+              data: dataAbattement,
+              borderColor: colorAbattement,
+              backgroundColor: colorAbattement,
+              fill: false,
+              tension: 0.2,
+              spanGaps: true,
+              pointRadius: 3,
+            },
+            {
+              label: 'Trajectoire projetée par la SNBC',
+              data: traj_snbc,
+              borderColor: colorSNBC,
+              backgroundColor: colorSNBC,
+              fill: false,
+              tension: 0.2,
+              spanGaps: true,       
+              pointRadius: 3,
+            }
+          ];
+
+          let dataU = {                                   // Pour l'export Excel
+            labels: datasets.map(d => d.label), 
+            data: annees.map((a, i) => ({
+              annee: a,
+              emissions: {
+                [datasets[0].label]: dataEmissions[i],
+                [datasets[1].label]: dataAbattement[i],
+                [datasets[2].label]: traj_snbc[i],
+              },
+            })),
+          };
+
+          chartTrajEmissions = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: list_labels,
+              datasets: datasets
+            },
+            options: {
+              interaction: {
+                mode: 'x',
+              },
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels:{
+                    font: {
+                      size:15,
+                      family:'--font-primary',
+                    },
+                  },
+                },
+                title: {
+                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  align: 'start',
+                  display: true,
+                  padding: 20,
+                  text: "Trajectoire des émissions ETS selon les feuilles de route, ktCO2e/an, 2019-2035",
+                },
+                tooltip: {
+                  mode: 'point',
+                  displayColors: true,
+                  padding: '15',
+                  titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
+                  bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
+                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  backgroundColor: '#F6F7FF',
+                  filter: function (tooltipItem) {
+                    return tooltipItem.raw !== null;
+                  },
+                  callbacks: {
+                    labelTextColor: function (context) {
+                      return 'rgba(0,0,0,1)';
+                    },
+                    title: function (context) {
+                      return `Prospective des émissions ETS en ${context[0].label}`;
+                    },
+                    label: function (context) {
+                      const value = context.raw;
+                      if (value === null) return null;
+                      const label = context.dataset.label;
+                      const formatedValue = unitAdaptee(value,'tCO2e/an');
+
+                      return `${label} : ${formatedValue[0]} ${formatedValue[1]}`;
+                    },
+                  }
+                },
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                },
+                y: {
+                  beginAtZero: true,
+                  type: 'linear',
+                }
+              },
+              maintainAspectRatio: false,
+              devicePixelRatio: window.devicePixelRatio || 2,
+            }
+          });
+
+          return [chartTrajEmissions, dataU];
+        }
+
+
+
+        // CARTE //
+
+
+
+        function ensureMap() {
+          if (map) return;
+
+          map = L.map("leaflet-map", { zoomControl: true, zoomSnap: 0.25 }).setView([46.6, 2.4], 6);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 15,
+            attribution: "&copy; OpenStreetMap"
+          }).addTo(map);
+
+          markersLayer = L.layerGroup().addTo(map);
+        }
+
+        function renderMap(records, typeMarker) {
+          ensureMap();
+
+          const emptyMap = document.getElementById("empty-map");
+          emptyMap.style.display = "none";
+
+          markersLayer.clearLayers();
+
+          // Garder seulement ceux qui ont lat/lon valides
+          const pts = [];
+          const maxRadius = 40;
+          for (let i = 0; i < records['id'].length; i++) {
+            const lat = Number(records['latitude'][i]);
+            const lon = Number(records['longitude'][i]);
+            const index = i;
+            if (Number.isFinite(lat) && Number.isFinite(lon) && (lat != 0 && lon != 0)) pts.push({ index, lat, lon });
+          }
+          if (!pts.length) {
+            emptyMap.textContent = "Aucun point géolocalisé (Latitude/Longitude manquantes) pour cette sélection.";
+            emptyMap.style.display = "block";
+            hideShowButtons('map-container',false);
+            return;
+          }
+          hideShowButtons('map-container',true);
+
+          const ptsWithRadius = pts.map(p => {
+            const ind = p.index;
+            const last_ges = records['ges_2025'][ind] != -1
+              ? records['ges_2025'][ind]
+              : records['ges_2024'][ind] != -1
+                ? records['ges_2024'][ind]
+                : '0 émissions ou données incomplètes';
+            const radius = typeMarker == 'constant' ? 7 : areaMarkerfromEmission(last_ges, maxRadius, typeMarker);
+            return { p, last_ges, radius };
+          });
+
+          //    Tri par rayon décroissant : les grands cercles sont ajoutés en premier,
+          //    les petits en dernier — donc au-dessus dans le DOM SVG (overlayPane)
+          ptsWithRadius.sort((a, b) => b.radius - a.radius);
+
+          for (const { p, last_ges, radius } of ptsWithRadius) {
+            const ind = p.index;
+            const name = records['name_site'][ind] || "(Sans nom)";
+            const region = records['Region'][ind];
+            const filiere = records['Filiere'][ind];
+            const ville = records['commune'][ind];
+            const cp = records['CP'][ind];
+            const last_ges = records['ges_2025'][ind] != -1 ? records['ges_2025'][ind] : records['ges_2024'][ind] != -1 ? records['ges_2024'][ind] : '0 émissions ou données incomplètes';
+            const filiere_css = filiere.replaceAll(' ', '-').replaceAll('é', 'e').replaceAll('â', 'a');
+            let marker;
+            const radius = typeMarker == 'constant' ? 7 : areaMarkerfromEmission(last_ges, maxRadius, typeMarker);
+            if (p.lat != null && p.lon != null && p.lat != undefined && p.lon != undefined && p.lat != 0 && p.lon != 0) {
+              marker = L.circleMarker([p.lat, p.lon], {
+                radius: radius,
+                zIndexOffset: 100000 * (1 / radius),
+                fillOpacity: 0.5 * (radius / maxRadius) + 0.5,
+                weight: 1,
+                color: "#111827",
+                fillColor: window.getComputedStyle(document.head).getPropertyValue('--color-' + filiere_css.toLowerCase()) || "#999",
+              });
+
+              marker.bindPopup(`
+            <div style="font-family:${getComputedStyle(document.body).fontFamily};">
+              <div style="font-weight:900;color:#000091;margin-bottom:4px;">${htmlEscape(name)}</div>
+              <div><b>Région :</b> ${htmlEscape(region || "—")}</div>
+              <div><b>Filière :</b> ${htmlEscape(filiere || "—")}</div>
+              <div><b>Adresse :</b> ${htmlEscape([cp, ville].filter(Boolean).join(" ") || "—")}</div>
+              <div><b>Emissions :</b> ${htmlEscape(last_ges || "—")}<b>${last_ges == null || typeof last_ges == 'string' ? '' : ' tCO2'}</b></div>
+            </div>
+          `);
+
+              marker.addTo(markersLayer);
+            }
+          }
+
+          // Zoom auto sur les points
+          const boundsHorsDrom = L.latLngBounds(pts.map(p => records['Region'][p.index] != 'DROM' ? [p.lat, p.lon] : [46.6, 2.4]));
+          const boundsDrom = L.latLngBounds(pts.map(p => [p.lat, p.lon]));  // On exclut les DROM de la considération des bounds pour commencer centré sur le territoire métropolitain
+          map.setZoom(5.75);
+          map.fitBounds(pts.every(p => records['Region'][p.index] == 'DROM') ? boundsDrom.pad(0.2) : boundsHorsDrom.pad(0.2));
+        }
+
+
+        
+        // ABATTEMENT PAR LEVIER DE DECARBONATION //
+
+
+
+        function graphique_CO2_procede_annee(record, btnClear, cumule) {             // Trace le graphique à partir du dictionnaire construit par la fonction D_CO2_procede_annee
+          
+          const btns = [document.getElementById('cumul-button-charts-procede'), document.getElementById('export-button-charts-procede')];
+          let doc = document.getElementById('canvas-charts-procede-1');
+          doc.className = 'canvas-charts-1-shown';
+          if (btnClear == true) {
+            btns[0].style.display = 'block';
+            btns[1].style.display = 'block';
+          }
+
+          const ctx = document.getElementById('barChartCO2parAnnee').getContext('2d');
+          if (chartCO2Procede) {
+            chartCO2Procede.destroy();
+            chartCO2Procede = null;
+          }
+
+          if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
+            if(btns[0].textContent == 'Abattement cumulé'){
+                cumule = false;
+            }
+            else{
+              cumule = true;
+            }
+          }
+
+          const dict_donnees = D_CO2_procede_annee(record, cumule);
+          const cles = Object.keys(dict_donnees);
+          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
+          if (!cles.length) {
+            doc.className = 'canvas-charts-1-hidden';
+            if (btnClear == true) {
+              btns[0].style.display = 'none';
+              btns[1].style.display = 'none';
+            }
+            return;
+          }
+
+          let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
+          list_labels[list_labels.length - 1] = '2046-2050';
+          list_annees[list_annees.length - 1] = 2048;
+          list_labels[list_labels.length - 2] = '2041-2045';
+          list_annees[list_annees.length - 2] = 2043;
+          list_labels[list_labels.length - 3] = '2036-2040';
+          list_annees[list_annees.length - 3] = 2038;
+
+          const list_procede = [...new Set(cles.map(k => k.split('|')[1]))];
+          let backgroundColors = Array.from({ length: list_procede.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
+          let borderColors = Array.from({ length: list_procede.length }, (_, i) => 'rgba(0,0,0,0)');
+          let dashedBorders = Array.from({ length: list_procede.length }, (_, i) => false);
+          let order = Array.from({ length: list_procede.length }, (_, i) => 10);
+          let datas = list_procede.map(p => list_annees.map(a => dict_donnees[`${a}|${p}`] ?? 0));
+
+          let dataU = {                                     // Pour l'export Excel
+            labels: list_procede,
+            data: list_annees.map((a, i) => ({
+              annee: list_labels[i],
+              emissions: Object.fromEntries(list_procede.map(p => [p, isNaN(dict_donnees[`${a}|${p}`]) == false ? dict_donnees[`${a}|${p}`] : 0]),
+              ),
+            })),
+          };                                                                                                      // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
+
+          for (let i = 0; i < list_procede.length; i++) {
+            if (list_procede[i] == 'Hydrogène') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-hydrogene');
+            }
+            else if (list_procede[i] == 'Variation de production sans décarbonation') {
+              backgroundColors[i] = 'transparent';
+              borderColors[i] = '#000000';
+              dashedBorders[i] = true;
+              order[i] = 0;
+            }
+            else if (list_procede[i] == 'CCS') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-ccs');
+              order[i] = 50;
+            }
+            else if (list_procede[i] == 'Biogaz') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-biogaz');
+            }
+            else if (list_procede[i] == 'Chaleur biomasse') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-biomasse');
+            }
+            else if (list_procede[i] == 'EAF (DRI/Scrap)') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf');
+              order[i] = 100;
+            }
+            else if (list_procede[i] == 'CSR') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-csr');
+            }
+            else if (list_procede[i] == 'Recyclage (incl. calcin)') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-recyclage');
+            }
+            else if (list_procede[i] == 'Efficacité énergétique') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-efficacite');
+            }
+            else if (list_procede[i] == 'Réduction du taux de clinker') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-reduction-clinker');
+            }
+            else if (list_procede[i] == 'Electrification') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-electrification');
+            }
+            else if (list_procede[i] == 'Report sur le gaz naturel') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-report-gaz-nat');
+            }
+            else if (list_procede[i] == 'Intrant matière décarbonnée (incl. Biochar)') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-intrant-decarb');
+            }
+            else if (list_procede[i] == 'Anode inerte') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-anode-inerte');
+            }
+            else if (list_procede[i] == 'Récupération de chaleur') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-recuperation-chaleur');
+            }
+            else if (list_procede[i] == 'Autre changement de procédé') {
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-chgmnt-procede');
+              order[i] = 1000;
+            }
+            else {
+              backgroundColors[i] = 'rgba(0,0,0,0)';
+              borderColors[i] = 'rgba(1,1,1,1)';
+            }
+          }
+          const datasets = list_procede.map((p, i) => ({
+            label: p,
+            data: list_annees.map(a => dict_donnees[`${a}|${p}`] ?? 0),
+            backgroundColor: backgroundColors[i % backgroundColors.length],
+            borderColor: borderColors[i],
+            dashed: dashedBorders[i],
+            order: order[i],
+            stack: 'stack1',
+            skipNull: true,
+          }))
+
+          chartCO2Procede = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: list_labels,
+              datasets: datasets
+            },
+            plugins: [dashedBorderPlugin],
+            options: {
+              borderWidth: 0,
+              skippedBorders: true,
+              interaction: {
+                mode: 'x',
+              },
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: {
+                    font: {
+                      family: '--font-primary',
+                      size: 14,
+                    },
+                    generateLabels(chart) {
+                      const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                      border.forEach(label => {
+                        if (label.text === 'Variation de production sans décarbonation') {
+                          label.lineDash = [4, 2];
+                          label.lineWidth = 1;
+                          label.strokeStyle = '#000000';
+                        }
+                      });
+                      return border;
+                    }
+                  }
+                },
+                title: {
+                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  align: 'start',
+                  display: true,
+                  padding: 20,
+                  text: cumule ? "Abattement cumulé par les projets déployés, ktCO2e/an, 2019-2050 " : "Abattement annuel par les projets déployés, ktCO2e/an, 2019-2050",
+                },
+                tooltip: {
+                  mode: 'x',
+                  displayColors: true,
+                  padding: '15',
+                  titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
+                  bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
+                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  backgroundColor: '#F6F7FF',
+                  filter: function (tooltipItem){
+                    return tooltipItem.raw !== 0 && tooltipItem.raw !== null;
+                  },
+                  itemSort: function (a, b) {
+                    return b.dataset.order - a.dataset.order; // ordre décroissant par valeur
+                  },
+                  callbacks: {
+                    labelTextColor: function (context) {
+                      return 'rgba(0,0,0,1)';
+                    },
+                    labelColor: function (context) {
+                      if (context.dataset.label === 'Variation de production sans décarbonation') {
+                        return {
+                          borderColor: '#000000',
+                          backgroundColor: 'transparent', 
+                          borderWidth: 1,
+                          borderDash: [4, 2],            
+                          borderRadius: 0,
+                        };
+                      }
+                      return {
+                        borderColor: context.dataset.borderColor ?? context.dataset.backgroundColor,
+                        backgroundColor: context.dataset.backgroundColor,
+                        borderWidth: 1,
+                        borderRadius: 0,
+                      };
+                    },
+                    title: function (context) {
+                      const anneeMES = context[0].label;
+                      return `Prévisionnel des émissions abattues par procédés en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
+                    },
+                    label: function (context) {
+                      const value = context.raw; 
+                      const labels = context.dataset.label;
+                      const formatedValue = Math.floor(value / 1000);
+                      return `${labels} : ${formatedValue} kt CO2e`; 
+                    },
+                  } 
+                }, 
+              },
+              scales: {
+                x: {
+                  stacked: true,
+                  grid: {
+                    display: false,
+                  }
+                },
+                y: {
+                  stacked: true,
+                  beginAtZero: false,
+                  type: 'linear',
+                }
+              },
+              maintainAspectRatio: false,
+              devicePixelRatio: window.devicePixelRatio || 2,
+            }
+          });
+          return [chartCO2Procede, dataU];
+        }
+
+
+        
+        // ABATTEMENT PAR DISPOSITIF D'AIDE //
+
+
+
+        function graphique_abattement_par_annee_par_aide(records_aides, records_projets, btnClear, cumule) {
+
+          const btns = [document.getElementById('cumul-button-charts-aide'), document.getElementById('export-button-charts-aide')];
+          let doc = document.getElementById('canvas-charts-aide-1');
+          doc.className = 'canvas-charts-1-shown';
+          if (btnClear == true) {
+            btns[0].style.display = 'block';
+            btns[1].style.display = 'block';
+          }
+
+          if(chartCO2Aide){
+            chartCO2Aide.destroy();
+            chartCO2Aide = null;
+          }
+
+          if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
+            if(btns[0].textContent == 'Abattement cumulé'){
+                cumule = false;
+            }
+            else{
+              cumule = true;
+            }
+          }
+
+          const dict_donnees = D_CO2_aide_annee(records_aides, records_projets, cumule);
+          const cles = Object.keys(dict_donnees);
+          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
+          if (!cles.length) {
+            doc.className = 'canvas-charts-1-hidden';
+            btns[0].style.display = 'none';
+            btns[1].style.display = 'none';
+            return;
+          }
+
+          const ctx = document.getElementById('barChartCO2parAnneeAide').getContext('2d');
+          let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
+          list_labels[list_labels.length - 1] = '2046-2050';
+          list_annees[list_annees.length - 1] = 2048;
+          list_labels[list_labels.length - 2] = '2041-2045';
+          list_annees[list_annees.length - 2] = 2043;
+          list_labels[list_labels.length - 3] = '2036-2040';
+          list_annees[list_annees.length - 3] = 2038;
+
+          const list_aide = allAides(records_projets,records_aides);
+          let backgroundColors = Array.from({ length: list_aide.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
+          let borderColors = Array.from({ length: list_aide.length }, (_, i) => 'transparent');
+          let borderWidths = Array.from({ length: list_aide.length }, (_, i) => 0);
+          let borderSkips = Array.from({ length: list_aide.length }, (_, i) => 'false');
+          let dashedBorders = Array.from({ length: list_aide.length }, (_, i) => false);
+          let pointStyle = Array.from({ length: list_aide.length }, (_, i) => false);
+          let order = Array.from({ length: list_aide.length }, (_, i) => 0);
+          let aideOrderAlph = strSort([...new Set(cles.map(k => k.split('|')[1].split(' :')[0]))]);
+
+          let dataU = {                                                            // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
+            labels: list_aide.map(a => a.startsWith(' : ') ? a.slice(3) : a),
+            data: list_annees.map((a, i) => ({
+              annee: list_labels[i],
+              emissions: Object.fromEntries(list_aide.map(p => [p.startsWith(' : ') ? p.slice(3) : p, isNaN(typeof dict_donnees[`${a}|${p}`] == 'object' ? dict_donnees[`${a}|${p}`][0] : 'NaN') == false ? dict_donnees[`${a}|${p}`][0] : 0]),
+              ),
+            })),
+          };                                                                                                       
+
+          for (let i = 0; i < list_aide.length; i++) {
+            if (list_aide[i].endsWith('Engagé')) {
+              if (list_aide[i].includes('Autre Aide')){
+                order[i] += 50;
+              }
+              else {
+                order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
+              }
+              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').replace("'",'-').toLowerCase()}`);
+            }
+            else if (list_aide[i].endsWith('Intérêt')) {
+              if (list_aide[i].includes('Autre Aide')){
+                order[i] += 50;
+              }
+              else {
+                order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
+              }
+              order[i] += 100;
+              backgroundColors[i] = Chart.helpers.color(window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').replace("'",'-').toLowerCase()}`)).alpha(0.2).rgbString();
+            }
+            else if(list_aide[i].endsWith("Pas besoin d'aide")){
+              backgroundColors[i] = 'transparent';
+              borderColors[i] = 'rgba(1,1,1,255)';
+              borderWidths[i] = 2;
+              order[i] += 1000;
+            }
+            else {
+              backgroundColors[i] = 'transparent';
+              borderColors[i] = 'rgba(1,1,1,255)';
+              dashedBorders[i] = true;
+              order[i] += 100000;
+            }
+          }
+
+          const datasets = list_aide.map((aide,i) => ({
+            label: aide.startsWith(' : ') ? aide.slice(3) : aide,
+            data: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][0] : 0),
+            montant: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][1] : 0),
+            order : order[i],
+            backgroundColor: backgroundColors[i % backgroundColors.length],
+            borderColor: borderColors[i],
+            borderWidth: borderWidths[i],
+            borderSkipped: borderSkips[i],
+            dashed: dashedBorders[i],
+            pointStyle : pointStyle[i],
+            stack: 'stack1',
+            skipNull: true,
+          }))
+
+          chartCO2Aide = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: list_labels,
+              datasets: datasets
+            },
+            plugins: [htmlGroupedLegendPlugin,dashedBorderPlugin],
+            options: {
+              interaction: {
+                mode: 'x',
+              },
+              plugins: {
+                legend: {
+                  display : false,
+                },
+                htmlGroupedLegend : {
+                  containerID: 'legend-container',
+                  groups: legendGroups(),
+                },
+                title: {
+                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  align: 'start',
+                  padding: 20,
+                  display: true,
+                  text: cumule ? "Abattement cumulé, par dispositif d'aide, ktCO2e/an, 2019-2050 " : "Abattement annuel, par dispositif d'aide, ktCO2e/an, 2019-2050",
+                },
+                tooltip: {
+                  mode: 'x',
+                  displayColors: true,
+                  padding: '15',
+                  titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
+                  bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
+                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
+                  backgroundColor: '#F6F7FF',
+                  filter: function (tooltipItem){
+                    return tooltipItem.raw !== 0 && tooltipItem.raw !== null;
+                  },
+                  itemSort: function (a, b) {
+                    return b.dataset.order - a.dataset.order; // ordre décroissant par valeur
+                  },
+                  callbacks: {
+                    labelTextColor: function (context) {
+                      return 'rgba(0,0,0,1)';
+                    },
+                    labelColor: function (context) {
+                      // on cible la même série que dans generateLabels
+                      if (context.dataset.label === 'n.a.') {
+                        return {
+                          borderColor: '#000000',
+                          backgroundColor: 'transparent', // case non remplie
+                          borderWidth: 1,
+                          borderDash: [4, 2],             // pointillés, cohérent avec la légende
+                          borderRadius: 0,
+                        };
+                      }
+                      // comportement par défaut pour les autres séries
+                      return {
+                        borderColor: context.dataset.borderColor ?? context.dataset.backgroundColor,
+                        backgroundColor: context.dataset.backgroundColor,
+                        borderWidth: 1,
+                        borderRadius: 0,
+                      };
+                    },
+                    title: function (context) {
+                      const anneeMES = context[0].label;
+                      return `Prévisionnel des émissions abattues par dispositif d'aide en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
+                    },
+                    label: function (context) {
+                      const value = context.raw; // Raw data value (e.g., 1200);
+                      const labels = context.dataset.label;
+                      let mt = typeof context.dataset.montant[context.dataIndex] == 'number' ? context.dataset.montant[context.dataIndex] : 0;
+                      const formatedValue = Math.floor(value / 1000);
+                      const formatedMontant = Math.floor(mt / 1000);
+                      return `${labels} : ${formatedValue} kt CO2e pour ${formatedMontant} k€ d'aides`; // Custom label
+                    },
+                  }
+                },
+              },
+              scales: {
+                x: {
+                  stacked: true,
+                  grid: {
+                    display: false,
+                  }
+                },
+                y: {
+                  stacked: true,
+                  beginAtZero: false,
+                  type: 'linear',
+                  //suggestedMax: maxAnneeDataset(datasets)*1.1,
+                }
+              },
+              maintainAspectRatio: false
+            }
+          });
+          return [chartCO2Aide,dataU];
+        }
+
+
+
+
+        // LEGENDE DISPOSITIFS D'AIDE //
+        
+
 
 
         function getOrCreateLegendContainer(chart, containerId){
@@ -1477,6 +2240,107 @@
             borderStyle: 'solid'
           };
         }
+
+
+        function legendGroups(){
+          const legendGroups = [
+            {
+              key: 'n.a.',
+              title: "n.a.",
+              order: 4,
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes('n.a.'),
+              formatText: (item) => 'n.a.',
+              swatchStyle: (item) => ({
+                background: 'transparent',
+                borderColor: 'rgba(1,1,1,255)',
+                borderWidth: '1px',
+                borderStyle: 'dashed'   
+              })  
+            },
+            {
+              key: "sansbesoin",
+              title: "Pas de besoin d'aide",
+              order: 3,
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes('Pas besoin'),
+              formatText: (item) => "Pas de besoin d'aide",
+              swatchStyle: (item) => ({
+                background: 'transparent',
+                borderColor: 'rgba(1,1,1,255)',
+                borderWidth: '1px',
+                borderStyle: 'solid'   
+              })  
+            },
+            {
+              key: 'engage',
+              title: "Dispositif : engagé",
+              order: 1,
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes("Engagé"),
+              formatText: (item) => "Dispositif : engagé"
+            },
+            {
+              key: 'interet',
+              title: "Dispositif : intérêt",
+              order: 2,
+              mode: 'aggregate',
+              legends: [],
+              match: (item) => item.text.includes("Intérêt"),
+              formatText: (item) => "Dispositif : intérêt"
+            },
+            {
+              key: 'dispositifs',
+              title: "Liste des dispositifs d'aide",
+              order: 5,
+              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue'), fontStyle: 'italic' },
+              legends: [],
+              match: (item) => item.text.includes("Engagé") || item.text.includes("Intérêt"),
+              formatText: (item) => item.text.replace(item.text.includes('Engagé') ? ' : Engagé' : ' : Intérêt','')
+            }
+          ];
+          return legendGroups;
+        }
+
+
+
+
+        // CONSTRUCTION DES PLUGINS UTILISES POUR LES GRAPHS //
+
+
+
+
+        const dashedBorderPlugin = {                                                                      // Plugin pour pouvoir afficher des barres en pointillés
+          id: 'dashedBorder',
+          afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+              if (!dataset.dashed) return;  // on cible uniquement les datasets marqués
+              if (dataset.hidden) return;
+              const meta = chart.getDatasetMeta(datasetIndex);
+              if (meta.hidden) return;  // masqué via meta 
+              meta.data.forEach(bar => {
+                if (!bar.active && bar.hidden) return;  // barre individuellement masquée
+                const props = bar.getProps(['x', 'y', 'width', 'base'], true);
+                const { x, width } = props;
+                const top = Math.min(props.y, props.base);
+                const bottom = Math.max(props.y, props.base);
+                const height = bottom - top;
+                if (height === 0) return;
+                ctx.save();
+                ctx.setLineDash([4, 3]);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = dataset.borderColor;
+                ctx.strokeRect(x - width / 2, top, width, height);
+                ctx.restore();
+              });
+            });
+          }
+        };
+
 
         const htmlGroupedLegendPlugin = {
           id: 'htmlGroupedLegend',
@@ -1632,413 +2496,17 @@
         };
 
 
-        function legendGroups(){
-          const legendGroups = [
-            {
-              key: 'n.a.',
-              title: "n.a.",
-              order: 4,
-              mode: 'aggregate',
-              legends: [],
-              match: (item) => item.text.includes('n.a.'),
-              formatText: (item) => 'n.a.',
-              swatchStyle: (item) => ({
-                background: 'transparent',
-                borderColor: 'rgba(1,1,1,255)',
-                borderWidth: '1px',
-                borderStyle: 'dashed'   
-              })  
-            },
-            {
-              key: "sansbesoin",
-              title: "Pas de besoin d'aide",
-              order: 3,
-              mode: 'aggregate',
-              legends: [],
-              match: (item) => item.text.includes('Pas besoin'),
-              formatText: (item) => "Pas de besoin d'aide",
-              swatchStyle: (item) => ({
-                background: 'transparent',
-                borderColor: 'rgba(1,1,1,255)',
-                borderWidth: '1px',
-                borderStyle: 'solid'   
-              })  
-            },
-            {
-              key: 'engage',
-              title: "Dispositif : engagé",
-              order: 1,
-              mode: 'aggregate',
-              legends: [],
-              match: (item) => item.text.includes("Engagé"),
-              formatText: (item) => "Dispositif : engagé"
-            },
-            {
-              key: 'interet',
-              title: "Dispositif : intérêt",
-              order: 2,
-              mode: 'aggregate',
-              legends: [],
-              match: (item) => item.text.includes("Intérêt"),
-              formatText: (item) => "Dispositif : intérêt"
-            },
-            {
-              key: 'dispositifs',
-              title: "Liste des dispositifs d'aide",
-              order: 5,
-              titleStyle: { color: window.getComputedStyle(document.head).getPropertyValue('--brand-blue'), fontStyle: 'italic' },
-              legends: [],
-              match: (item) => item.text.includes("Engagé") || item.text.includes("Intérêt"),
-              formatText: (item) => item.text.replace(item.text.includes('Engagé') ? ' : Engagé' : ' : Intérêt','')
-            }
-          ];
-          return legendGroups;
-        }
 
 
 
-        /// PLUGINS POUR LES GRAPHS ///
 
-        function normStr(x) {
-          return (x ?? "").toString().trim();
-        }
+     /* ======================
+        TRAITEMENT DES DONNEES
+        ====================== */
 
-        function htmlEscape(s) {
-          return normStr(s)
-            .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
-        }
 
-        function strSort(a){
-          return a.sort(function(x,y){return x.toString().localeCompare(y.toString());});
-        }
 
-        function hideShowButtons(idCible, forceShow) {
-          const divCible = document.getElementById(idCible);
 
-          // Table de correspondance fiable id-div -> id-bouton
-          // (le test précédent sur className.includes('map'/'chart') était cassé :
-          //  'canvas-charts-aide-1' et 'canvas-charts-procede-1' ont tous les deux
-          //  className='canvas-charts-1-shown', qui contient "chart" -> les deux
-          //  tombaient dans la même branche et mettaient à jour le MÊME bouton
-          //  (hide-button-charts-procede), jamais hide-button-charts-aide)
-          const boutonParId = {
-            'map-container': 'hide-button-map',
-            'canvas-charts-procede-1': 'hide-button-charts-procede',
-            'canvas-charts-aide-1': 'hide-button-charts-aide',
-          };
-          const btn = document.getElementById(boutonParId[idCible]);
-
-          const isCurrentlyShown = divCible.className === 'canvas-charts-1-shown';
-          const show = (forceShow !== undefined) ? forceShow : !isCurrentlyShown;
-
-          divCible.className = show ? 'canvas-charts-1-shown' : 'canvas-charts-1-hidden';
-          if (btn) btn.textContent = show ? '-' : '+';
-        }
-
-        function switchCumul(idCible) {
-          const divCible = document.getElementById(idCible);
-          const boutonParId = {
-            'canvas-charts-procede-1': 'cumul-button-charts-procede',
-            'canvas-charts-aide-1': 'cumul-button-charts-aide',
-          };
-          const btn = document.getElementById(boutonParId[idCible]);
-
-          const estCumule = !(btn.textContent === 'Abattement cumulé');
-
-          btn.textContent = estCumule ? 'Abattement cumulé' : "Abattement à l'année\nde mise en service";
-
-          if (boutonParId[idCible].endsWith('procede')){
-            const graph = graphique_CO2_procede_annee(filtered_records_projets, false, !estCumule);
-            chartCO2Procede = graph[0];
-            currentDataExportProcede = graph[1];
-          }
-          if (boutonParId[idCible].endsWith('aide')){
-            const graph = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, false, !estCumule);
-            chartCO2Aide = graph[0];
-            currentDataExportAide = graph[1];
-          }
-        }
-
-
-        function areaMarkerfromEmission(emission, maxRadius, typeMarker) {
-          const minRadius = 5;
-          const minEmission = 10000;
-          const maxEmission = 10000000;
-          let radius = minRadius;
-          if (typeof emission == 'number' && emission >= minEmission) {
-            function f(x) { return 2 ** (Math.log10(x) / Math.log10(1000)); }
-            function area(rad) { return Math.PI * rad ** 2; }
-            let areaC;
-            if (typeMarker == 'linear') {
-              areaC = (area(maxRadius) - area(minRadius)) * ((emission - minEmission) / (maxEmission - minEmission));
-            }
-            else {
-              areaC = (area(maxRadius) - area(minRadius)) * ((f(emission) - f(minEmission)) / (f(maxEmission) - f(minEmission)));
-            }
-            radius = Math.sqrt((area(minRadius) + areaC) / Math.PI);
-          }
-          return radius
-        }
-
-
-        function exportToExcel(dataU, filename) {
-          const titre = ['Emissions abattues en ktCO2e/an'];
-          const premLigne = dataU.data.map(dU => dU.annee);         // ['2019', '2020', ...]
-          const premColonne = dataU.labels;                          // ['Hydrogène', 'CCS', ...] ou ['AOGPID : Engagé', '', ...]
-
-          const colonnes = [titre.concat(premLigne), ...premColonne.map(p => [p, ...Array(premLigne.length).fill(0)])];
-
-          for (let i = 0; i < premColonne.length; i++) {
-            const suiteColonne = premLigne.map((_, j) => dataU.data[j].emissions[premColonne[i]] ?? 0);
-            for (let j = 0; j < premLigne.length; j++) {
-              colonnes[i + 1][j + 1] = suiteColonne[j];
-            }
-          }
-
-          let sheetname;
-          const getF = getFilters();
-          const filters = Object.keys(getF);
-          if (filters.every(f => getF[f] == '')) {
-            sheetname = 'Pas de filtre';
-          }
-          else {
-            sheetname = 'Filtres{';
-            for (const f of filters) {
-              if (getF[f] != "") {
-                if (sheetname == 'Filtres{') {
-                  sheetname = sheetname.concat('', `${getF[f]}`)
-                }
-                else {
-                  sheetname = sheetname.concat(',', `${getF[f]}`);
-                }
-              }
-            }
-            sheetname = sheetname.concat('', '}');
-            if (sheetname.length > 30) sheetname = 'Données filtrées';
-          }
-          const worksheet = XLSX.utils.aoa_to_sheet(colonnes);
-          const workbook = XLSX.utils.book_new();
-          // worksheet['!cols'][0] = wch: titre[0].length + 2;
-          XLSX.utils.book_append_sheet(workbook, worksheet, sheetname);
-          XLSX.writeFile(workbook, filename);
-        }
-
-        /*
-        function redrawMap(typeMarker) {
-          renderMap(filtered_records_sites, typeMarker);
-        }
-        */
-
-        function sumList(list){
-          let S = 0;
-          for (e of list){
-            S += typeof e == 'number' ? e : 0;
-          }
-          return S;
-        }
-
-        function uneDecimale(number){
-          string = '' + number.toFixed(1);
-          return string;
-        }
-
-        function unitAdaptee(number, unit){
-          let conversion = number;
-          let nouv_unit = unit;
-          if(conversion >= 1000){
-            conversion = uneDecimale(conversion/1000);
-            nouv_unit = 'k' + unit;
-          }
-          if(conversion >= 1000){
-            conversion = uneDecimale(conversion/1000);
-            nouv_unit = 'M' + unit;
-          }
-          if(conversion >= 1000){
-            conversion = uneDecimale(conversion/1000);
-            nouv_unit = 'G' + unit;
-          }
-          return [conversion, nouv_unit];
-        }
-
-        function triDecroissantParColonne(record, cols, indexColCible){
-          const n = record[cols[0]].length;
-          const colsTriees = cols.map(c => Array.from(record[c]));
-  
-          for (let i = 1; i < n; i++) {
-            // On sauvegarde toute la "ligne" AVANT de commencer à décaler
-            const ligneCourante = colsTriees.map(col => col[i]);
-            const elementCourant = ligneCourante[indexColCible];
-
-            let j = i - 1;
-            while (j >= 0 && colsTriees[indexColCible][j] < elementCourant) {
-              for (let i_c = 0; i_c < colsTriees.length; i_c++) {
-                colsTriees[i_c][j + 1] = colsTriees[i_c][j];
-              }
-              j--;
-            }
-            for (let i_c = 0; i_c < colsTriees.length; i_c++) {
-              colsTriees[i_c][j + 1] = ligneCourante[i_c];
-            }
-          }
-          return colsTriees;
-        }
-
-        function filtreRecord(record,conditionFiltre){                      // Exclu les lignes d'un record ne respectant pas conditionFiltre
-          const lignesGardee = {};
-          const keys = Object.keys(record);
-          const indicesAGarder = [];
-          for (let i = 0 ; i < record.id.length ; i++){
-            if (conditionFiltre(record, i)){
-              indicesAGarder.push(i);
-            }
-          }
-          for (const key of keys){
-            lignesGardee[key] = indicesAGarder.map(i => record[key][i]);
-          }
-          return lignesGardee;
-        }
-
-        function maxAnneeDataset(dataset){
-          const list_annees = Array.from({ length: 20 }, (_, i) => 0);
-          for(let i = 0 ; i < dataset.length ; i++){
-            for (let j = 0 ; j < list_annees.length ; j++){
-              list_annees[j] += dataset[i]['data'][j] > 0 ? dataset[i]['data'][j] : 0;
-            }
-          }
-          console.log(Math.max(...list_annees));
-          return Math.max(...list_annees);
-        }
-
-        function listMainProjets(record_projets){
-          const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => (typeof r.Emissions_abattues_tCO2e_an_[i] == 'number' && r.Procede[i] != null && r.Procede[i] != '0' & r.Procede[i] != '-1' && r.Annee_MES_prevue[i] != 0 && typeof r.Annee_MES_prevue[i] == 'number')),
-          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_'],0);
-          let result = {
-            description: data_triee_projets[1],
-            abattement: data_triee_projets[0],
-            nom_site: data_triee_projets[2],
-            region: data_triee_projets[3],
-            procede: data_triee_projets[4],
-            filiere: data_triee_projets[5],
-            annee: data_triee_projets[6],
-            capex: data_triee_projets[7],
-
-          }
-          return result;
-        }
-
-        function listMainSites(record_sites){
-          const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r.ges_2024[i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
-          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data'],0);
-          let result = {
-            emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),                 // On prend ges_2025 si la donnée est disponible, ges_2024 sinon
-            nom_site: data_triee_sites[2],
-            region: data_triee_sites[3],
-            perimetre: data_triee_sites[4],
-            filiere: data_triee_sites[5],
-            entreprise: data_triee_sites[6],
-            zibac: data_triee_sites[7],
-          }
-          return result;
-        }
-
-        function listMainAides(record_aides){
-          const data_triee_aides = triDecroissantParColonne(filtreRecord(record_aides, (r,i) => typeof r.Gain_GES_an_tCO2eq_previsionnels[i] == 'number'),
-          ['Gain_GES_an_tCO2eq_previsionnels','Nom_du_projet','Porteur_de_projet_beneficiaire_','Montant_d_aide','Date_MES_estimee','Nom_du_dispositif'],0);
-          let result = {
-            description: data_triee_aides[1],
-            abattement: data_triee_aides[0],
-            porteur: data_triee_aides[2],
-            montant: data_triee_aides[3],
-            annee: data_triee_aides[4],
-            dispositif: data_triee_aides[5],
-          }
-          return result;
-        }
-
-        function createListItem(title, highlight, details){
-
-          const item = document.createElement("div");
-          item.className = "main-list-item";
-
-
-          // Ligne 1 : titre
-          const header = document.createElement("div");
-          header.className = "main-list-header";
-
-          const titleElement = document.createElement("div");
-          titleElement.className = `main-list__${title.name}`;
-          titleElement.textContent = title.value;
-
-          header.appendChild(titleElement);
-
-
-
-          // Ligne 2 : valeur principale
-          const main = document.createElement("div");
-          main.className = "main-list-highlight";
-
-          const highlightElement = document.createElement("div");
-          highlightElement.className = `main-list__${highlight.name}`;
-          highlightElement.textContent = highlight.value;
-
-          main.appendChild(highlightElement);
-
-
-          const detailsContainer = document.createElement("div");
-          detailsContainer.className = "main-list-details";
-
-
-          details.forEach(detail => {
-
-              const row = document.createElement("div");
-              row.className = "main-list-detail";
-
-
-              const label = document.createElement("span");
-              label.className = "label";
-              label.textContent = detail.name;
-
-
-              const value = document.createElement("span");
-              value.className = `main-list__${detail.name.toLowerCase().replace('é','e').replace('è','e').replace(' ','-')}`;
-              value.classList.add("value");
-              value.textContent = detail.value;
-
-
-              row.appendChild(label);
-              row.appendChild(value);
-
-              detailsContainer.appendChild(row);
-
-          });
-
-
-          item.appendChild(header);
-          item.appendChild(main);
-          item.appendChild(detailsContainer);
-
-
-          return item;
-      }
-
-
-
-      function remplirListe(containerId, nbElements, builder){
-
-          const container = document.getElementById(containerId);
-          container.innerHTML = "";
-
-          for(let i=0;i<nbElements;i++){
-              container.appendChild(builder(i));
-          }
-      }
-
-
-        /* INTRODUCTION D'OBJETS + OUTILS + PARAMETRAGE GRIST */
-
-
-        /* TRAITEMENT ET CALCUL SUR LES DONNEES */
 
         function D_CO2_procede_annee(record, cumule) {                     // Renvoie un dictionnaire du type : D { (année,procédé) : CO2 abattu en MtCO2e/an }
 
@@ -2122,7 +2590,6 @@
         }
 
 
-
         function traitement_donnees_CO2_procede(record) {
           const procede_non_traite = record.Procede || [];
           const CO2_non_traite = record.Emissions_abattues_tCO2e_an_ || [];
@@ -2168,6 +2635,7 @@
           return [procede_traite, CO2_traite, annee_traite, etat_proj_traite, capex_proj_traite, P_raccord_traite, bes_raccord_traite];
         }
 
+
         function D_sum_CO2_etat_projet(record) {
           CO2_par_etat = {
             'Mis en service' : 0,
@@ -2200,507 +2668,7 @@
           return CO2_par_etat;
         }
 
-        /* TRAITEMENT ET CALCUL SUR LES DONNEES */
-
-
-
-        /* CONSTRUCTION DES GRAPHIQUES */
-
-        let chartCO2Procede = null;
-        let chartCO2Aide = null;
-        let chartTrajEmissions = null;
-
-        let map;
-        let markersLayer;
-
-
-        function graphique_traj_emissions(record_projets, record_sites) {   // Trace le graphique des trajectoires d'émissions à partir des données ETS de 2019 et de l'abattement cumulé des projets
-
-          let doc = document.getElementById('canvas-charts-traj-1');
-          doc.className = 'canvas-charts-1-shown';
-
-          const ctx = document.getElementById('lineChartTrajEmissions').getContext('2d');
-
-          if (chartTrajEmissions) {
-            chartTrajEmissions.destroy();
-            chartTrajEmissions = null;
-          }
-
-          const btn = document.getElementById('export-button-charts-traj');
-          const dict_donnees = D_traj_emissions(record_projets, record_sites);
-
-          if (dict_donnees == undefined){
-            btn.style.display = 'none';
-            return;
-          }
-
-          const cles = Object.keys(dict_donnees);
-
-          if (!cles.length) {
-            doc.className = 'canvas-charts-1-hidden';
-            return;
-          }
-
-          // On extrait la liste des années présentes dans le dictionnaire, triées par ordre croissant
-          const annees = [...new Set(cles.map(k => Number(k.split('|')[0])))].sort((a, b) => a - b);
-          const list_labels = annees.map(a => a.toString());
-
-          // Construction des deux séries à partir des clés 'annee|Emissions' et 'annee|Abattement'
-          const dataEmissions = annees.map(a => dict_donnees[`${a}|Emissions`] ?? null);
-          const dataAbattement = annees.map(a => dict_donnees[`${a}|Abattement`] ?? null);
-
-          const colorEmissions = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue') || 'rgba(200,0,0,1)';
-          const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf') || 'rgba(0,150,0,1)';
-          const colorSNBC = window.getComputedStyle(document.head).getPropertyValue('--color-aide-aogpid');
-
-          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*baisse_SNBC.SNBC_Nat[i] ?? null);
-
-          const datasets = [
-            {
-              label: 'Ajout de la variation de production aux émissions 2019',
-              data: dataEmissions,
-              borderColor: colorEmissions,
-              backgroundColor: colorEmissions,
-              fill: false,
-              tension: 0.2,
-              spanGaps: true,       // relie les points malgré les valeurs null
-              pointRadius: 3,
-            },
-            {
-              label: 'Emissions ETS estimées par les feuilles de route',
-              data: dataAbattement,
-              borderColor: colorAbattement,
-              backgroundColor: colorAbattement,
-              fill: false,
-              tension: 0.2,
-              spanGaps: true,
-              pointRadius: 3,
-            },
-            {
-              label: 'Trajectoire projetée par la SNBC',
-              data: traj_snbc,
-              borderColor: colorSNBC,
-              backgroundColor: colorSNBC,
-              fill: false,
-              tension: 0.2,
-              spanGaps: true,       
-              pointRadius: 3,
-            }
-          ];
-
-          let dataU = {
-            labels: datasets.map(d => d.label),   // ['Ajout de la variation...', 'Emissions ETS estimées...', 'Trajectoire projetée...']
-            data: annees.map((a, i) => ({
-              annee: a,
-              emissions: {
-                [datasets[0].label]: dataEmissions[i],
-                [datasets[1].label]: dataAbattement[i],
-                [datasets[2].label]: traj_snbc[i],
-              },
-            })),
-          };
-
-          chartTrajEmissions = new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: list_labels,
-              datasets: datasets
-            },
-            options: {
-              interaction: {
-                mode: 'x',
-              },
-              plugins: {
-                legend: {
-                  position: 'bottom',
-                  labels:{
-                    font: {
-                      size:15,
-                      family:'--font-primary',
-                    },
-                  },
-                },
-                title: {
-                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
-                  align: 'start',
-                  display: true,
-                  padding: 20,
-                  text: "Trajectoire des émissions ETS selon les feuilles de route, ktCO2e/an, 2019-2035",
-                },
-                tooltip: {
-                  mode: 'point',
-                  displayColors: true,
-                  padding: '15',
-                  titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
-                  bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
-                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  backgroundColor: '#F6F7FF',
-                  filter: function (tooltipItem) {
-                    return tooltipItem.raw !== null;
-                  },
-                  callbacks: {
-                    labelTextColor: function (context) {
-                      return 'rgba(0,0,0,1)';
-                    },
-                    title: function (context) {
-                      return `Prospective des émissions ETS en ${context[0].label}`;
-                    },
-                    label: function (context) {
-                      const value = context.raw;
-                      if (value === null) return null;
-                      const label = context.dataset.label;
-                      const formatedValue = unitAdaptee(value,'tCO2e/an');
-
-                      return `${label} : ${formatedValue[0]} ${formatedValue[1]}`;
-                    },
-                  }
-                },
-              },
-              scales: {
-                x: {
-                  grid: { display: false },
-                },
-                y: {
-                  beginAtZero: true,
-                  type: 'linear',
-                }
-              },
-              maintainAspectRatio: false,
-              devicePixelRatio: window.devicePixelRatio || 2,
-            }
-          });
-
-          return [chartTrajEmissions, dataU];
-        }
-
-        function graphique_CO2_procede_annee(record, btnClear, cumule) {             // Trace le graphique à partir du dictionnaire construit par la fonction D_CO2_procede_annee
-
-          const btns = [document.getElementById('cumul-button-charts-procede'), document.getElementById('export-button-charts-procede')];
-          let doc = document.getElementById('canvas-charts-procede-1');
-          doc.className = 'canvas-charts-1-shown';
-
-          if (btnClear == true) {
-            btns[0].style.display = 'block';
-            btns[1].style.display = 'block';
-          }
-
-          const ctx = document.getElementById('barChartCO2parAnnee').getContext('2d');
-
-          if (chartCO2Procede) {
-            chartCO2Procede.destroy();
-            chartCO2Procede = null;
-          }
-
-          if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
-            if(btns[0].textContent == 'Abattement cumulé'){
-                cumule = false;
-            }
-            else{
-              cumule = true;
-            }
-          }
-
-          const dict_donnees = D_CO2_procede_annee(record, cumule);
-          const cles = Object.keys(dict_donnees);
-          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
-          if (!cles.length) {
-            doc.className = 'canvas-charts-1-hidden';
-            if (btnClear == true) {
-              btns[0].style.display = 'none';
-              btns[1].style.display = 'none';
-            }
-            return;
-          }
-
-          let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
-          list_labels[list_labels.length - 1] = '2046-2050';
-          list_annees[list_annees.length - 1] = 2048;
-          list_labels[list_labels.length - 2] = '2041-2045';
-          list_annees[list_annees.length - 2] = 2043;
-          list_labels[list_labels.length - 3] = '2036-2040';
-          list_annees[list_annees.length - 3] = 2038;
-
-          const list_procede = [...new Set(cles.map(k => k.split('|')[1]))];
-          let backgroundColors = Array.from({ length: list_procede.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
-          let borderColors = Array.from({ length: list_procede.length }, (_, i) => 'rgba(0,0,0,0)');
-          let dashedBorders = Array.from({ length: list_procede.length }, (_, i) => false);
-          let order = Array.from({ length: list_procede.length }, (_, i) => 10);
-          let datas = list_procede.map(p => list_annees.map(a => dict_donnees[`${a}|${p}`] ?? 0));
-
-
-          let dataU = {
-            labels: list_procede,
-            data: list_annees.map((a, i) => ({
-              annee: list_labels[i],
-              emissions: Object.fromEntries(list_procede.map(p => [p, isNaN(dict_donnees[`${a}|${p}`]) == false ? dict_donnees[`${a}|${p}`] : 0]),
-              ),
-            })),
-          };                                                                                                      // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
-
-
-          for (let i = 0; i < list_procede.length; i++) {
-            if (list_procede[i] == 'Hydrogène') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-hydrogene');
-            }
-            else if (list_procede[i] == 'Variation de production sans décarbonation') {
-              backgroundColors[i] = 'transparent';
-              borderColors[i] = '#000000';
-              dashedBorders[i] = true;
-              order[i] = 0;
-            }
-            else if (list_procede[i] == 'CCS') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-ccs');
-              order[i] = 50;
-            }
-            else if (list_procede[i] == 'Biogaz') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-biogaz');
-            }
-            else if (list_procede[i] == 'Chaleur biomasse') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-biomasse');
-            }
-            else if (list_procede[i] == 'EAF (DRI/Scrap)') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf');
-              order[i] = 100;
-            }
-            else if (list_procede[i] == 'CSR') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-csr');
-            }
-            else if (list_procede[i] == 'Recyclage (incl. calcin)') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-recyclage');
-            }
-            else if (list_procede[i] == 'Efficacité énergétique') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-efficacite');
-            }
-            else if (list_procede[i] == 'Réduction du taux de clinker') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-reduction-clinker');
-            }
-            else if (list_procede[i] == 'Electrification') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-electrification');
-            }
-            else if (list_procede[i] == 'Report sur le gaz naturel') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-report-gaz-nat');
-            }
-            else if (list_procede[i] == 'Intrant matière décarbonnée (incl. Biochar)') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-intrant-decarb');
-            }
-            else if (list_procede[i] == 'Anode inerte') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-anode-inerte');
-            }
-            else if (list_procede[i] == 'Récupération de chaleur') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-recuperation-chaleur');
-            }
-            else if (list_procede[i] == 'Autre changement de procédé') {
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue('--color-procede-chgmnt-procede');
-              order[i] = 1000;
-            }
-            else {
-              backgroundColors[i] = 'rgba(0,0,0,0)';
-              borderColors[i] = 'rgba(1,1,1,1)';
-            }
-          }
-          const datasets = list_procede.map((p, i) => ({
-            label: p,
-            data: list_annees.map(a => dict_donnees[`${a}|${p}`] ?? 0),
-            backgroundColor: backgroundColors[i % backgroundColors.length],
-            borderColor: borderColors[i],
-            dashed: dashedBorders[i],
-            order: order[i],
-            stack: 'stack1',
-            skipNull: true,
-          }))
-
-          chartCO2Procede = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: list_labels,
-              datasets: datasets
-            },
-            plugins: [dashedBorderPlugin],
-            options: {
-              borderWidth: 0,
-              skippedBorders: true,
-              interaction: {
-                mode: 'x',
-              },
-              plugins: {
-                legend: {
-                  position: 'bottom',
-                  labels: {
-                    font: {
-                      family: '--font-primary',
-                      size: 14,
-                    },
-                    generateLabels(chart) {
-                      const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                      border.forEach(label => {
-                        if (label.text === 'Variation de production sans décarbonation') {
-                          label.lineDash = [4, 2];
-                          label.lineWidth = 1;
-                          label.strokeStyle = '#000000';
-                        }
-                      });
-                      return border;
-                    }
-                  }
-                },
-                title: {
-                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
-                  align: 'start',
-                  display: true,
-                  padding: 20,
-                  text: cumule ? "Abattement cumulé par les projets déployés, ktCO2e/an, 2019-2050 " : "Abattement annuel par les projets déployés, ktCO2e/an, 2019-2050",
-                },
-                tooltip: {
-                  mode: 'x',
-                  displayColors: true,
-                  padding: '15',
-                  titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
-                  bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
-                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  backgroundColor: '#F6F7FF',
-                  filter: function (tooltipItem){
-                    return tooltipItem.raw !== 0 && tooltipItem.raw !== null;
-                  },
-                  itemSort: function (a, b) {
-                    return b.dataset.order - a.dataset.order; // ordre décroissant par valeur
-                  },
-                  callbacks: {
-                    labelTextColor: function (context) {
-                      return 'rgba(0,0,0,1)';
-                    },
-                    labelColor: function (context) {
-                      // on cible la même série que dans generateLabels
-                      if (context.dataset.label === 'Variation de production sans décarbonation') {
-                        return {
-                          borderColor: '#000000',
-                          backgroundColor: 'transparent', // case non remplie
-                          borderWidth: 1,
-                          borderDash: [4, 2],             // pointillés, cohérent avec la légende
-                          borderRadius: 0,
-                        };
-                      }
-                      // comportement par défaut pour les autres séries
-                      return {
-                        borderColor: context.dataset.borderColor ?? context.dataset.backgroundColor,
-                        backgroundColor: context.dataset.backgroundColor,
-                        borderWidth: 1,
-                        borderRadius: 0,
-                      };
-                    },
-                    title: function (context) {
-                      const anneeMES = context[0].label;
-                      return `Prévisionnel des émissions abattues par procédés en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
-                    },
-                    label: function (context) {
-                      const value = context.raw; // Raw data value (e.g., 1200)
-                      const labels = context.dataset.label;
-                      const formatedValue = Math.floor(value / 1000);
-                      return `${labels} : ${formatedValue} kt CO2e`; // Custom label
-                    },
-                  } 
-                }, 
-              },
-              scales: {
-                x: {
-                  stacked: true,
-                  grid: {
-                    display: false,
-                  }
-                },
-                y: {
-                  stacked: true,
-                  beginAtZero: false,
-                  type: 'linear',
-                  //suggestedMax: maxAnneeDataset(datasets),
-                }
-              },
-              maintainAspectRatio: false,
-              devicePixelRatio: window.devicePixelRatio || 2,
-            }
-          });
-          return [chartCO2Procede, dataU];
-        }
-
-
-
-
-        function graphique_CO2_etat_projet(record) {
-          const CO2_par_etat = D_sum_CO2_etat_projet(record);
-          const data = Object.values(CO2_par_etat);
-          const labels = Object.keys(CO2_par_etat);
-          let order = Array.from({ length: labels.length }, (_, i) => 0);
-          for (let i = 0 ; i < order.length ; i++){
-            order[i] = (labels[i] == 'Mis en service') ? 0 : (labels[i] == 'Certain') ? 1 : (labels[i] == 'Potentiel') ? 2 : (labels[i] == 'A risque') ? 3 : 4;
-          }
-          if (!labels.length) return;
-          const ctx = document.getElementById('pieChartCO2parEtat');
-          const chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              datasets: [{
-                data: data,
-                backgroundColor: [... new Set(labels.map(l => window.getComputedStyle(document.head).getPropertyValue(`--color-background-${l.replaceAll(' ', '-').replaceAll('é', 'e').toLowerCase()}`)))],
-                borderColor: Array.from({ length: labels.length }, (_, i) => 'rgba(0,0,0,1)'),
-                order: order
-              }],
-              labels: labels,
-            },
-            options: {
-              cutout: '60%',
-              devicePixelRatio: window.devicePixelRatio * 2,
-              plugins: {
-                legend: {
-                  position: 'bottom'
-                },
-                title: {
-                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
-                  align: 'start',
-                  display: true,
-                  text: ['Part des émissions abattues',
-                   'par état des projets'],
-                },
-                tooltip: {
-                  displayColors: true,
-                  padding: {
-                    left: 5,
-                    right: 5,
-                    top: 15,
-                    bottom: 15,
-                  },
-                  titleFont: { size: 12, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
-                  bodyFont: { size: 12, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
-                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  backgroundColor: '#F6F7FF',
-                  callbacks: {
-                    labelTextColor: function (context) {
-                      return 'rgba(0,0,0,1)';
-                    },
-                    title: function (context) {
-                      const etatProj = context[0].label;
-                      return ['Emissions abattues par les projets',
-                       `${etatProj.toLowerCase()}s`];
-                    },
-                    label: function (context) {
-                      const value = context.raw; // Raw data value (e.g., 1200)
-                      const formatedValue = Math.floor(value / 1000);
-                      return ` ${formatedValue} kt CO2e`; // Custom label
-                    },
-                  }
-                },
-              },
-              radius: '90%',
-              maintainAspectRatio: false,
-              borderAlign: 'inner',
-              borderWidth: 0.5
-            }
-          });
-          return chart;
-        }
-
-                
+               
         function regroupAides(list_aide){                                                       // On rebrand tous les NOM d'aide en conservant la taille de la liste selon un format normalisé : toutes les aides qui ne correspondent pas 
           list_aide_sans_nombre = list_aide.map(a => a ? a.replace(/[0-9]/g, '') : '');                  // ou ont un NOM NULL sont appelées 'Autre Aides'
           list_aide_regroupe = list_aide_sans_nombre.map( a => {
@@ -2732,20 +2700,6 @@
             else if (a_norm.includes('fondschal')){
               return 'Fonds Chaleur';
             }
-            /*
-            else if (a_norm.includes('demibac')){
-              return 'DEMIBac';
-            }
-            else if (a_norm.includes('ibacpme')){
-              return 'IBAC PME';
-            }
-            else if (a_norm.includes('indussee')){
-              return 'INDUSS EE';
-            }
-            else if (a_norm.includes('solinbac')){
-              return 'SOLINBAC';
-            }
-            */
             else {
               return 'Autre Aide';
             }
@@ -2758,9 +2712,11 @@
           return [... new Set(regroupAides(record.Nom_du_dispositif))];
         }
 
+
         function aidesBaseProjets(record_projets,record_aides){
           return [... new Set(projets_Laureat_Aide(record_projets,record_aides)['aide'])];
         }
+
 
         function allAides(record_projets, record_aides){
           let list_aide = [];
@@ -2787,6 +2743,7 @@
 
           return list_aide;
         }
+
 
         function projets_Laureat_Aide(record_projets,record_aides){
           let laureats = {
@@ -2897,6 +2854,7 @@
           return laureats;
         }
 
+
         function concatenation_Aides_Projets(record_aide, projets_laureats){
           const base_Aide_Filtre = filtreRecord(record_aide, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' );
           const anneesMES = base_Aide_Filtre.Date_MES_estimee.concat(projets_laureats['anneeMES']);
@@ -2915,6 +2873,7 @@
           const montant = record.Montant_d_aide;
           return [anneesMES, co2_abattu, engagement, montant];
         }
+        
 
         function D_CO2_aide_annee(records_aides,records_projets, cumule) {                     // Renvoie un dictionnaire du type : D { (année,aide) : CO2 abattu en MtCO2e/an }
 
@@ -2970,458 +2929,221 @@
 
 
 
-        function graphique_abattement_par_annee_par_aide(records_aides, records_projets, btnClear, cumule) {
-          
-          const btns = [document.getElementById('cumul-button-charts-aide'), document.getElementById('export-button-charts-aide')];
-          let doc = document.getElementById('canvas-charts-aide-1');
 
-          doc.className = 'canvas-charts-1-shown';
-          if (btnClear == true) {
-            btns[0].style.display = 'block';
-            btns[1].style.display = 'block';
+     /* ============================
+        OUTILS DE CODE PLUS GENERAUX
+        ============================ */
+
+        function normStr(x) {
+          return (x ?? "").toString().trim();
+        }
+
+        function htmlEscape(s) {
+          return normStr(s)
+            .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+        }
+
+        function strSort(a){
+          return a.sort(function(x,y){return x.toString().localeCompare(y.toString());});
+        }
+
+        function hideShowButtons(idCible, forceShow) {             // Code des boutons de toggle d'affichage des graphs (plus utilisé sauf dans le code de renderMap actuellement)
+
+          const divCible = document.getElementById(idCible);
+          const boutonParId = {
+            'map-container': 'hide-button-map',
+            'canvas-charts-procede-1': 'hide-button-charts-procede',
+            'canvas-charts-aide-1': 'hide-button-charts-aide',
+          };
+
+          const btn = document.getElementById(boutonParId[idCible]);
+          const isCurrentlyShown = divCible.className === 'canvas-charts-1-shown';
+          const show = (forceShow !== undefined) ? forceShow : !isCurrentlyShown;
+          divCible.className = show ? 'canvas-charts-1-shown' : 'canvas-charts-1-hidden';
+          if (btn) btn.textContent = show ? '-' : '+';
+        }
+
+
+        function switchCumul(idCible) {                           // Code les boutons de transformations des graphs d'abattement de abattement par année à abattement cumulé depuis la MES 
+          const divCible = document.getElementById(idCible);
+          const boutonParId = {
+            'canvas-charts-procede-1': 'cumul-button-charts-procede',
+            'canvas-charts-aide-1': 'cumul-button-charts-aide',
+          };
+
+          const btn = document.getElementById(boutonParId[idCible]);
+          const estCumule = !(btn.textContent === 'Abattement cumulé');
+          btn.textContent = estCumule ? 'Abattement cumulé' : "Abattement à l'année\nde mise en service";
+
+          if (boutonParId[idCible].endsWith('procede')){
+            const graph = graphique_CO2_procede_annee(filtered_records_projets, false, !estCumule);
+            chartCO2Procede = graph[0];
+            currentDataExportProcede = graph[1];
           }
-
-          if(chartCO2Aide){
-            chartCO2Aide.destroy();
-            chartCO2Aide = null;
+          if (boutonParId[idCible].endsWith('aide')){
+            const graph = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, false, !estCumule);
+            chartCO2Aide = graph[0];
+            currentDataExportAide = graph[1];
           }
+        }
 
-          if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
-            if(btns[0].textContent == 'Abattement cumulé'){
-                cumule = false;
-            }
-            else{
-              cumule = true;
-            }
-          }
 
-          const dict_donnees = D_CO2_aide_annee(records_aides, records_projets, cumule);
-          const cles = Object.keys(dict_donnees);
-          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
-          
-          if (!cles.length) {
-            doc.className = 'canvas-charts-1-hidden';
-            btns[0].style.display = 'none';
-            btns[1].style.display = 'none';
-            return;
-          }
-
-          const ctx = document.getElementById('barChartCO2parAnneeAide').getContext('2d');
-          let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
-          list_labels[list_labels.length - 1] = '2046-2050';
-          list_annees[list_annees.length - 1] = 2048;
-          list_labels[list_labels.length - 2] = '2041-2045';
-          list_annees[list_annees.length - 2] = 2043;
-          list_labels[list_labels.length - 3] = '2036-2040';
-          list_annees[list_annees.length - 3] = 2038;
-
-          const list_aide = allAides(records_projets,records_aides);
-          let backgroundColors = Array.from({ length: list_aide.length }, (_, i) => 'rgba(0,0,0,1)');  // Style graphique des barres du graph selon le procédé
-          let borderColors = Array.from({ length: list_aide.length }, (_, i) => 'transparent');
-          let borderWidths = Array.from({ length: list_aide.length }, (_, i) => 0);
-          let borderSkips = Array.from({ length: list_aide.length }, (_, i) => 'false');
-          let dashedBorders = Array.from({ length: list_aide.length }, (_, i) => false);
-          let pointStyle = Array.from({ length: list_aide.length }, (_, i) => false);
-          let order = Array.from({ length: list_aide.length }, (_, i) => 0);
-          let aideOrderAlph = strSort([...new Set(cles.map(k => k.split('|')[1].split(' :')[0]))]);
-
-          let dataU = {
-            labels: list_aide.map(a => a.startsWith(' : ') ? a.slice(3) : a),
-            data: list_annees.map((a, i) => ({
-              annee: list_labels[i],
-              emissions: Object.fromEntries(list_aide.map(p => [p.startsWith(' : ') ? p.slice(3) : p, isNaN(typeof dict_donnees[`${a}|${p}`] == 'object' ? dict_donnees[`${a}|${p}`][0] : 'NaN') == false ? dict_donnees[`${a}|${p}`][0] : 0]),
-              ),
-            })),
-          };                                                                                                          // Liste d'objets pour l'extraction de données en Excel (cf Export Excel)
-
-          ///  Style du graph avec couleurs par type d'aides  /// 
-
-          for (let i = 0; i < list_aide.length; i++) {
-            if (list_aide[i].endsWith('Engagé')) {
-              if (list_aide[i].includes('Autre Aide')){
-                order[i] += 50;
-              }
-              else {
-                order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
-              }
-              backgroundColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').replace("'",'-').toLowerCase()}`);
-            }
-            else if (list_aide[i].endsWith('Intérêt')) {
-              if (list_aide[i].includes('Autre Aide')){
-                order[i] += 50;
-              }
-              else {
-                order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
-              }
-              order[i] += 100;
-              backgroundColors[i] = Chart.helpers.color(window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').replace("'",'-').toLowerCase()}`)).alpha(0.2).rgbString();
-              // borderColors[i] = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`);
-              // borderWidths[i] = 2;
-              // backgroundColors[i] = pattern.draw('square',window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').toLowerCase()}`));
-            }
-            else if(list_aide[i].endsWith("Pas besoin d'aide")){
-              backgroundColors[i] = 'transparent';
-              borderColors[i] = 'rgba(1,1,1,255)';
-              borderWidths[i] = 2;
-              order[i] += 1000;
+        function areaMarkerfromEmission(emission, maxRadius, typeMarker) {
+          const minRadius = 5;
+          const minEmission = 10000;
+          const maxEmission = 10000000;
+          let radius = minRadius;
+          if (typeof emission == 'number' && emission >= minEmission) {
+            function f(x) { return 2 ** (Math.log10(x) / Math.log10(1000)); }
+            function area(rad) { return Math.PI * rad ** 2; }
+            let areaC;
+            if (typeMarker == 'linear') {
+              areaC = (area(maxRadius) - area(minRadius)) * ((emission - minEmission) / (maxEmission - minEmission));
             }
             else {
-              backgroundColors[i] = 'transparent';
-              borderColors[i] = 'rgba(1,1,1,255)';
-              dashedBorders[i] = true;
-              order[i] += 100000;
+              areaC = (area(maxRadius) - area(minRadius)) * ((f(emission) - f(minEmission)) / (f(maxEmission) - f(minEmission)));
             }
+            radius = Math.sqrt((area(minRadius) + areaC) / Math.PI);
           }
-
-
-          ///  Style du graph avec couleurs par type d'aides ///
-
-
-          const datasets = list_aide.map((aide,i) => ({
-            label: aide.startsWith(' : ') ? aide.slice(3) : aide,
-            data: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][0] : 0),
-            montant: list_annees.map(a => typeof dict_donnees[`${a}|${aide}`] == 'object' ? dict_donnees[`${a}|${aide}`][1] : 0),
-            order : order[i],
-            backgroundColor: backgroundColors[i % backgroundColors.length],
-            borderColor: borderColors[i],
-            borderWidth: borderWidths[i],
-            borderSkipped: borderSkips[i],
-            dashed: dashedBorders[i],
-            pointStyle : pointStyle[i],
-            stack: 'stack1',
-            skipNull: true,
-          }))
-
-          chartCO2Aide = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: list_labels,
-              datasets: datasets
-            },
-            plugins: [htmlGroupedLegendPlugin,dashedBorderPlugin],
-            options: {
-              interaction: {
-                mode: 'x',
-              },
-              plugins: {
-                legend: {
-                  display : false,
-                  /*
-                  labels: {
-                    generateLabels: (chart) => {
-                      const newLegend = Chart.overrides.bar.plugins.legend/labels.generateLabels(chart);
-                    }
-                  },
-                  htmlLegend: {
-                    containerID: 'legend-container'
-                  },
-                  labels: {
-                    generateLabels(chart) {
-                      const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                      border.forEach(label => {
-                        if (label.text.includes('n.a.')){
-                          label.lineDash = [4, 2];
-                          label.lineWidth = 1;
-                          label.strokeStyle = window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${label.text.split(' ')[0].replace(' ','-').toLowerCase()}`);
-                          label.text = 'n.a.';
-                        }
-                      });
-                      return border;
-                    }
-                  }
-                  */
-                },
-                htmlGroupedLegend : {
-                  containerID: 'legend-container',
-                  groups: legendGroups(),
-                },
-                title: {
-                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
-                  align: 'start',
-                  padding: 20,
-                  display: true,
-                  text: cumule ? "Abattement cumulé, par dispositif d'aide, ktCO2e/an, 2019-2050 " : "Abattement annuel, par dispositif d'aide, ktCO2e/an, 2019-2050",
-                },
-                tooltip: {
-                  mode: 'x',
-                  displayColors: true,
-                  padding: '15',
-                  titleFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
-                  bodyFont: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
-                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  backgroundColor: '#F6F7FF',
-                  filter: function (tooltipItem){
-                    return tooltipItem.raw !== 0 && tooltipItem.raw !== null;
-                  },
-                  itemSort: function (a, b) {
-                    return b.dataset.order - a.dataset.order; // ordre décroissant par valeur
-                  },
-                  callbacks: {
-                    labelTextColor: function (context) {
-                      return 'rgba(0,0,0,1)';
-                    },
-                    labelColor: function (context) {
-                      // on cible la même série que dans generateLabels
-                      if (context.dataset.label === 'n.a.') {
-                        return {
-                          borderColor: '#000000',
-                          backgroundColor: 'transparent', // case non remplie
-                          borderWidth: 1,
-                          borderDash: [4, 2],             // pointillés, cohérent avec la légende
-                          borderRadius: 0,
-                        };
-                      }
-                      // comportement par défaut pour les autres séries
-                      return {
-                        borderColor: context.dataset.borderColor ?? context.dataset.backgroundColor,
-                        backgroundColor: context.dataset.backgroundColor,
-                        borderWidth: 1,
-                        borderRadius: 0,
-                      };
-                    },
-                    title: function (context) {
-                      const anneeMES = context[0].label;
-                      return `Prévisionnel des émissions abattues par dispositif d'aide en ${anneeMES.toLowerCase()} (en kt CO2e/an)`;
-                    },
-                    label: function (context) {
-                      const value = context.raw; // Raw data value (e.g., 1200);
-                      const labels = context.dataset.label;
-                      let mt = typeof context.dataset.montant[context.dataIndex] == 'number' ? context.dataset.montant[context.dataIndex] : 0;
-                      const formatedValue = Math.floor(value / 1000);
-                      const formatedMontant = Math.floor(mt / 1000);
-                      return `${labels} : ${formatedValue} kt CO2e pour ${formatedMontant} k€ d'aides`; // Custom label
-                    },
-                  }
-                },
-              },
-              scales: {
-                x: {
-                  stacked: true,
-                  grid: {
-                    display: false,
-                  }
-                },
-                y: {
-                  stacked: true,
-                  beginAtZero: false,
-                  type: 'linear',
-                  //suggestedMax: maxAnneeDataset(datasets)*1.1,
-                }
-              },
-              maintainAspectRatio: false
-            }
-          });
-          return [chartCO2Aide,dataU];
+          return radius
         }
-        
 
 
-        function graphique_pie_CO2_aide_projet(record_aides,record_projets) {
-          const donnees = D_Ab_AAP_Etat(records_aides); 
-          const co2_abattu = donnees[1];
-          const engagement = donnees[2];
-          const montant = donnees[3];
-          let sum_co2 = 0;
-          for (c of co2_abattu){
-            sum_co2 = sum_co2 + c;
+        function exportToExcel(dataU, filename) {
+          const titre = ['Emissions abattues en ktCO2e/an'];
+          const premLigne = dataU.data.map(dU => dU.annee);         
+          const premColonne = dataU.labels;                          
+
+          const colonnes = [titre.concat(premLigne), ...premColonne.map(p => [p, ...Array(premLigne.length).fill(0)])];
+
+          for (let i = 0; i < premColonne.length; i++) {
+            const suiteColonne = premLigne.map((_, j) => dataU.data[j].emissions[premColonne[i]] ?? 0);
+            for (let j = 0; j < premLigne.length; j++) {
+              colonnes[i + 1][j + 1] = suiteColonne[j];
+            }
           }
-          if (sum_co2 == 0) return;
-          const labels = [... new Set(engagement)];
-          const data = labels.map(l => 0);
-          for (let i = 0 ; i < co2_abattu.length ; i++){
-            for (let j = 0 ; j < labels.length ; j++){
-              if(engagement[i] == labels[j]){
-                data[j] += typeof co2_abattu[i] == 'number' && co2_abattu[1] > 0 ? co2_abattu[i] : 0;
+
+          let sheetname;
+          const getF = getFilters();
+          const filters = Object.keys(getF);
+          if (filters.every(f => getF[f] == '')) {
+            sheetname = 'Pas de filtre';
+          }
+          else {
+            sheetname = 'Filtres{';
+            for (const f of filters) {
+              if (getF[f] != "") {
+                if (sheetname == 'Filtres{') {
+                  sheetname = sheetname.concat('', `${getF[f]}`)
+                }
+                else {
+                  sheetname = sheetname.concat(',', `${getF[f]}`);
+                }
               }
             }
+            sheetname = sheetname.concat('', '}');
+            if (sheetname.length > 30) sheetname = 'Données filtrées';
           }
-          const ctx = document.getElementById('pieChartCO2parEtatAide');
-          const chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              datasets: [{
-                data: data,
-                backgroundColor: [... new Set(labels.map(l => window.getComputedStyle(document.head).getPropertyValue(`--color-background-${l.replaceAll(' ', '-').replaceAll('é', 'e').replaceAll('ê','e').replaceAll("'",'-').replaceAll('.','-').toLowerCase()}`)))],
-                borderColor: Array.from({ length: labels.length }, (_, i) => 'rgba(0,0,0,1)'),
-              }],
-              labels: labels,
-            },
-            options: {
-              cutout: '60%',
-              devicePixelRatio: window.devicePixelRatio * 2,
-              plugins: {
-                legend: {
-                  position: 'bottom'
-                },
-                title: {
-                  color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
-                  align: 'start',
-                  display: true,
-                  text: ['Sécurisation des projets',
-                   'soutenus par des AAP'],
-                },
-                tooltip: {
-                  displayColors: true,
-                  padding: {
-                    left: 5,
-                    right: 5,
-                    top: 15,
-                    bottom: 15,
-                  },
-                  titleFont: { size: 12, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 'bold' },
-                  bodyFont: { size: 12, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary') },
-                  titleColor: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  backgroundColor: '#F6F7FF',
-                  callbacks: {
-                    labelTextColor: function (context) {
-                      return 'rgba(0,0,0,1)';
-                    },
-                    title: function (context) {
-                      const etatProj = context[0].label;
-                      return ['Emissions abattues par les projets',
-                       etatProj == 'n.a.' ? 'sans donnée renseignée sur les dispositifs' : etatProj == "Pas de besoin d'aide" ? "sans besoin d'aide" : etatProj == 'Intérêt' ? 'intéréssés par un AAP' : 'engagés sur un AAP'];
-                    },
-                    label: function (context) {
-                      const value = context.raw; // Raw data value (e.g., 1200)
-                      const formatedValue = Math.floor(value / 1000);
-                      return ` ${formatedValue} kt CO2e`; // Custom label
-                    },
-                  }
-                },
-              },
-              radius: '90%',
-              maintainAspectRatio: false,
-              borderAlign: 'inner',
-              borderWidth: 0.5
-            }
-          });
-          return chart;
+          const worksheet = XLSX.utils.aoa_to_sheet(colonnes);
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, sheetname);
+          XLSX.writeFile(workbook, filename);
         }
 
 
-        /*
-        function renderList(records, hide) {
-          const acc = document.getElementById("company-accordion");
-          const emptyLeft = document.getElementById("empty-left");
-          acc.innerHTML = "";
-          emptyLeft.style.display = "none";
-
-          if (hide == true){
-            return;
+        function sumList(list){
+          let S = 0;
+          for (e of list){
+            S += typeof e == 'number' ? e : 0;
           }
-          if (!records['name_site'].length) {
-            emptyLeft.textContent = "Aucun résultat avec cette recherche.";
-            emptyLeft.style.display = "block";
-            return;
-          }
-
-          for (let i = 0; i < records['name_site'].length; i++) {
-            const name = records['name_site'][i] || "(Sans nom)";
-            const region = records['Region'][i];
-            const filiere = records['Filiere'][i];
-            const commune = records['commune'][i];
-            const cp = records['CP'][i];
-            const last_ges = records['ges_2025'][i] != -1 ? records['ges_2025'][i] : records['ges_2024'][i] != -1 ? records['ges_2024'][i] : '0 émissions ou données incomplètes';
-            const entreprise = records['entreprise'][i];
-            const perimetre = records['Perimetre'][i];
-            const zibac = records['ZIBaC_data'][i];
-
-            const item = document.createElement("div");
-            item.className = "company-item";
-
-            const header = document.createElement("div");
-            header.className = "company-item__header";
-            header.innerHTML = `
-          <div class="company-item__name">${htmlEscape(name)}</div>
-          <div class="company-item__meta">${htmlEscape([region, commune].filter(Boolean).join(" · "))}</div>
-        `;
-
-            const details = document.createElement("div");
-            details.className = "company-item__details";
-            details.innerHTML = `
-          <div class="detail-grid">
-            <div class="detail"><span class="k">Région</span><span class="v">${htmlEscape(region || "—")}</span></div>
-            <div class="detail"><span class="k">Entreprise</span><span class="v">${htmlEscape(entreprise || "—")}</span></div>
-            <div class="detail"><span class="k">Périmètre</span><span class="v">${htmlEscape(perimetre || "—")}</span></div>
-            <div class="detail"><span class="k">ZIBaC</span><span class="v">${htmlEscape(zibac || "—")}</span></div>
-            <div class="detail"><span class="k">Emissions GES 2025</span><span class="v">${htmlEscape(last_ges || "—")}</span><span class="k">${last_ges == null || typeof last_ges == 'string' ? '' : ' tCO2'}</span></div>
-            <div class="detail"><span class="k">Adresse</span><span class="v">${htmlEscape([cp, commune].filter(Boolean).join(" ") || "—")}</span></div>
-          </div>
-        `;
-
-            header.addEventListener("click", () => item.classList.toggle("is-open"));
-
-            item.appendChild(header);
-            item.appendChild(details);
-            acc.appendChild(item);
-          }
+          return S;
         }
-        */
 
-        function renderListsMain(record_projets,record_sites,record_aides){
-
-          const projets = listMainProjets(record_projets);
-          const wrapper_projet = document.getElementById('wrapper-projets');
-          if(sumList(projets.abattement) != 0){
-            if (wrapper_projet.style.display == 'none'){
-              wrapper_projet.style.display = 'grid';
-            }
-
-            remplirListe("listeProjets", Math.min(15,projets.description.length), i =>
-              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${unitAdaptee(projets.abattement[i],'tCO2e/an')[0] + ' ' + unitAdaptee(projets.abattement[i],'tCO2e/an')[1]} abattues`}, 
-              [
-                  {name: "Site",value: projets.nom_site[i]},
-                  {name: "Année MES",value: projets.annee[i]},
-                  {name: "Procédé",value: projets.procede[i]},
-                  {name: "CAPEX",value: `CAPEX : ${unitAdaptee(projets.capex[i],'€')[0] + ' ' + unitAdaptee(projets.capex[i],'€')[1]}`},
-              ])
-            );
-          }
-          else{
-            wrapper_projet.style.display = 'none';
-          }
-
-          const sites = listMainSites(record_sites);
-          const wrapper_site = document.getElementById('wrapper-sites');
-          if(sumList(sites.emissions) != 0){
-            if (wrapper_site.style.display == 'none'){
-              wrapper_site.style.display = 'grid';
-            }
-            remplirListe("listeSites", Math.min(15,sites.emissions.length), i =>
-              createListItem({name: "description",value: sites.nom_site[i]}, {name: "emissions",value: `Dernières émissions ETS : ${unitAdaptee(sites.emissions[i],'tCO2e')[0] + ' ' + unitAdaptee(sites.emissions[i],'tCO2e')[1]}`},
-              [
-                  {name: "Région",value: sites.region[i]},
-                  {name: "Entreprise",value: sites.entreprise[i]},
-                  {name: "Périmètre",value: sites.perimetre[i]},
-                  {name: "Filière",value: sites.filiere[i]},
-              ])
-            );
-          }
-          else{
-            wrapper_site.style.display = 'none';
-          }
-
-          const aides = listMainAides(record_aides);
-          const wrapper_aide = document.getElementById('wrapper-aides');
-          if(sumList(aides.abattement) != 0){
-            if (wrapper_aide.style.display == 'none'){
-              wrapper_aide.style.display = 'grid';
-            }
-            remplirListe("listeAides", Math.min(15,aides.description.length), i =>
-              createListItem({name: 'description',value: regroupAides(aides.dispositif)[i] + ' : ' + ((typeof aides.description[i] == 'string' && aides.description[i] != '') ? aides.description[i] : aides.porteur[i])}, {name: "abattement",value: `${unitAdaptee(aides.abattement[i],('tCO2e/an'))[0] + ' ' + unitAdaptee(aides.abattement[i],('tCO2e/an'))[1]} abattues`},
-              [
-                  {name: "Bénéficiaire",value: aides.porteur[i]},
-                  {name: "Montant",value: `${unitAdaptee(aides.montant[i],'€')[0] + ' ' + unitAdaptee(aides.montant[i],'€')[1]}`},
-                  {name: "Année MES",value: aides.annee[i]},
-              ])
-            );
-          }
-          else{
-            wrapper_aide.style.display = 'none';
-          }
+        function uneDecimale(number){
+          string = '' + number.toFixed(1);
+          return string;
         }
+
+        function unitAdaptee(number, unit){
+          let conversion = number;
+          let nouv_unit = unit;
+          if(conversion >= 1000){
+            conversion = uneDecimale(conversion/1000);
+            nouv_unit = 'k' + unit;
+          }
+          if(conversion >= 1000){
+            conversion = uneDecimale(conversion/1000);
+            nouv_unit = 'M' + unit;
+          }
+          if(conversion >= 1000){
+            conversion = uneDecimale(conversion/1000);
+            nouv_unit = 'G' + unit;
+          }
+          return [conversion, nouv_unit];
+        }
+
+        function triDecroissantParColonne(record, cols, indexColCible){
+          const n = record[cols[0]].length;
+          const colsTriees = cols.map(c => Array.from(record[c]));
+  
+          for (let i = 1; i < n; i++) {
+            const ligneCourante = colsTriees.map(col => col[i]);
+            const elementCourant = ligneCourante[indexColCible];
+
+            let j = i - 1;
+            while (j >= 0 && colsTriees[indexColCible][j] < elementCourant) {
+              for (let i_c = 0; i_c < colsTriees.length; i_c++) {
+                colsTriees[i_c][j + 1] = colsTriees[i_c][j];
+              }
+              j--;
+            }
+            for (let i_c = 0; i_c < colsTriees.length; i_c++) {
+              colsTriees[i_c][j + 1] = ligneCourante[i_c];
+            }
+          }
+          return colsTriees;
+        }
+
+        function filtreRecord(record,conditionFiltre){                      // Exclu les lignes d'un record ne respectant pas conditionFiltre
+          const lignesGardee = {};
+          const keys = Object.keys(record);
+          const indicesAGarder = [];
+          for (let i = 0 ; i < record.id.length ; i++){
+            if (conditionFiltre(record, i)){
+              indicesAGarder.push(i);
+            }
+          }
+          for (const key of keys){
+            lignesGardee[key] = indicesAGarder.map(i => record[key][i]);
+          }
+          return lignesGardee;
+        }
+
+        function maxAnneeDataset(dataset){
+          const list_annees = Array.from({ length: 20 }, (_, i) => 0);
+          for(let i = 0 ; i < dataset.length ; i++){
+            for (let j = 0 ; j < list_annees.length ; j++){
+              list_annees[j] += dataset[i]['data'][j] > 0 ? dataset[i]['data'][j] : 0;
+            }
+          }
+          console.log(Math.max(...list_annees));
+          return Math.max(...list_annees);
+        }
+
+
+
+
+
+     /* =============================================
+        IMPORT DES DONNEES ET APPLICATION DES FILTRES
+        ============================================= */
+
+
+
+        // LISTE DE SUGGESTIONS POUR LA RECHERCHE DE SITES //
+
+
 
         let suggestionAbortController = null;
 
@@ -3430,7 +3152,6 @@
           const list = document.getElementById("suggestions");
           const input = document.getElementById("search-by-name");
 
-          // Supprime les anciens listeners de suggestion sans toucher à l'input
           if (suggestionAbortController) suggestionAbortController.abort();
           suggestionAbortController = new AbortController();
           const signal = suggestionAbortController.signal;
@@ -3455,152 +3176,26 @@
                 e.stopPropagation();
                 input.value = item;
                 list.innerHTML = "";
-                applyFilters(true); // true => on force la fermeture de la liste malgré le rebuild interne
+                applyFilters(true); 
               }, { signal });
               list.appendChild(li);
             });
           }
 
-          // Réaffiche à chaque frappe
           input.addEventListener("input", buildList, { signal });
 
-          // Réaffiche si on reclique sur l'input non vide
           input.addEventListener("click", buildList, { signal });
 
-          // Ferme si clic ailleurs
           document.addEventListener("mousedown", e => {
             if (e.target !== input) list.innerHTML = "";
           }, { signal });
 
-          // Affiche immédiatement si la valeur est déjà >= 3 chars
           buildList();
         }
 
 
-        // CARTE :
+        // AFFICHAGE / RECUPERATION / ACTUALISATION / SUPPRESSION DES FILTRES //
 
-        function ensureMap() {
-          if (map) return;
-
-          map = L.map("leaflet-map", { zoomControl: true, zoomSnap: 0.25 }).setView([46.6, 2.4], 6);
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 15,
-            attribution: "&copy; OpenStreetMap"
-          }).addTo(map);
-
-          markersLayer = L.layerGroup().addTo(map);
-        }
-
-        function renderMap(records, typeMarker) {
-          ensureMap();
-
-          const emptyMap = document.getElementById("empty-map");
-          emptyMap.style.display = "none";
-
-          markersLayer.clearLayers();
-
-          // Garder seulement ceux qui ont lat/lon valides
-          const pts = [];
-          const maxRadius = 40;
-          for (let i = 0; i < records['id'].length; i++) {
-            const lat = Number(records['latitude'][i]);
-            const lon = Number(records['longitude'][i]);
-            const index = i;
-            if (Number.isFinite(lat) && Number.isFinite(lon) && (lat != 0 && lon != 0)) pts.push({ index, lat, lon });
-          }
-          if (!pts.length) {
-            emptyMap.textContent = "Aucun point géolocalisé (Latitude/Longitude manquantes) pour cette sélection.";
-            emptyMap.style.display = "block";
-            hideShowButtons('map-container',false);
-            return;
-          }
-          hideShowButtons('map-container',true);
-
-          const ptsWithRadius = pts.map(p => {
-            const ind = p.index;
-            const last_ges = records['ges_2025'][ind] != -1
-              ? records['ges_2025'][ind]
-              : records['ges_2024'][ind] != -1
-                ? records['ges_2024'][ind]
-                : '0 émissions ou données incomplètes';
-            const radius = typeMarker == 'constant' ? 7 : areaMarkerfromEmission(last_ges, maxRadius, typeMarker);
-            return { p, last_ges, radius };
-          });
-
-          //    Tri par rayon décroissant : les grands cercles sont ajoutés en premier,
-          //    les petits en dernier — donc au-dessus dans le DOM SVG (overlayPane)
-          ptsWithRadius.sort((a, b) => b.radius - a.radius);
-
-          for (const { p, last_ges, radius } of ptsWithRadius) {
-            const ind = p.index;
-            const name = records['name_site'][ind] || "(Sans nom)";
-            const region = records['Region'][ind];
-            const filiere = records['Filiere'][ind];
-            const ville = records['commune'][ind];
-            const cp = records['CP'][ind];
-            const last_ges = records['ges_2025'][ind] != -1 ? records['ges_2025'][ind] : records['ges_2024'][ind] != -1 ? records['ges_2024'][ind] : '0 émissions ou données incomplètes';
-            const filiere_css = filiere.replaceAll(' ', '-').replaceAll('é', 'e').replaceAll('â', 'a');
-            let marker;
-            const radius = typeMarker == 'constant' ? 7 : areaMarkerfromEmission(last_ges, maxRadius, typeMarker);
-            if (p.lat != null && p.lon != null && p.lat != undefined && p.lon != undefined && p.lat != 0 && p.lon != 0) {
-              marker = L.circleMarker([p.lat, p.lon], {
-                radius: radius,
-                zIndexOffset: 100000 * (1 / radius),
-                fillOpacity: 0.5 * (radius / maxRadius) + 0.5,
-                weight: 1,
-                color: "#111827",
-                fillColor: window.getComputedStyle(document.head).getPropertyValue('--color-' + filiere_css.toLowerCase()) || "#999",
-              });
-
-              marker.bindPopup(`
-            <div style="font-family:${getComputedStyle(document.body).fontFamily};">
-              <div style="font-weight:900;color:#000091;margin-bottom:4px;">${htmlEscape(name)}</div>
-              <div><b>Région :</b> ${htmlEscape(region || "—")}</div>
-              <div><b>Filière :</b> ${htmlEscape(filiere || "—")}</div>
-              <div><b>Adresse :</b> ${htmlEscape([cp, ville].filter(Boolean).join(" ") || "—")}</div>
-              <div><b>Emissions :</b> ${htmlEscape(last_ges || "—")}<b>${last_ges == null || typeof last_ges == 'string' ? '' : ' tCO2'}</b></div>
-            </div>
-          `);
-
-              marker.addTo(markersLayer);
-            }
-          }
-
-          // Zoom auto sur les points
-          const boundsHorsDrom = L.latLngBounds(pts.map(p => records['Region'][p.index] != 'DROM' ? [p.lat, p.lon] : [46.6, 2.4]));
-          const boundsDrom = L.latLngBounds(pts.map(p => [p.lat, p.lon]));  // On exclut les DROM de la considération des bounds pour commencer centré sur le territoire métropolitain
-          map.setZoom(5.75);
-          map.fitBounds(pts.every(p => records['Region'][p.index] == 'DROM') ? boundsDrom.pad(0.2) : boundsHorsDrom.pad(0.2));
-        }
-
-
-        function majGraphiques() {
-          if (chartCO2Procede) chartCO2Procede.destroy();
-          if (chartCO2Aide) chartCO2Aide.destroy();
-          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
-          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
-          resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
-          resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
-          resultTrajCO2 = graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
-          if (resultCO2Procede) {
-            chartCO2Procede = resultCO2Procede[0];
-            currentDataExportProcede = resultCO2Procede[1];
-          }
-          if (resultCO2Aide) {
-            chartCO2Aide = resultCO2Aide[0];
-            currentDataExportAide = resultCO2Aide[1];
-          }
-          if (resultTrajCO2) {
-            chartTrajEmissions = resultTrajCO2[0];
-            currentDataExportTraj = resultTrajCO2[1];
-          }
-          renderMap(filtered_records_sites, 'logarithmique');
-        }
-
-        /* CONSTRUCTION DES GRAPHIQUES */
-
-
-        /* FILTRES */
 
         function getFilters() {
           return {
@@ -3674,20 +3269,17 @@
             filtered_records_projets = filterTable(filtered_records_projets, 'Region', filters.region);
             filtered_records_aides = filterTable(filtered_records_aides, 'Region_data', filters.region);
             filtered_records_sites = filterTable(filtered_records_sites, 'Region', filters.region);
-            // renderSuggestion(filtered_records_sites,false,true);
             test_filtre = true;
           }
           if (zibac.length) {
             filtered_records_projets = filterTable(filtered_records_projets, 'ZIBaC', filters.zibac);
             filtered_records_aides = filterTable(filtered_records_aides, 'ZIBaC', filters.zibac);
             filtered_records_sites = filterTable(filtered_records_sites, 'ZIBaC_data', filters.zibac);
-            // renderSuggestion(filtered_records_sites,false,true);
             test_filtre = true;
           }
           if (filiere.length) {
             filtered_records_projets = filterTable(filtered_records_projets, 'Filiere', filters.filiere);
             filtered_records_sites = filterTable(filtered_records_sites, 'Filiere', filters.filiere);
-            // renderSuggestion(filtered_records_sites,false,true);
             test_filtre = true;
           }
           if (perimetre.length) {
@@ -3702,11 +3294,7 @@
             filtered_records_projets = filterTable(filtered_records_projets, 'Nom_du_site', filters.search);
             filtered_records_aides = filterTable(filtered_records_aides, 'Nom_du_site', filters.search);
             filtered_records_sites = filterTable(filtered_records_sites, 'name_site', filters.search);
-            // renderList(filtered_records_sites, false);
             renderSuggestion(filtered_records_sites, closeSuggestions, test_filtre);
-          }
-          if (filters.search.length < 3) {
-            // renderList(filtered_records_sites, true);
           }
           majGraphiques();
         }
@@ -3782,7 +3370,9 @@
           applyFilters();
         }
 
-        /* FILTRES */
+        
+        // INTERACTION UTILISATEUR AVEC LA SECTION DES FILTRES ET LA RECHERCHE //
+
 
         function attachUIEvents() {
           const ids = ["selectRegion", "selectZIBaC", "selectFiliere", "selectPerimetre", "selectLevier"];
@@ -3804,6 +3394,37 @@
             if (e.target !== input) list.innerHTML = "";
           });
         }
+
+
+        // ACTUALISATION DE LA PAGE ET DES GRAPHIQUES (APPELEE A CHAQUE MODIFICATION DE FILTRE)
+
+
+        function majGraphiques() {
+          if (chartCO2Procede) chartCO2Procede.destroy();
+          if (chartCO2Aide) chartCO2Aide.destroy();
+          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
+          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
+          resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
+          resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
+          resultTrajCO2 = graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
+          if (resultCO2Procede) {
+            chartCO2Procede = resultCO2Procede[0];
+            currentDataExportProcede = resultCO2Procede[1];
+          }
+          if (resultCO2Aide) {
+            chartCO2Aide = resultCO2Aide[0];
+            currentDataExportAide = resultCO2Aide[1];
+          }
+          if (resultTrajCO2) {
+            chartTrajEmissions = resultTrajCO2[0];
+            currentDataExportTraj = resultTrajCO2[1];
+          }
+          renderMap(filtered_records_sites, 'logarithmique');
+        }
+
+
+        // INITIALISATION DE LA PAGE ET IMPORT DES DONNEES //
+
 
         async function chargerDonnees() {                                     // Fonction qui importe les données et trace les graphs
 
@@ -3830,6 +3451,8 @@
 
           graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
         }
+
+
         chargerDonnees();
 
       </script>
