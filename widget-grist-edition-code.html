@@ -96,10 +96,10 @@
         --color-aluminium: #BFBFBF;
         --color-agroalimentaire: #BFA000;
         --color-verre: #0070C0;
-        --color-autre: #ffffe6;
-        --color-autre-materiaux: #ffffe6;
+        --color-autre: #b8f49f;
+        --color-autre-materiaux: #b2f25e;
         --color-papier-carton: #ffdf80;
-        --color-platre: #ffffb3;
+        --color-platre: #e6e659;
         --color-secteur-non-industriel: #ffffe6;
         --color-energie: #000099;
 
@@ -115,7 +115,15 @@
         --color-background-engage-et-mes: #E5E5E5;
         --color-background-engage: #A6A6A6;
 
-
+        --blue: #4472C4;
+        --blue-dark: #2F5597;
+        --gray: #A6A6A6;
+        --green: #A9D18E;
+        --amber: #F4B183;
+        --bg: #FFFFFF;
+        --text: #1F2937;
+        --border: #333333;
+        --row-h: 42px; /* hauteur compacte commune secteur / site */
       }
 
       * {
@@ -899,6 +907,161 @@
       #suggestions li:hover {
         background: #f0f0f0;
       }
+
+
+      /* ============================================
+      AFFICHAGE LISTE DES 10 SITES LES PLUS EMETTEURS
+      =============================================== */
+
+
+
+      p.subtitle {
+        margin: 0 0 20px 0;
+        color: #555;
+        font-size: 13px;
+        font-family: var(--font-primary);
+      }
+
+      table.sites {
+        width: 100%;
+        border-collapse: collapse;
+        border-top: 2px dotted #999;
+      }
+
+      table.sites th {
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 6px;
+        color: #444;
+      }
+
+      table.sites td {
+        padding: 3px 6px;
+        vertical-align: middle;
+      }
+
+      /* séparation entre sites = même ligne pointillée que la légende */
+      table.sites tbody tr {
+        border-bottom: 2px dotted #999;
+      }
+
+      .secteur-cell {
+        width: 16px;
+        padding: 3px 0 !important;
+      }
+
+      .secteur-band {
+        width: 32px;
+        height: var(--row-h);
+        background: var(--blue-dark);
+        color: #fff;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-family: var(--font-primary);
+      }
+
+      .site-name-cell {
+        height: var(--row-h);
+        background: #fff;
+        color: #010101;
+        font-weight: 600;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 2px;
+        font-family: var(--font-primary);
+      }
+
+      .num-cell {
+        height: var(--row-h);
+        background: var(--blue);
+        color: #fff;
+        font-weight: 600;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        border-radius: 2px;
+        white-space: nowrap;
+        font-family: var(--font-primary);
+      }
+
+      .pct-cell {
+        height: var(--row-h);
+        background: #6E8FD1;
+        color: #fff;
+        font-weight: 600;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        border-radius: 2px;
+        white-space: nowrap;
+        font-family: var(--font-primary);
+      }
+
+      .bar-cell {
+        width: 40%;
+        min-width: 200px;
+      }
+
+      .bar-track {
+        display: flex;
+        height: var(--row-h);
+        width: 100%;
+        border: 1px solid var(--border);
+        background: repeating-linear-gradient(
+          45deg, #fff, #fff 4px, #f2f2f2 4px, #f2f2f2 8px
+        ); /* hachuré = non abattu */
+        overflow: hidden;
+      }
+
+      .bar-seg { height: 100%; }
+      .seg-type1 { background: var(--gray); }
+      .seg-type2 { background: var(--green); }
+      .seg-type3 { background: var(--amber); }
+
+      th.head-num, th.head-pct, th.head-bar { text-align: center; }
+
+      /* Légende, affichée en bas de la liste */
+      .legend {
+        display: flex;
+        gap: 24px;
+        margin: 14px 0 0 0;
+        padding-top: 10px;
+        border-top: 2px dotted #999;
+        font-size: 15px;
+        font-family: var(--font-primary);
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .legend-swatch {
+        width: 14px;
+        height: 14px;
+        border: 1px solid var(--border);
+        display: inline-block;
+      }
+
+      .swatch-empty { background: #fff; }
+      .swatch-type1 { background: var(--gray); }
+      .swatch-type2 { background: var(--green); }
+      .swatch-type3 { background: var(--amber); }
+
+
     </style>
 
   </head>
@@ -1067,6 +1230,42 @@
            <div class="hint" id="below-graph">Si un projet est soutenu par plusieurs dispositifs, il est représenté dans le dispositif principal.<br>Certains projets représentés peuvent ne pas figurer dans la base projets s’ils n’y ont pas été ajoutés.</div>
         </div>
         <div class="dropdown-list" id="listeAides"></div>
+      </div>
+
+
+      <!-- =================================================
+      SECTION DE L'AFFICHAGE DES 10 SITES LES PLUS EMETTEURS 
+      ====================================================== -->
+
+      <header class='section-header'>
+        <h1>10 sites les plus émetteurs</h1>
+      </header>  
+
+      <p class="subtitle">
+        Barre = émissions totales du site. Partie hachurée = émissions non abattues par des projets.
+        Segments pleins = émissions abattues, par type de projet.
+      </p>
+
+      <table class="sites">
+        <thead>
+          <tr>
+            <th class="secteur-cell"></th>
+            <th>Site</th>
+            <th class="head-num">Emissions totales (tCO2e)</th>
+            <th class="head-pct">% d'abattement</th>
+            <th class="head-bar">Répartition des émissions</th>
+          </tr>
+        </thead>
+        <tbody id="sites-tbody">
+          <!-- rempli par JS -->
+        </tbody>
+      </table>
+
+      <div class="legend">
+        <div class="legend-item"><span class="legend-swatch swatch-empty"></span>Non abattues</div>
+        <div class="legend-item"><span class="legend-swatch swatch-type1"></span>Projet non mis en service et non aidé</div>
+        <div class="legend-item"><span class="legend-swatch swatch-type2"></span>Projet non mis en service lauréat d'un dispositif d'aide</div>
+        <div class="legend-item"><span class="legend-swatch swatch-type3"></span>Projet mis en service</div>
       </div>
 
 
@@ -2308,6 +2507,52 @@
 
 
 
+        //  AFFICHAGE 10 SITES LES PLUS EMETTEURS  //
+
+
+        function renderSiteRow(site, tbody) {
+          const { pctAbattement, segments } = computeSiteBar(site);
+
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td class="secteur-cell">
+              <div class="secteur-band" style="background-color: var(--color-${site.secteur.toLowerCase().replaceAll(' ','-').replaceAll('é','e').replaceAll('â','a').replaceAll('è','e')})">${escapeHtml(formatSecteur(site.secteur))}</div>
+            </td>
+            <td>
+              <div class="site-name-cell">${escapeHtml(site.site)}</div>
+            </td>
+            <td>
+              <div class="num-cell">${formatNumber(site.emissionsTotales)}</div>
+            </td>
+            <td>
+              <div class="pct-cell">${pctAbattement.toFixed(1)}%</div>
+            </td>
+            <td class="bar-cell">
+              <div class="bar-track" title="${escapeHtml(site.site)}">
+                <div class="bar-seg" style="width:${segments.nonAbattu}%"></div>
+                <div class="bar-seg seg-type1" style="width:${segments.nonMESnonAide}%"></div>
+                <div class="bar-seg seg-type2" style="width:${segments.nonMESAide}%"></div>
+                <div class="bar-seg seg-type3" style="width:${segments.MES}%"></div>
+              </div>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        }
+
+        function displayTop10Sites(records_projets, records_sites , tbodyId = 'sites-tbody') {
+          const data = donneesSitesPlusEmetteurs(records_projets,records_sites);
+          const tbody = document.getElementById(tbodyId);
+          tbody.innerHTML = '';
+
+          const top10 = getTopNSites(data, 10);
+
+          top10.forEach(site => renderSiteRow(site, tbody));
+        }
+                
+
+
         // CONSTRUCTION DES PLUGINS UTILISES POUR LES GRAPHS //
 
 
@@ -2891,7 +3136,122 @@
           return D;
         }
 
+        
+        function donneesSitesPlusEmetteurs (records_projets, records_sites){
+          const projetsEtudies = filtreRecord(records_projets, (r,i) => 
+          (typeof (r.Annee_MES_prevue[i]) == 'number' && r.Annee_MES_prevue[i] != 0 && r.Annee_MES_prevue[i] <= 2035) &&
+          (r.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné') &&
+          (Number.isFinite(r.Emissions_abattues_tCO2e_an_[i])) &&
+          (typeof (r.Nom_du_site[i]) == 'string' && !r.Nom_du_site[i].includes('#'))
+          )
+          let sitesEtudies = [];
+          let resultats = [];
+          for (let i = 0 ; i < projetsEtudies.Nom_du_site.length ; i++){
+            if (!sitesEtudies.includes(projetsEtudies.Nom_du_site[i])){
+              sitesEtudies.push(projetsEtudies.Nom_du_site[i]);
+              const nv_site = {
+                secteur: projetsEtudies.Filiere[i],
+                site: projetsEtudies.Nom_du_site[i],
+                emissionsTotales: projetsEtudies.Procede[i] == 'Variation de production sans décarbonation' ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
+                emissionsAbattues: {
+                  nonMESnonAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Aide_UE_Situation[i] != 'Lauréat' && projetsEtudies.Aide_autre_Statut[i] != 'Lauréat') ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
+                  nonMESAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && (projetsEtudies.Aide_FR_Situation[i] == 'Lauréat' || projetsEtudies.Aide_UE_Situation[i] == 'Lauréat' || projetsEtudies.Aide_autre_Statut[i] == 'Lauréat'))   ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
+                  MES: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Mis en service') ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
+                }
+              }
+              resultats.push(nv_site);
+            }
+            else {
+              const index_site = sitesEtudies.indexOf(projetsEtudies.Nom_du_site[i]);
+              if (projetsEtudies.Procede[i] == 'Variation de production sans décarbonation'){
+                resultats[index_site]['emissionsTotales'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
+              }
+              else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Aide_UE_Situation[i] != 'Lauréat' && projetsEtudies.Aide_autre_Statut[i] != 'Lauréat'){
+                resultats[index_site]['emissionsAbattues']['nonMESnonAide'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
+              }
+              else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && (projetsEtudies.Aide_FR_Situation[i] == 'Lauréat' || projetsEtudies.Aide_UE_Situation[i] == 'Lauréat' || projetsEtudies.Aide_autre_Statut[i] == 'Lauréat')){
+                resultats[index_site]['emissionsAbattues']['nonMESAide'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
+              }
+              else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Mis en service'){
+                resultats[index_site]['emissionsAbattues']['MES'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
+              }
+            }
+          }
 
+          const D_sites_ges2019 = {};
+          for (let i = 0 ; i < records_sites.name_site.length ; i++){
+            D_sites_ges2019[`${records_sites.name_site[i]}`] = records_sites.ges_2019[i];
+          }
+          for (let j = 0 ; j < sitesEtudies.length ; j++){
+            resultats[j].emissionsTotales += D_sites_ges2019[`${sitesEtudies[j]}`];
+          }
+          return resultats;
+        }
+
+        function computeSiteBar(site) {
+          const { emissionsTotales, emissionsAbattues } = site;
+          const { nonMESnonAide = 0, nonMESAide = 0, MES = 0 } = emissionsAbattues || {};
+
+          const totalAbattu = nonMESnonAide + nonMESAide + MES;
+          const nonAbattu = Math.max(emissionsTotales - totalAbattu, 0);
+
+          const pct = emissionsTotales > 0
+            ? Math.min((totalAbattu / emissionsTotales) * 100,100)
+            : 0;
+          // Largeurs en % de la barre (la barre représente 100% = emissionsTotales)
+          const toPct = (v) => (emissionsTotales > 0 ? (v / emissionsTotales) * 100 : 0);
+
+          return {
+            pctAbattement: pct,
+            segments: {
+              nonAbattu: toPct(nonAbattu),
+              nonMESnonAide: toPct(nonMESnonAide),
+              nonMESAide: toPct(nonMESAide),
+              MES: toPct(MES)
+            }
+          };
+        }
+
+        function formatSecteur(secteur){
+          if (secteur == 'Acier et fonte'){
+            return 'ACIER';
+          }
+          else if (secteur == 'Ciment'){
+            return 'CIMNT';
+          }
+          else if (secteur == 'Agroalimentaire'){
+            return 'AGRO';
+          }
+          else if (secteur == 'Chaux'){
+            return 'CHAU';
+          }
+          else if (secteur == 'Aluminium'){
+            return 'ALU';
+          }
+          else if (secteur == 'Verre'){
+            return 'VERRE';
+          }
+          else if (secteur == 'Chimie'){
+            return 'CHIM';
+          }
+          else if (secteur == 'Raffinage'){
+            return 'RAFF';
+          }
+          else {
+            return secteur
+          }
+        }
+
+
+        function getTopNSites(data, n = 10) {
+          return [...data]
+            .sort((a, b) => b.emissionsTotales - a.emissionsTotales)
+            .slice(0, n);
+        }
+
+        function formatNumber(n) {
+          return new Intl.NumberFormat('fr-FR').format(Math.round(n));
+        }
 
 
      /* ============================
@@ -2906,6 +3266,12 @@
           return normStr(s)
             .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
             .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+        }
+
+        function escapeHtml(str) {
+          const div = document.createElement('div');
+          div.textContent = str;
+          return div.innerHTML;
         }
 
         function strSort(a){
@@ -3384,6 +3750,7 @@
             currentDataExportTraj = resultTrajCO2[1];
           }
           renderMap(filtered_records_sites, 'logarithmique');
+          displayTop10Sites(filtered_records_projets, filtered_records_sites);
         }
 
 
@@ -3414,6 +3781,8 @@
           graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, false);
 
           graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
+
+          displayTop10Sites(filtered_records_projets, filtered_records_sites);
         }
 
 
