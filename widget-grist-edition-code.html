@@ -1077,7 +1077,6 @@
         =================================== */
 
         grist.ready({ requiredAccess: 'full' });
-        const annees_etudiees = Array.from({ length: 17 }, (_, i) => 2024 + i);
 
         // Données importées depuis Grist (version vierge et filtrée)
         let records_projets;           
@@ -1780,7 +1779,6 @@
 
           const dict_donnees = D_CO2_procede_annee(record, cumule);
           const cles = Object.keys(dict_donnees);
-          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
           if (!cles.length) {
             doc.className = 'canvas-charts-1-hidden';
             if (btnClear == true) {
@@ -1790,6 +1788,8 @@
             return;
           }
 
+
+          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
           let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
           list_labels[list_labels.length - 1] = '2046-2050';
           list_annees[list_annees.length - 1] = 2048;
@@ -2027,15 +2027,15 @@
 
           const dict_donnees = D_CO2_aide_annee(records_aides, records_projets, cumule);
           const cles = Object.keys(dict_donnees);
-          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
           if (!cles.length) {
             doc.className = 'canvas-charts-1-hidden';
             btns[0].style.display = 'none';
             btns[1].style.display = 'none';
             return;
           }
-
           const ctx = document.getElementById('barChartCO2parAnneeAide').getContext('2d');
+
+          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
           let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
           list_labels[list_labels.length - 1] = '2046-2050';
           list_annees[list_annees.length - 1] = 2048;
@@ -2520,13 +2520,15 @@
           const anneesMES = donnees_traitees[2];
           const co2_abattu = donnees_traitees[1];
           const procede = donnees_traitees[0];
-          const annees_emissions = Array.from({ length: 17 }, (_, i) => 2019 + i);
+          const anneeMin = 2019;
+          const anneeMax = 2035;
+          const annees_emissions = Array.from({ length: anneeMax - anneeMin + 1 }, (_, i) => anneeMin + i);
           
           for (a of annees_emissions){
             D[`${a}|Abattement`] = D['2019|Emissions'];
             D[`${a}|Emissions`] = D['2019|Emissions'];
             for (let i = 0; i < anneesMES.length; i++){
-              if (anneesMES[i] <= 2035 && anneesMES[i] > 2019){
+              if (anneesMES[i] <= anneeMax && anneesMES[i] > anneeMin){
                 if(procede[i] == 'Variation de production sans décarbonation'){
                   if (a >= anneesMES[i]){
                     D[`${a}|Emissions`] = D[`${a}|Emissions`] - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
@@ -2551,8 +2553,8 @@
           const anneesMES = donnees_traitees[2];
           const procede = donnees_traitees[0];
           const co2_abattu = donnees_traitees[1];
-          const cles = Array.from({ length: 17 }, (_, i) => 2019 + i).concat([2038,2043,2048]);
 
+          const cles = Array.from({ length: 17 }, (_, i) => 2019 + i).concat([2038,2043,2048]);
           for (let i = 0; i < anneesMES.length; i++) {
             const annee = anneesMES[i];
             let cleAnnee;
@@ -2847,8 +2849,8 @@
           const co2_abattu = concat[1];
           const engagement = concat[2];
           const montant = concat[3];
+          
           const cles = Array.from({ length: 17 }, (_, i) => 2019 + i).concat([2038,2043,2048]);
-
           for (let i = 0; i < anneesMES.length; i++) {
             const annee = anneesMES[i];
             let cleAnnee;
