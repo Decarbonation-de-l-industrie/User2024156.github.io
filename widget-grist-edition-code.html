@@ -334,7 +334,7 @@
         right: 10px;
         z-index: 10;
         padding: 6px 10px;
-        font-size: 12px;
+        font-size: 15px;
       }
 
       #cumul-button-charts-aide{
@@ -343,7 +343,7 @@
         right: 10px;
         z-index: 10;
         padding: 6px 10px;
-        font-size: 12px;
+        font-size: 15px;
       }
 
       /* Label invisible pour que le bouton tombe au même niveau que l'input */
@@ -530,7 +530,7 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
-        font-size: 15px;
+        font-size: 20px;
         font-family: var(--font-primary);
         font-weight: 900;
         color: var(--color-brand-blue);
@@ -918,6 +918,24 @@
       AFFICHAGE LISTE DES 10 SITES LES PLUS EMETTEURS
       =============================================== */
 
+      .table-scroll-wrapper {
+        max-height: 500px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .table-scroll-wrapper table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .table-scroll-wrapper thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #fff; /* obligatoire pour masquer les lignes qui passent dessous */
+      }
+
 
       table.sites {
         width: 100%;
@@ -1196,7 +1214,7 @@
           <div class='bar-chart-annee'>
             <canvas id="barChartCO2parAnnee"></canvas>
             <button class='btn secondary' onclick="switchCumul('canvas-charts-procede-1')"
-            id="cumul-button-charts-procede">Abattement cumulé</button>
+            id="cumul-button-charts-procede">Cumulé</button>
           </div>
         </div>
         <div class="dropdown-list" id="listeProjets"></div>
@@ -1223,7 +1241,7 @@
           <div class='bar-chart-annee'>
             <canvas id="barChartCO2parAnneeAide"></canvas>
             <button class='btn secondary' onclick="switchCumul('canvas-charts-aide-1')"
-            id="cumul-button-charts-aide">Abattement cumulé</button>
+            id="cumul-button-charts-aide">Cumulé</button>
           </div>
           <div class="legend-wrapper">
             <div id="legend-container"></div>
@@ -1239,38 +1257,37 @@
       ====================================================== -->
 
       <header class='section-header' id="top10-header">
-        <h1>10 sites les plus émetteurs</h1>
+        <h1>Résumé des sites les plus émetteurs</h1>
       </header>  
 
       <section id="top10-section">
-
-        <table class="sites">
-          <colgroup>
-            <col style="width:3%">
-            <col style="width:25%">
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:52%">
-          </colgroup>
-          <thead id="top10-sites">
-            <tr>
-              <th class="secteur-cell"></th>
-              <th>Site</th>
-              <th class="head-num">Emissions totales (ktCO2e)</th>
-              <th class="head-pct">% d'abattement</th>
-              <th class="head-bar">Répartition de l'abattement</th>
-            </tr>
-          </thead>
-          <tbody id="sites-tbody">
-            <!-- rempli par JS -->
-          </tbody>
-        </table>
-
         <div class="legend" id="legend-top10">
           <div class="legend-item"><span class="legend-swatch swatch-empty"></span>Non abattues</div>
           <div class="legend-item"><span class="legend-swatch swatch-type1"></span>Projet non mis en service et non aidé</div>
           <div class="legend-item"><span class="legend-swatch swatch-type2"></span>Projet non mis en service lauréat d'un dispositif d'aide</div>
           <div class="legend-item"><span class="legend-swatch swatch-type3"></span>Projet mis en service</div>
+        </div>
+        <div class="table-scroll-wrapper">
+          <table class="sites">
+            <colgroup>
+              <col style="width:3%">
+              <col style="width:25%">
+              <col style="width:10%">
+              <col style="width:10%">
+              <col style="width:52%">
+            </colgroup>
+            <thead id="top10-sites">
+              <tr>
+                <th class="secteur-cell"></th>
+                <th>Site</th>
+                <th class="head-num">Emissions totales (ktCO2e)</th>
+                <th class="head-pct">% d'abattement</th>
+                <th class="head-bar">Répartition de l'abattement</th>
+              </tr>
+            </thead>
+            <tbody id="sites-tbody">
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -1415,7 +1432,7 @@
           b1.value = nb_projets != 0 ? `${nb_projets}` : null;
           b1.label = 'Nombre de Projets';
           b1.unit = '';
-          b1.secondaryItems = [{ label: "Mis en service", value: nb_projets_MES != 0 ? `${uneDecimale((nb_projets_MES / nb_projets) * 100)} %` : null}];
+          b1.secondaryItems = [{ label: "Mis en service", value: nb_projets_MES != 0 ? `${Math.floor(nb_projets_MES)} | ${uneDecimale((nb_projets_MES / nb_projets) * 100)} % du total` : null}];
 
           const abat_tot = sumList(data_traite[1]);
           b2.value = abat_tot != 0 ? `${unitAdaptee(abat_tot,'t CO2e/an')[0]}` : null;
@@ -1446,11 +1463,15 @@
 
           const nb_aides = filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' ).Engage_Desengage.length;
           const nb_aides_MES = record.Engage_Desengage.filter(v => v == 'Engagé et MES').length;
+          const abat_tot_aides = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' ).Gain_GES_an_tCO2eq_previsionnels);
           b1.value = nb_aides != 0 ? `${nb_aides}` : null;
           b1.label = "Nombre d'aides engagées";
           b1.unit = '';
+          b1.secondaryItems = [{
+            label: 'Dispositifs désengagés',
+            value: abat_tot_aides != 0 ? `${Math.floor(record.Engage_Desengage.length - nb_aides)} | ${uneDecimale(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100)} % du total` : null
+          }];
 
-          const abat_tot_aides = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé' ).Gain_GES_an_tCO2eq_previsionnels);
           b2.value = abat_tot_aides != 0 ? `${unitAdaptee(abat_tot_aides,'t CO2e/an')[0]}` : null;
           b2.label = 'Abattement total des dispositifs de base Aide';
           b2.unit = unitAdaptee(abat_tot_aides,'t CO2e/an')[1];
@@ -1459,10 +1480,6 @@
           b3.value = abat_tot_aides != 0 ? `${uneDecimale((abat_aides_MES / abat_tot_aides) * 100)}` : null;
           b3.label = 'Dispositifs mis en service';
           b3.unit = "% de l'abattement total";
-          b3.secondaryItems = [{
-            label: 'Dispositifs désengagés',
-            value: abat_tot_aides != 0 ? `${uneDecimale(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100)} % de dispositifs désengagés` : null
-          }];
 
           return blocks;
         }
@@ -1505,7 +1522,7 @@
             }
 
             remplirListe("listeProjets", Math.min(15,projets.description.length), i =>
-              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${unitAdaptee(projets.abattement[i],'tCO2e/an')[0] + ' ' + unitAdaptee(projets.abattement[i],'tCO2e/an')[1]} abattues`}, 
+              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${uneDecimale(projets.abattement[i]/1000)}` + ' ktCO2e/an'}, 
               [
                   {name: "Site",value: projets.nom_site[i]},
                   {name: "Année MES",value: projets.annee[i]},
@@ -1525,7 +1542,7 @@
               wrapper_site.style.display = 'grid';
             }
             remplirListe("listeSites", Math.min(15,sites.emissions.length), i =>
-              createListItem({name: "description",value: sites.nom_site[i]}, {name: "emissions",value: `Dernières émissions ETS : ${unitAdaptee(sites.emissions[i],'tCO2e')[0] + ' ' + unitAdaptee(sites.emissions[i],'tCO2e')[1]}`},
+              createListItem({name: "description",value: sites.nom_site[i]}, {name: "emissions",value: `Dernières émissions ETS : ${uneDecimale(sites.emissions[i]/1000)}` + ' ktCO2e'},
               [
                   {name: "Région",value: sites.region[i]},
                   {name: "Entreprise",value: sites.entreprise[i]},
@@ -1545,7 +1562,7 @@
               wrapper_aide.style.display = 'grid';
             }
             remplirListe("listeAides", Math.min(15,aides.description.length), i =>
-              createListItem({name: 'description',value: regroupAides(aides.dispositif)[i] + ' : ' + ((typeof aides.description[i] == 'string' && aides.description[i] != '') ? aides.description[i] : aides.porteur[i])}, {name: "abattement",value: `${unitAdaptee(aides.abattement[i],('tCO2e/an'))[0] + ' ' + unitAdaptee(aides.abattement[i],('tCO2e/an'))[1]} abattues`},
+              createListItem({name: 'description',value: regroupAides(aides.dispositif)[i] + ' : ' + ((typeof aides.description[i] == 'string' && aides.description[i] != '') ? aides.description[i] : aides.porteur[i])}, {name: "abattement",value: `${uneDecimale(aides.abattement[i]/1000)}` + ' ktCO2e/an abattues'},
               [
                   {name: "Bénéficiaire",value: aides.porteur[i]},
                   {name: "Montant",value: `${unitAdaptee(aides.montant[i],'€')[0] + ' ' + unitAdaptee(aides.montant[i],'€')[1]}`},
@@ -1577,7 +1594,7 @@
 
         function listMainSites(record_sites){
           const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r.ges_2024[i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
-          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data'],0);
+          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data'],1);
           let result = {
             emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),                 // On prend ges_2025 si la donnée est disponible, ges_2024 sinon
             nom_site: data_triee_sites[2],
@@ -1727,40 +1744,43 @@
           const dataAbattement = annees.map(a => dict_donnees[`${a}|Abattement`] ?? null);
           const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*baisse_SNBC.SNBC_Nat[i] ?? null);
 
-          const colorEmissions = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue') || 'rgba(200,0,0,1)';
-          const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-procede-eaf') || 'rgba(0,150,0,1)';
+          const colorEmissions = '#000000';
+          const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue');
           const colorSNBC = window.getComputedStyle(document.head).getPropertyValue('--color-aide-aogpid');
 
           const datasets = [
             {
-              label: 'Ajout de la variation de production aux émissions 2019',
+              label: 'Emissions 2019 + variations de production',
               data: dataEmissions,
+              borderDash: [6, 6],
               borderColor: colorEmissions,
               backgroundColor: colorEmissions,
               fill: false,
               tension: 0.2,
               spanGaps: true,       
-              pointRadius: 3,
+              pointRadius: 0,
             },
             {
-              label: 'Emissions ETS estimées par les feuilles de route',
+              label: 'Emissions avec abattement des feuilles de route',
               data: dataAbattement,
               borderColor: colorAbattement,
               backgroundColor: colorAbattement,
+              borderWidth: 5,
               fill: false,
               tension: 0.2,
               spanGaps: true,
               pointRadius: 3,
             },
             {
-              label: 'Trajectoire projetée par la SNBC',
+              label: 'Trajectoire SNBC',
+              borderDash: [6, 6],
               data: traj_snbc,
               borderColor: colorSNBC,
               backgroundColor: colorSNBC,
               fill: false,
               tension: 0.2,
               spanGaps: true,       
-              pointRadius: 3,
+              pointRadius: 0,
             }
           ];
 
@@ -1790,15 +1810,29 @@
                 legend: {
                   position: 'bottom',
                   labels:{
+                    usePointStyle: true,
+                    pointStyleWidth: 45,
+                    generateLabels: (chart) => {
+                      return chart.data.datasets.map((dataset, i) => ({
+                        text: dataset.label,
+                        strokeStyle: dataset.borderColor,
+                        fillStyle: dataset.borderColor,
+                        pointStyle: 'line',
+                        lineWidth: 3,
+                        lineDash: dataset.borderDash || [], 
+                        datasetIndex: i
+                      }));
+                    },
                     font: {
-                      size:15,
+                      size:18,
                       family:'--font-primary',
                     },
+                    padding: 30,
                   },
                 },
                 title: {
                   color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  font: { size: 20, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'start',
                   display: true,
                   padding: 20,
@@ -2125,7 +2159,7 @@
                 },
                 title: {
                   color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  font: { size: 18, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'start',
                   display: true,
                   padding: 20,
@@ -2337,7 +2371,7 @@
                 },
                 title: {
                   color: window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue'),
-                  font: { size: 15, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
+                  font: { size: 18, family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'), weight: 900 },
                   align: 'start',
                   padding: 20,
                   display: true,
@@ -2546,7 +2580,7 @@
           tbody.appendChild(tr);
         }
 
-        function displayTop10Sites(records_projets, records_sites , tbodyId = 'sites-tbody') {
+        function displayTop30Sites(records_projets, records_sites , tbodyId = 'sites-tbody') {
           const data = donneesSitesPlusEmetteurs(records_projets,records_sites);
           const tbody = document.getElementById(tbodyId);
           tbody.innerHTML = '';
@@ -2560,9 +2594,9 @@
           }
           
 
-          const top10 = getTopNSites(data, 10);
+          const top30 = getTopNSites(data, 30);
 
-          top10.forEach(site => renderSiteRow(site, tbody));
+          top30.forEach(site => renderSiteRow(site, tbody));
         }
                 
 
@@ -3317,8 +3351,8 @@
           };
 
           const btn = document.getElementById(boutonParId[idCible]);
-          const estCumule = !(btn.textContent === 'Abattement cumulé');
-          btn.textContent = estCumule ? 'Abattement cumulé' : "Abattement à l'année\nde mise en service";
+          const estCumule = !(btn.textContent === 'Cumulé');
+          btn.textContent = estCumule ? 'Cumulé' : "Annuel";
 
           if (boutonParId[idCible].endsWith('procede')){
             const graph = graphique_CO2_procede_annee(filtered_records_projets, false, !estCumule);
@@ -3422,7 +3456,7 @@
           }
           if(conversion >= 1000){
             conversion = uneDecimale(conversion/1000);
-            nouv_unit = 'G' + unit;
+            nouv_unit = (unit == '€') ? 'Md' + unit : 'G' + unit;
           }
           return [conversion, nouv_unit];
         }
@@ -3634,7 +3668,7 @@
           if (levier.length) {
             filtered_records_projets = filterTable(filtered_records_projets, 'Procede', filters.levier);
           }
-          if (filters.search.length >= 3 || test_filtre) {
+          if (filters.search.length >= 3) {
             filtered_records_projets = filterTable(filtered_records_projets, 'Nom_du_site', filters.search);
             filtered_records_aides = filterTable(filtered_records_aides, 'Nom_du_site', filters.search);
             filtered_records_sites = filterTable(filtered_records_sites, 'name_site', filters.search);
@@ -3764,7 +3798,7 @@
             currentDataExportTraj = resultTrajCO2[1];
           }
           renderMap(filtered_records_sites, 'logarithmique');
-          displayTop10Sites(filtered_records_projets, filtered_records_sites);
+          displayTop30Sites(filtered_records_projets, filtered_records_sites);
         }
 
 
@@ -3796,7 +3830,7 @@
 
           graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
 
-          displayTop10Sites(filtered_records_projets, filtered_records_sites);
+          displayTop30Sites(filtered_records_projets, filtered_records_sites);
         }
 
 
