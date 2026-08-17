@@ -117,9 +117,10 @@
 
         --blue: #4472C4;
         --blue-dark: #2F5597;
-        --gray: #A6A6A6;
+        --light-gray: #afb9b0;
+        --dark-gray: #494848;
         --green: #A9D18E;
-        --amber: #F4B183;
+        --dark-green: #20521e;
         --bg: #FFFFFF;
         --text: #1F2937;
         --border: #333333;
@@ -667,6 +668,10 @@
         max-height: 100%;
       }
 
+      #top10-header {
+        margin-top: 60px;
+      }
+
       /* =====================================
       Légende du graphique dispositifs d'aides
       ===================================== */
@@ -914,18 +919,10 @@
       =============================================== */
 
 
-
-      p.subtitle {
-        margin: 0 0 20px 0;
-        color: #555;
-        font-size: 13px;
-        font-family: var(--font-primary);
-      }
-
       table.sites {
         width: 100%;
         border-collapse: collapse;
-        border-top: 2px dotted #999;
+        table-layout: fixed;
       }
 
       table.sites th {
@@ -981,7 +978,7 @@
 
       .num-cell {
         height: var(--row-h);
-        background: var(--blue);
+        background: var(--dark-gray);
         color: #fff;
         font-weight: 600;
         font-size: 13px;
@@ -996,8 +993,8 @@
 
       .pct-cell {
         height: var(--row-h);
-        background: #6E8FD1;
-        color: #fff;
+        background: var(--light-gray);
+        color: #0b0b0b;
         font-weight: 600;
         font-size: 13px;
         display: flex;
@@ -1026,9 +1023,9 @@
       }
 
       .bar-seg { height: 100%; }
-      .seg-type1 { background: var(--gray); }
+      .seg-type1 { background: var(--light-gray); }
       .seg-type2 { background: var(--green); }
-      .seg-type3 { background: var(--amber); }
+      .seg-type3 { background: var(--dark-green); }
 
       th.head-num, th.head-pct, th.head-bar { text-align: center; }
 
@@ -1056,10 +1053,14 @@
         display: inline-block;
       }
 
-      .swatch-empty { background: #fff; }
-      .swatch-type1 { background: var(--gray); }
+      .swatch-empty {
+        background: repeating-linear-gradient(
+          45deg, #fff, #fff 3px, #d9d9d9 3px, #d9d9d9 6px
+        );
+      }
+      .swatch-type1 { background: var(--light-gray); }
       .swatch-type2 { background: var(--green); }
-      .swatch-type3 { background: var(--amber); }
+      .swatch-type3 { background: var(--dark-green); }
 
 
     </style>
@@ -1237,37 +1238,41 @@
       SECTION DE L'AFFICHAGE DES 10 SITES LES PLUS EMETTEURS 
       ====================================================== -->
 
-      <header class='section-header'>
+      <header class='section-header' id="top10-header">
         <h1>10 sites les plus émetteurs</h1>
       </header>  
 
-      <p class="subtitle">
-        Barre = émissions totales du site. Partie hachurée = émissions non abattues par des projets.
-        Segments pleins = émissions abattues, par type de projet.
-      </p>
+      <section id="top10-section">
 
-      <table class="sites">
-        <thead>
-          <tr>
-            <th class="secteur-cell"></th>
-            <th>Site</th>
-            <th class="head-num">Emissions totales (tCO2e)</th>
-            <th class="head-pct">% d'abattement</th>
-            <th class="head-bar">Répartition des émissions</th>
-          </tr>
-        </thead>
-        <tbody id="sites-tbody">
-          <!-- rempli par JS -->
-        </tbody>
-      </table>
+        <table class="sites">
+          <colgroup>
+            <col style="width:3%">
+            <col style="width:25%">
+            <col style="width:10%">
+            <col style="width:10%">
+            <col style="width:52%">
+          </colgroup>
+          <thead id="top10-sites">
+            <tr>
+              <th class="secteur-cell"></th>
+              <th>Site</th>
+              <th class="head-num">Emissions totales (ktCO2e)</th>
+              <th class="head-pct">% d'abattement</th>
+              <th class="head-bar">Répartition de l'abattement</th>
+            </tr>
+          </thead>
+          <tbody id="sites-tbody">
+            <!-- rempli par JS -->
+          </tbody>
+        </table>
 
-      <div class="legend">
-        <div class="legend-item"><span class="legend-swatch swatch-empty"></span>Non abattues</div>
-        <div class="legend-item"><span class="legend-swatch swatch-type1"></span>Projet non mis en service et non aidé</div>
-        <div class="legend-item"><span class="legend-swatch swatch-type2"></span>Projet non mis en service lauréat d'un dispositif d'aide</div>
-        <div class="legend-item"><span class="legend-swatch swatch-type3"></span>Projet mis en service</div>
-      </div>
-
+        <div class="legend" id="legend-top10">
+          <div class="legend-item"><span class="legend-swatch swatch-empty"></span>Non abattues</div>
+          <div class="legend-item"><span class="legend-swatch swatch-type1"></span>Projet non mis en service et non aidé</div>
+          <div class="legend-item"><span class="legend-swatch swatch-type2"></span>Projet non mis en service lauréat d'un dispositif d'aide</div>
+          <div class="legend-item"><span class="legend-swatch swatch-type3"></span>Projet mis en service</div>
+        </div>
+      </section>
 
       <script type="text/javascript">
 
@@ -2523,7 +2528,7 @@
               <div class="site-name-cell">${escapeHtml(site.site)}</div>
             </td>
             <td>
-              <div class="num-cell">${formatNumber(site.emissionsTotales)}</div>
+              <div class="num-cell">${formatNumber(site.emissionsTotales/1000)}</div>
             </td>
             <td>
               <div class="pct-cell">${pctAbattement.toFixed(1)}%</div>
@@ -2545,6 +2550,15 @@
           const data = donneesSitesPlusEmetteurs(records_projets,records_sites);
           const tbody = document.getElementById(tbodyId);
           tbody.innerHTML = '';
+
+          if (data.length == 0) {
+            document.getElementById('top10-section').style.display = 'none';
+            return;
+          }
+          else{
+            document.getElementById('top10-section').style.display = 'inline';
+          }
+          
 
           const top10 = getTopNSites(data, 10);
 
@@ -3152,7 +3166,7 @@
               const nv_site = {
                 secteur: projetsEtudies.Filiere[i],
                 site: projetsEtudies.Nom_du_site[i],
-                emissionsTotales: projetsEtudies.Procede[i] == 'Variation de production sans décarbonation' ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
+                emissionsTotales: projetsEtudies.Procede[i] == 'Variation de production sans décarbonation' ? projetsEtudies.Emissions_abattues_tCO2e_an_[i]*(-1) : 0,
                 emissionsAbattues: {
                   nonMESnonAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Aide_UE_Situation[i] != 'Lauréat' && projetsEtudies.Aide_autre_Statut[i] != 'Lauréat') ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
                   nonMESAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && (projetsEtudies.Aide_FR_Situation[i] == 'Lauréat' || projetsEtudies.Aide_UE_Situation[i] == 'Lauréat' || projetsEtudies.Aide_autre_Statut[i] == 'Lauréat'))   ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
@@ -3164,7 +3178,7 @@
             else {
               const index_site = sitesEtudies.indexOf(projetsEtudies.Nom_du_site[i]);
               if (projetsEtudies.Procede[i] == 'Variation de production sans décarbonation'){
-                resultats[index_site]['emissionsTotales'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
+                resultats[index_site]['emissionsTotales'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i]*(-1);
               }
               else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Aide_UE_Situation[i] != 'Lauréat' && projetsEtudies.Aide_autre_Statut[i] != 'Lauréat'){
                 resultats[index_site]['emissionsAbattues']['nonMESnonAide'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
