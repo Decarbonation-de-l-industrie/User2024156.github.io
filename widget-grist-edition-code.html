@@ -369,9 +369,9 @@
       }
 
       #below-graph{
-        position: absolute;
-        bottom: -30px;
         margin-top: 10px;
+        flex: 0 0 30px;
+        overflow: hidden; 
       }
 
 
@@ -668,9 +668,6 @@
         max-height: 100%;
       }
 
-      #top10-header {
-        margin-top: 60px;
-      }
 
       /* =====================================
       Légende du graphique dispositifs d'aides
@@ -680,7 +677,7 @@
       .legend-wrapper{
         position: relative;
         width: 100%;
-        flex: 0 0 auto;    
+        flex: 0 0 100px;    
         max-height: 240px;  
         box-sizing: border-box;
       }
@@ -1024,6 +1021,45 @@
         font-family: var(--font-primary);
       }
 
+      .pie-cell {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .pie-svg {
+        flex-shrink: 0;
+        display: block;
+        background: none; /* aucun fond */
+      }
+
+      .pie-circle {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1px solid #999; /* optionnel, pour bien délimiter le cercle */
+        flex-shrink: 0;
+      }
+
+      .legend-pie-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .legend-pie-title {
+        font-family: var(--font-primary);
+        margin-right: 4px;
+      }
+
+      .legend-pie-row .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
       .bar-cell {
         width: 40%;
         min-width: 200px;
@@ -1246,7 +1282,7 @@
           <div class="legend-wrapper">
             <div id="legend-container"></div>
           </div>
-           <div class="hint" id="below-graph">Si un projet est soutenu par plusieurs dispositifs, il est représenté dans le dispositif principal.<br>Certains projets représentés peuvent ne pas figurer dans la base projets s’ils n’y ont pas été ajoutés.</div>
+          <div class="hint" id="below-graph">Si un projet est soutenu par plusieurs dispositifs, il est représenté dans le dispositif principal.<br>Certains projets représentés peuvent ne pas figurer dans la base projets s’ils n’y ont pas été ajoutés.</div>
         </div>
         <div class="dropdown-list" id="listeAides"></div>
       </div>
@@ -1256,7 +1292,7 @@
       SECTION DE L'AFFICHAGE DES 10 SITES LES PLUS EMETTEURS 
       ====================================================== -->
 
-      <header class='section-header' id="top10-header">
+      <header class='section-header'>
         <h1>Résumé des sites les plus émetteurs</h1>
       </header>  
 
@@ -1267,6 +1303,39 @@
           <div class="legend-item"><span class="legend-swatch swatch-type2"></span>Projet non mis en service lauréat d'un dispositif d'aide</div>
           <div class="legend-item"><span class="legend-swatch swatch-type3"></span>Projet mis en service</div>
         </div>
+        <div class="legend legend-pie-row" id="legend-pie">
+          <span class="legend-pie-title">Sécurisation de la cible 2035  :</span>
+          <div class="legend-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
+              <path d="M 8,8 L 8,1 A 7,7 0 0 1 15,8 Z" fill="white"/>
+            </svg>
+            Très à risque (0-20%)
+          </div>
+          <div class="legend-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
+              <path d="M 8,8 L 8,1 A 7,7 0 0 1 15,8 Z" fill="black"/>
+            </svg>
+            A risque (20-40%)
+          </div>
+          <div class="legend-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
+              <path d="M 8,8 L 8,1 A 7,7 0 0 1 8,15 Z" fill="black"/>
+            </svg>
+            Incertaine (40-60%)
+          </div>
+          <div class="legend-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
+              <path d="M 8,8 L 8,1 A 7,7 0 1 1 1,8 Z" fill="black"/>
+            </svg>
+            Probable (60-80%)
+          </div>
+          <div class="legend-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
+              <circle cx="8" cy="8" r="7" fill="black"/>
+            </svg>
+            Certaine (80-100%)
+          </div>
+        </div>
         <div class="table-scroll-wrapper">
           <table class="sites">
             <colgroup>
@@ -1274,7 +1343,8 @@
               <col style="width:25%">
               <col style="width:10%">
               <col style="width:10%">
-              <col style="width:52%">
+              <col style="width:2%">
+              <col style="width:50%">
             </colgroup>
             <thead id="top10-sites">
               <tr>
@@ -1282,6 +1352,7 @@
                 <th>Site</th>
                 <th class="head-num">Emissions totales (ktCO2e)</th>
                 <th class="head-pct">% d'abattement</th>
+                <th class="head-pct"> </th>
                 <th class="head-bar">Répartition de l'abattement</th>
               </tr>
             </thead>
@@ -2007,7 +2078,7 @@
           }
 
           if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
-            if(btns[0].textContent == 'Abattement cumulé'){
+            if(btns[0].textContent == 'Cumulé'){
                 cumule = false;
             }
             else{
@@ -2255,7 +2326,7 @@
           }
 
           if(cumule == undefined){                                         // On vérifie l'état cumul ou non du graph lors d'une maj de graph
-            if(btns[0].textContent == 'Abattement cumulé'){
+            if(btns[0].textContent == 'Cumulé'){
                 cumule = false;
             }
             else{
@@ -2549,8 +2620,8 @@
         //  AFFICHAGE 10 SITES LES PLUS EMETTEURS  //
 
 
-        function renderSiteRow(site, tbody) {
-          const { pctAbattement, segments } = computeSiteBar(site);
+        function renderSiteRow(site, tbody, maxEmissionsTotales) {
+          const { pctAbattement, barWidthPct, segments } = computeSiteBar(site, maxEmissionsTotales);
 
           const tr = document.createElement('tr');
 
@@ -2567,8 +2638,11 @@
             <td>
               <div class="pct-cell">${pctAbattement.toFixed(1)}%</div>
             </td>
+            <td>
+              ${renderPieCellSVG(segments.nonMESnonAide,segments.nonMESAide,segments.MES)}
+            </td>
             <td class="bar-cell">
-              <div class="bar-track" title="${escapeHtml(site.site)}">
+              <div class="bar-track" title="${escapeHtml(site.site)}" style="width:${barWidthPct}%">
                 <div class="bar-seg" style="width:${segments.nonAbattu}%"></div>
                 <div class="bar-seg seg-type1" style="width:${segments.nonMESnonAide}%"></div>
                 <div class="bar-seg seg-type2" style="width:${segments.nonMESAide}%"></div>
@@ -2580,11 +2654,50 @@
           tbody.appendChild(tr);
         }
 
+        function getPieCondition(nMESnAide, nMESAide, MES) {
+          const pctAssure = (nMESAide + MES)/(nMESnAide + nMESAide + MES);
+          if (pctAssure < 0.2) return 0;
+          else if (pctAssure < 0.4) return 1;   
+          else if (pctAssure < 0.6) return 2;   
+          else if (pctAssure < 0.8) return 3;   
+          return 4;                            
+        }
+        
+        function renderPieCellSVG(nMESnAide, nMESAide, MES) {
+          const condition = getPieCondition(nMESnAide, nMESAide, MES);
+          const degreesMap = { 1: 90, 2: 180, 3: 270, 4: 360 };
+          const degrees = degreesMap[condition];
+          const radius = 7;
+          const cx = 8, cy = 8;
+
+          let content;
+
+          if (degrees === 360) {
+            // cercle complet : un <circle> plein, pas d'arc à calculer
+            content = `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="black"/>`;
+          } else {
+            const largeArc = degrees > 180 ? 1 : 0;
+            const rad = (degrees * Math.PI) / 180;
+            const x = cx + radius * Math.sin(rad);
+            const y = cy - radius * Math.cos(rad);
+
+            const path = `M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc} 1 ${x},${y} Z`;
+            content = `<path d="${path}" fill="black"/>`;
+          }
+
+          return `
+            <div class="pie-cell">
+              <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
+                ${content}
+              </svg>
+            </div>
+          `;
+        }
+
         function displayTop30Sites(records_projets, records_sites , tbodyId = 'sites-tbody') {
           const data = donneesSitesPlusEmetteurs(records_projets,records_sites);
           const tbody = document.getElementById(tbodyId);
           tbody.innerHTML = '';
-
           if (data.length == 0) {
             document.getElementById('top10-section').style.display = 'none';
             return;
@@ -2592,11 +2705,9 @@
           else{
             document.getElementById('top10-section').style.display = 'inline';
           }
-          
-
           const top30 = getTopNSites(data, 30);
-
-          top30.forEach(site => renderSiteRow(site, tbody));
+          const maxEmissionsTotales = top30[0].emissionsTotales;
+          top30.forEach(site => renderSiteRow(site, tbody, maxEmissionsTotales));
         }
                 
 
@@ -3236,7 +3347,8 @@
           return resultats;
         }
 
-        function computeSiteBar(site) {
+
+        function computeSiteBar(site, maxEmissionsTotales) {
           const { emissionsTotales, emissionsAbattues } = site;
           const { nonMESnonAide = 0, nonMESAide = 0, MES = 0 } = emissionsAbattues || {};
 
@@ -3244,13 +3356,20 @@
           const nonAbattu = Math.max(emissionsTotales - totalAbattu, 0);
 
           const pct = emissionsTotales > 0
-            ? Math.min((totalAbattu / emissionsTotales) * 100,100)
+            ? Math.min((totalAbattu / emissionsTotales) * 100, 100)
             : 0;
-          // Largeurs en % de la barre (la barre représente 100% = emissionsTotales)
+
+          // Largeurs internes en % de la barre elle-même (somme = 100% de la barre du site)
           const toPct = (v) => (emissionsTotales > 0 ? (v / emissionsTotales) * 100 : 0);
+
+          // Longueur de la barre en % de la largeur dispo, relative au site max de la liste
+          const barWidthPct = maxEmissionsTotales > 0
+            ? Math.max(Math.min((emissionsTotales / maxEmissionsTotales) * 100, 100), 0)
+            : 0;
 
           return {
             pctAbattement: pct,
+            barWidthPct,
             segments: {
               nonAbattu: toPct(nonAbattu),
               nonMESnonAide: toPct(nonMESnonAide),
