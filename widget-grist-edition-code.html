@@ -400,6 +400,7 @@
         border: 1px solid rgba(0, 0, 0, 0.08);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         font-family: var(--font-primary);
+        white-space: pre-line;
       }
 
       /* Label au-dessus de la valeur principale */
@@ -831,11 +832,13 @@
       }
 
       .main-list__abattement{
-          color:#16a34a;
+        color:#050505;
+        font-weight:800px;
       }
 
       .main-list__emissions{
-          color:#dc2626;
+        color:#050505;
+        font-weight:800px;
       }
 
       .main-list-details{
@@ -1503,7 +1506,7 @@
           b1.value = nb_projets != 0 ? `${nb_projets}` : null;
           b1.label = 'Nombre de Projets';
           b1.unit = '';
-          b1.secondaryItems = [{ label: "Mis en service", value: nb_projets_MES != 0 ? `${Math.floor(nb_projets_MES)} | ${uneDecimale((nb_projets_MES / nb_projets) * 100)} % du total` : null}];
+          b1.secondaryItems = [{ label: "Mis en service", value: nb_projets_MES != 0 ? `${Math.floor(nb_projets_MES)} projets \n ${uneDecimale((nb_projets_MES / nb_projets) * 100)} % du total` : null}];
 
           const abat_tot = sumList(data_traite[1]);
           b2.value = abat_tot != 0 ? `${unitAdaptee(abat_tot,'t CO2e/an')[0]}` : null;
@@ -1540,7 +1543,7 @@
           b1.unit = '';
           b1.secondaryItems = [{
             label: 'Dispositifs désengagés',
-            value: abat_tot_aides != 0 ? `${Math.floor(record.Engage_Desengage.length - nb_aides)} | ${uneDecimale(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100)} % du total` : null
+            value: abat_tot_aides != 0 ? `${Math.floor(record.Engage_Desengage.length - nb_aides)} dispositifs \n ${uneDecimale(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100)} % du total` : null
           }];
 
           b2.value = abat_tot_aides != 0 ? `${unitAdaptee(abat_tot_aides,'t CO2e/an')[0]}` : null;
@@ -1593,7 +1596,7 @@
             }
 
             remplirListe("listeProjets", Math.min(15,projets.description.length), i =>
-              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${uneDecimale(projets.abattement[i]/1000)}` + ' ktCO2e/an'}, 
+              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${uneDecimale(projets.abattement[i]/1000)}` + ' ktCO2e/an abattues'}, 
               [
                   {name: "Site",value: projets.nom_site[i]},
                   {name: "Année MES",value: projets.annee[i]},
