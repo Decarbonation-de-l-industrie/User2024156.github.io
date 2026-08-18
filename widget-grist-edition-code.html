@@ -97,7 +97,7 @@
         --color-agroalimentaire: #BFA000;
         --color-verre: #0070C0;
         --color-autre: #b8f49f;
-        --color-autre-materiaux: #b2f25e;
+        --color-autres-materiaux: #b2f25e;
         --color-papier-carton: #ffdf80;
         --color-platre: #e6e659;
         --color-secteur-non-industriel: #ffffe6;
@@ -365,13 +365,12 @@
       .hint {
         color: #6b7280;
         font-size: 12px;
-        margin-top: 2px;
       }
 
       #below-graph{
-        margin-top: 10px;
+        margin-top: 5px;
         flex: 0 0 30px;
-        overflow: hidden; 
+        overflow: visible; 
       }
 
 
@@ -681,6 +680,9 @@
         flex: 0 0 100px;    
         max-height: 240px;  
         box-sizing: border-box;
+        /* NOUVEAU : on définit ce wrapper comme référence de taille pour les cqw */
+        container-type: inline-size;
+        container-name: legend;
       }
 
       #legend-container {
@@ -689,31 +691,32 @@
         flex-wrap: nowrap;          
         align-content: flex-start;
         justify-content: flex-start;
-        gap: 10px 15px;           
+        /* AVANT : gap: 10px 15px (fixe) */
+        gap: clamp(4px, 1.5cqw, 15px);
         height: auto;             
       }
 
       .legend-col {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: clamp(4px, 1cqw, 10px);
         flex : 1 1 0;
         min-width: 0;
       }
 
-      /* Bloc "dispositifs" : titre unique + colonnes de 3 en dessous, sur toute la largeur */
       .legend-dispositifs-wrapper {
         display: flex;
         flex-direction: column;
         gap: 6px;
-        flex: 3 1 0; /* force le passage à la ligne dans #legend-container */
+        flex: 3 1 0;
       }
 
       .legend-dispositifs-cols {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        gap: 8px;   /* était: 16px */
+        /* AVANT : gap: 8px (fixe) */
+        gap: clamp(2px, 0.8cqw, 8px);
         width: 100%;
       }
 
@@ -725,14 +728,15 @@
       .legend-group {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        min-width: 150px;
-        flex: 0 1 auto;
+        gap: clamp(2px, 0.6cqw, 4px);
+        /* CHANGEMENT CLÉ : on retire le min-width figé qui causait le débordement */
+        min-width: 0;
+        flex: 1 1 0;
       }
 
       .legend-group-title {
         font-weight: 700;
-        font-size: 13px;
+        font-size: clamp(10px, 1cqw + 6px, 13px);
         text-transform: uppercase;
         letter-spacing: 0.03em;
         color: var(--color-brand-blue);
@@ -740,21 +744,22 @@
         padding-bottom: 4px;
         margin-bottom: 2px;
       }
-    
+
       .legend-group ul {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: clamp(2px, 0.6cqw, 6px);
         list-style: none;
         margin: 0;
         padding: 0;
       }
+
       .legend-group li {
         display: flex;
         align-items: center;
         gap: 6px;
         cursor: pointer;
-        font-size: 13px;
+        font-size: clamp(10px, 0.9cqw + 7px, 13px);
         user-select: none;
       }
 
@@ -1506,7 +1511,7 @@
           b1.value = nb_projets != 0 ? `${nb_projets}` : null;
           b1.label = 'Nombre de Projets';
           b1.unit = '';
-          b1.secondaryItems = [{ label: "Mis en service", value: nb_projets_MES != 0 ? `${Math.floor(nb_projets_MES)} projets \n ${uneDecimale((nb_projets_MES / nb_projets) * 100)} % du total` : null}];
+          b1.secondaryItems = [{ label: "Mis en service", value: nb_projets_MES != 0 ? `${Math.floor(nb_projets_MES)} projets \n ${nDecimales((nb_projets_MES / nb_projets) * 100,1)} % du total` : null}];
 
           const abat_tot = sumList(data_traite[1]);
           b2.value = abat_tot != 0 ? `${unitAdaptee(abat_tot,'t CO2e/an')[0]}` : null;
@@ -1543,7 +1548,7 @@
           b1.unit = '';
           b1.secondaryItems = [{
             label: 'Dispositifs désengagés',
-            value: abat_tot_aides != 0 ? `${Math.floor(record.Engage_Desengage.length - nb_aides)} dispositifs \n ${uneDecimale(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100)} % du total` : null
+            value: abat_tot_aides != 0 ? `${Math.floor(record.Engage_Desengage.length - nb_aides)} dispositifs \n ${nDecimales(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100,1)} % du total` : null
           }];
 
           b2.value = abat_tot_aides != 0 ? `${unitAdaptee(abat_tot_aides,'t CO2e/an')[0]}` : null;
@@ -1551,7 +1556,7 @@
           b2.unit = unitAdaptee(abat_tot_aides,'t CO2e/an')[1];
 
           const abat_aides_MES = sumList(filtreRecord(record, (r,i) => r.Engage_Desengage[i] == 'Engagé et MES').Gain_GES_an_tCO2eq_previsionnels);
-          b3.value = abat_tot_aides != 0 ? `${uneDecimale((abat_aides_MES / abat_tot_aides) * 100)}` : null;
+          b3.value = abat_tot_aides != 0 ? `${nDecimales((abat_aides_MES / abat_tot_aides) * 100,1)}` : null;
           b3.label = 'Dispositifs mis en service';
           b3.unit = "% de l'abattement total";
 
@@ -1596,7 +1601,7 @@
             }
 
             remplirListe("listeProjets", Math.min(15,projets.description.length), i =>
-              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${uneDecimale(projets.abattement[i]/1000)}` + ' ktCO2e/an abattues'}, 
+              createListItem({name: "description",value: projets.description[i]},{name: "abattement",value: `${nDecimales(projets.abattement[i]/1000,0)}` + ' ktCO2e/an abattues'}, 
               [
                   {name: "Site",value: projets.nom_site[i]},
                   {name: "Année MES",value: projets.annee[i]},
@@ -1616,7 +1621,7 @@
               wrapper_site.style.display = 'grid';
             }
             remplirListe("listeSites", Math.min(15,sites.emissions.length), i =>
-              createListItem({name: "description",value: sites.nom_site[i]}, {name: "emissions",value: `Dernières émissions ETS : ${uneDecimale(sites.emissions[i]/1000)}` + ' ktCO2e'},
+              createListItem({name: "description",value: sites.nom_site[i]}, {name: "emissions",value: `Dernières émissions ETS : ${nDecimales(sites.emissions[i]/1000,0)}` + ' ktCO2e'},
               [
                   {name: "Région",value: sites.region[i]},
                   {name: "Entreprise",value: sites.entreprise[i]},
@@ -1636,7 +1641,7 @@
               wrapper_aide.style.display = 'grid';
             }
             remplirListe("listeAides", Math.min(15,aides.description.length), i =>
-              createListItem({name: 'description',value: regroupAides(aides.dispositif)[i] + ' : ' + ((typeof aides.description[i] == 'string' && aides.description[i] != '') ? aides.description[i] : aides.porteur[i])}, {name: "abattement",value: `${uneDecimale(aides.abattement[i]/1000)}` + ' ktCO2e/an abattues'},
+              createListItem({name: 'description',value: regroupAides(aides.dispositif)[i] + ' : ' + ((typeof aides.description[i] == 'string' && aides.description[i] != '') ? aides.description[i] : aides.porteur[i])}, {name: "abattement",value: `${nDecimales(aides.abattement[i]/1000,0)}` + ' ktCO2e/an abattues'},
               [
                   {name: "Bénéficiaire",value: aides.porteur[i]},
                   {name: "Montant",value: `${unitAdaptee(aides.montant[i],'€')[0] + ' ' + unitAdaptee(aides.montant[i],'€')[1]}`},
@@ -3560,8 +3565,8 @@
           return S;
         }
 
-        function uneDecimale(number){
-          string = '' + number.toFixed(1);
+        function nDecimales(number,n){
+          string = '' + number.toFixed(n);
           return string;
         }
 
@@ -3569,15 +3574,15 @@
           let conversion = number;
           let nouv_unit = unit;
           if(conversion >= 1000){
-            conversion = uneDecimale(conversion/1000);
+            conversion = nDecimales(conversion/1000,1);
             nouv_unit = 'k' + unit;
           }
           if(conversion >= 1000){
-            conversion = uneDecimale(conversion/1000);
+            conversion = nDecimales(conversion/1000,1);
             nouv_unit = 'M' + unit;
           }
           if(conversion >= 1000){
-            conversion = uneDecimale(conversion/1000);
+            conversion = nDecimales(conversion/1000,1);
             nouv_unit = (unit == '€') ? 'Md' + unit : 'G' + unit;
           }
           return [conversion, nouv_unit];
