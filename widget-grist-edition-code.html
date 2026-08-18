@@ -524,8 +524,7 @@
       #map-header {
         display: flex;
         justify-content: space-between;
-        align-content: flex-end;
-        gap: 12px;
+        align-content: start;
       }
 
       #map-title {
@@ -793,6 +792,31 @@
        Style des listes de principaux sites/projets/aides
        ================================================ */
 
+      .list-wrapper{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        min-width:0;
+        min-height:0;
+        height:100%;
+        box-sizing:border-box;
+      }
+
+      #list-wrapper-sites{
+
+      }
+
+      .list-subtitle{
+        flex-shrink:0;
+        font-family:var(--font-primary);
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--color-brand-blue);
+        text-transform:uppercase;
+        letter-spacing:0.03em;
+        margin:0;
+      }
+
       .dropdown-list{
           display:flex;
           flex-direction:column;
@@ -831,7 +855,7 @@
 
       .main-list__description,
       .main-list__dispositif{
-          font-size:16px;
+          font-size:15px;
           font-weight:700;
           color:var(--color-brand-blue);
           line-height:1.35;
@@ -1307,7 +1331,11 @@
             <div id="leaflet-map"></div>
             <div id="empty-map" class="empty" style="display:none;"></div>
           </div>
-          <div class="dropdown-list" id="listeSites"></div>
+          <div class="list-wrapper" id="list-wrapper-sites">
+            <div class="list-subtitle">Principaux sites</div>
+            <div class="hint">Emissions 2024 ou 2025 selon disponibilité</div>
+            <div class="dropdown-list" id="listeSites"></div>
+          </div>
         </div>
       </section>
 
@@ -1335,7 +1363,10 @@
             </div>
           </div>
         </div>
-        <div class="dropdown-list" id="listeProjets"></div>
+        <div class="list-wrapper" id="list-wrapper-projets">
+          <div class="list-subtitle">Principaux projets</div>
+          <div class="dropdown-list" id="listeProjets"></div>
+        </div>
       </div>
 
 
@@ -1366,7 +1397,10 @@
           </div>
           <div class="hint" id="below-graph">Si un projet est soutenu par plusieurs dispositifs, il est représenté dans le dispositif principal.<br>Certains projets représentés peuvent ne pas figurer dans la base projets s’ils n’y ont pas été ajoutés.</div>
         </div>
-        <div class="dropdown-list" id="listeAides"></div>
+        <div class="list-wrapper" id="list-wrapper-aides">
+          <div class="list-subtitle">Principales aides</div>
+          <div class="dropdown-list" id="listeAides"></div>
+        </div>
       </div>
 
 
