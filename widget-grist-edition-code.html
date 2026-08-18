@@ -35,6 +35,8 @@
 
       :root {
         --font-primary: "Marianne", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        --font-legend-size: 12px;
+        /* --font-legend-weight:; */
         --color-brand-blue: #000091;
         --color-light-blue-bg: #F0F0FF;
         --color-transparent-light-blue: rgba(240, 240, 255, 0.5);
@@ -97,7 +99,7 @@
         --color-agroalimentaire: #BFA000;
         --color-verre: #0070C0;
         --color-autre: #b8f49f;
-        --color-autres-materiaux: #b2f25e;
+        --color-autres-materiaux: #c68fdb;
         --color-papier-carton: #ffdf80;
         --color-platre: #e6e659;
         --color-secteur-non-industriel: #ffffe6;
@@ -125,6 +127,7 @@
         --text: #1F2937;
         --border: #333333;
         --row-h: 42px; /* hauteur compacte commune secteur / site */
+        --row-h-bar: 35px;
       }
 
       * {
@@ -776,6 +779,11 @@
         flex-shrink: 0;
       }
 
+      .legend-item-text {
+        font-family: var(--font-primary);
+        font-size: var(--font-legend-size);
+      }
+
       /* 	===============================================
        Style des listes de principaux sites/projets/aides
        ================================================ */
@@ -920,7 +928,7 @@
 
 
       /* ============================================
-      AFFICHAGE LISTE DES 10 SITES LES PLUS EMETTEURS
+      AFFICHAGE LISTE DES SITES LES PLUS EMETTEURS
       =============================================== */
 
       .table-scroll-wrapper {
@@ -938,7 +946,7 @@
         position: sticky;
         top: 0;
         z-index: 2;
-        background-color: #fff; /* obligatoire pour masquer les lignes qui passent dessous */
+        background-color: #fff; 
       }
 
 
@@ -981,6 +989,7 @@
         transform: rotate(180deg);
         display: flex;
         align-items: center;
+        text-align: center;
         justify-content: center;
         font-size: 10px;
         font-family: var(--font-primary);
@@ -1041,6 +1050,18 @@
         background: none; /* aucun fond */
       }
 
+      .pie-svg .pie-outline {
+        fill: none;
+        stroke: #999;
+        stroke-width: 0.75px;
+      }
+
+      .pie-svg .pie-fill {
+        fill: black;
+        stroke: none;
+      }
+
+
       .pie-circle {
         display: inline-block;
         width: 16px;
@@ -1075,13 +1096,13 @@
 
       .bar-track {
         display: flex;
-        height: var(--row-h);
+        height: var(--row-h-bar);
         width: 100%;
-        border: 1px solid var(--border);
         background: repeating-linear-gradient(
           45deg, #fff, #fff 4px, #f2f2f2 4px, #f2f2f2 8px
         ); /* hachuré = non abattu */
-        overflow: hidden;
+        position: relative;
+        overflow: visible;
       }
 
       .bar-seg { height: 100%; }
@@ -1089,30 +1110,79 @@
       .seg-type2 { background: var(--green); }
       .seg-type3 { background: var(--dark-green); }
 
-      th.head-num, th.head-pct, th.head-bar { text-align: center; }
+      .bar-compaction-mark {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        transform: translateX(-50%) skewX(-15deg); /* skew déplacé ici, sur le parent */
+        background: rgba(255, 255, 255, 0.3);
+        pointer-events: none;
+        z-index: 2;
+      }
 
-      /* Légende, affichée en bas de la liste */
+      .bar-compaction-mark::before,
+      .bar-compaction-mark::after {
+        content: '';
+        position: absolute;
+        top: -15%;
+        bottom: -15%;
+        width: 1.5px;
+        background: rgba(0, 0, 0, 0.65);
+        /* plus de transform ici : hérité visuellement du parent skewé */
+      }
+
+      .bar-compaction-mark::before {
+        left: 1px;
+      }
+
+      .bar-compaction-mark::after {
+        left: 8px;
+      }
+
+      th.head-num, th.head-pct, th.head-bar { text-align: center; font-size: var(--font-legend-size); font-family: var(--font-primary)}
+
       .legend {
         display: flex;
-        gap: 24px;
-        margin: 14px 0 0 0;
+        gap: 15px;
+        margin: 10px 0 0 0;
         padding-top: 10px;
         border-top: 2px dotted #999;
-        font-size: 15px;
+        font-size: var(--font-legend-size);
         font-family: var(--font-primary);
+        text-align: center;
+        align-items: center;
+      }
+
+      .legend-subtitle {
+        color: var(--color-brand-blue);
+        font-style: italic;
+        font-size: 15px;
+        font-weight: bold;
+        flex: 3;
       }
 
       .legend-item {
         display: flex;
         align-items: center;
         gap: 6px;
+        flex: 5;
       }
 
       .legend-swatch {
         width: 14px;
         height: 14px;
+        min-width: 14px;
+        min-height: 14px;
         border: 1px solid var(--border);
+        border-radius: 0;      /* écrase un éventuel arrondi hérité */
         display: inline-block;
+        flex-shrink: 0;
+        box-sizing: border-box; /* évite que le border ne fasse dépasser les dimensions */
+      }
+
+      .legend-text {
+        display: inline; /* garde tout le texte comme un seul bloc fluide */
       }
 
       .swatch-empty {
@@ -1123,7 +1193,6 @@
       .swatch-type1 { background: var(--light-gray); }
       .swatch-type2 { background: var(--green); }
       .swatch-type3 { background: var(--dark-green); }
-
 
     </style>
 
@@ -1301,47 +1370,64 @@
       ====================================================== -->
 
       <header class='section-header'>
-        <h1>Résumé des sites les plus émetteurs</h1>
+        <h1>Avancée des feuilles de route par site</h1>
       </header>  
 
       <section id="top10-section">
         <div class="legend" id="legend-top10">
-          <div class="legend-item"><span class="legend-swatch swatch-empty"></span>Non abattues</div>
-          <div class="legend-item"><span class="legend-swatch swatch-type1"></span>Projet non mis en service et non aidé</div>
-          <div class="legend-item"><span class="legend-swatch swatch-type2"></span>Projet non mis en service lauréat d'un dispositif d'aide</div>
-          <div class="legend-item"><span class="legend-swatch swatch-type3"></span>Projet mis en service</div>
+          <div class="legend-subtitle">Abattement :</div>
+          <div class="legend-item">
+            <span class="legend-swatch swatch-empty"></span>
+            <span class="legend-text">Emissions sans projet d'abattement connu</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch swatch-type1"></span>
+            <span class="legend-text"><strong>Prévu</strong> (Projet connu mais non confirmé et sans aide contractualisée)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch swatch-type2"></span>
+            <span class="legend-text"><b>Certain</b> (Projet confirmé et/ou aide contractualisée FR2030, AO GPID, CEE)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch swatch-type3"></span>
+            <span class="legend-text"><b>Réalisé</b> (Projet mis en service avec aides publiques ou non)</span>
+          </div>
         </div>
         <div class="legend legend-pie-row" id="legend-pie">
-          <span class="legend-pie-title">Sécurisation de la cible 2035  :</span>
+          <div class="legend-subtitle">Sécurisation de la cible 2035 :</div>
           <div class="legend-item">
             <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
-              <path d="M 8,8 L 8,1 A 7,7 0 0 1 15,8 Z" fill="white"/>
+              <circle cx="8" cy="8" r="7" class="pie-outline"/>
             </svg>
-            Très à risque (0-20%)
+            Nulle (0-20%)
           </div>
           <div class="legend-item">
             <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
-              <path d="M 8,8 L 8,1 A 7,7 0 0 1 15,8 Z" fill="black"/>
+              <circle cx="8" cy="8" r="7" class="pie-outline"/>
+              <path d="M 8,8 L 8,1 A 7,7 0 0 1 15,8 Z" class="pie-fill"/>
             </svg>
-            A risque (20-40%)
+            Faible (20-40%)
           </div>
           <div class="legend-item">
             <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
-              <path d="M 8,8 L 8,1 A 7,7 0 0 1 8,15 Z" fill="black"/>
+              <circle cx="8" cy="8" r="7" class="pie-outline"/>
+              <path d="M 8,8 L 8,1 A 7,7 0 0 1 8,15 Z" class="pie-fill"/>
             </svg>
-            Incertaine (40-60%)
+            Intermédiaire (40-60%)
           </div>
           <div class="legend-item">
             <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
-              <path d="M 8,8 L 8,1 A 7,7 0 1 1 1,8 Z" fill="black"/>
+              <circle cx="8" cy="8" r="7" class="pie-outline"/>
+              <path d="M 8,8 L 8,1 A 7,7 0 1 1 1,8 Z" class="pie-fill"/>
             </svg>
-            Probable (60-80%)
+            Avancée (60-80%)
           </div>
           <div class="legend-item">
             <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
-              <circle cx="8" cy="8" r="7" fill="black"/>
+              <circle cx="8" cy="8" r="7" class="pie-outline"/>
+              <circle cx="8" cy="8" r="7" class="pie-fill"/>
             </svg>
-            Certaine (80-100%)
+            Complète (80-100%)
           </div>
         </div>
         <div class="table-scroll-wrapper">
@@ -1350,18 +1436,18 @@
               <col style="width:3%">
               <col style="width:25%">
               <col style="width:10%">
-              <col style="width:10%">
               <col style="width:2%">
               <col style="width:50%">
+              <col style="width:10%">
             </colgroup>
             <thead id="top10-sites">
               <tr>
                 <th class="secteur-cell"></th>
-                <th>Site</th>
-                <th class="head-num">Emissions totales (ktCO2e)</th>
-                <th class="head-pct">% d'abattement</th>
+                <th>Sites</th>
+                <th class="head-pct">Abattement des émissions à horizon 2035</th>
                 <th class="head-pct"> </th>
                 <th class="head-bar">Répartition de l'abattement</th>
+                <th class="head-num">Cible d'abattement 2035</th>
               </tr>
             </thead>
             <tbody id="sites-tbody">
@@ -2220,8 +2306,8 @@
                   position: 'bottom',
                   labels: {
                     font: {
-                      family: '--font-primary',
-                      size: 14,
+                      family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
+                      size: window.getComputedStyle(document.head).getPropertyValue('--font-legend-size'),
                     },
                     generateLabels(chart) {
                       const border = Chart.defaults.plugins.legend.labels.generateLabels(chart);
@@ -2297,13 +2383,28 @@
                   stacked: true,
                   grid: {
                     display: false,
+                  },
+                  ticks: {
+                    font: {
+                      family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
+                      size: 12,
+                    }
                   }
                 },
                 y: {
                   stacked: true,
                   beginAtZero: false,
                   type: 'linear',
-                }
+                  ticks: {
+                    callback: function (value) {
+                      return Math.floor(value / 1000);
+                    },
+                    font: {
+                      family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
+                      size: 12,
+                    }
+                  },
+                },
               },
               maintainAspectRatio: false,
               devicePixelRatio: window.devicePixelRatio || 2,
@@ -2513,14 +2614,28 @@
                   stacked: true,
                   grid: {
                     display: false,
+                  },
+                  ticks: {
+                    font: {
+                      family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
+                      size: 12,
+                    }
                   }
                 },
                 y: {
                   stacked: true,
                   beginAtZero: false,
                   type: 'linear',
-                  //suggestedMax: maxAnneeDataset(datasets)*1.1,
-                }
+                  ticks: {
+                    callback: function (value) {
+                      return Math.floor(value / 1000);
+                    },
+                    font: {
+                      family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
+                      size: 12,
+                    }
+                  },
+                },
               },
               maintainAspectRatio: false
             }
@@ -2625,11 +2740,11 @@
 
 
 
-        //  AFFICHAGE 10 SITES LES PLUS EMETTEURS  //
+        //  AFFICHAGE SITES LES PLUS EMETTEURS  //
 
 
-        function renderSiteRow(site, tbody, maxEmissionsTotales) {
-          const { pctAbattement, barWidthPct, segments } = computeSiteBar(site, maxEmissionsTotales);
+        function renderSiteRow(site, tbody, maxEmissionsTotales, isReduced) {
+          const { pctAbattement, barWidthPct, segments, isCompacted } = computeSiteBar(site, maxEmissionsTotales, isReduced);
 
           const tr = document.createElement('tr');
 
@@ -2641,21 +2756,25 @@
               <div class="site-name-cell">${escapeHtml(site.site)}</div>
             </td>
             <td>
-              <div class="num-cell">${formatNumber(site.emissionsTotales/1000)}</div>
-            </td>
-            <td>
-              <div class="pct-cell">${pctAbattement.toFixed(1)}%</div>
+              <div class="pct-cell">${nDecimales(pctAbattement*(-1),0)}%</div>
             </td>
             <td>
               ${renderPieCellSVG(segments.nonMESnonAide,segments.nonMESAide,segments.MES)}
             </td>
             <td class="bar-cell">
-              <div class="bar-track" title="${escapeHtml(site.site)}" style="width:${barWidthPct}%">
+              <div class="bar-track${isCompacted ? ' bar-track--compacted' : ''}" title="${escapeHtml(site.site)}${isCompacted ? ' (échelle compactée)' : ''}" style="width:${barWidthPct}%">
                 <div class="bar-seg" style="width:${segments.nonAbattu}%"></div>
                 <div class="bar-seg seg-type1" style="width:${segments.nonMESnonAide}%"></div>
                 <div class="bar-seg seg-type2" style="width:${segments.nonMESAide}%"></div>
                 <div class="bar-seg seg-type3" style="width:${segments.MES}%"></div>
+                ${isCompacted ? `
+                  <div class="bar-compaction-mark" style="left:33%"></div>
+                  <div class="bar-compaction-mark" style="left:66%"></div>
+                ` : ''}
               </div>
+            </td>
+            <td>
+              <div class="num-cell">${formatNumber(site.emissionsTotales/1000)}</div>
             </td>
           `;
 
@@ -2678,11 +2797,10 @@
           const radius = 7;
           const cx = 8, cy = 8;
 
-          let content;
+          let fillContent;
 
           if (degrees === 360) {
-            // cercle complet : un <circle> plein, pas d'arc à calculer
-            content = `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="black"/>`;
+            fillContent = `<circle cx="${cx}" cy="${cy}" r="${radius}" class="pie-fill"/>`;
           } else {
             const largeArc = degrees > 180 ? 1 : 0;
             const rad = (degrees * Math.PI) / 180;
@@ -2690,13 +2808,17 @@
             const y = cy - radius * Math.cos(rad);
 
             const path = `M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc} 1 ${x},${y} Z`;
-            content = `<path d="${path}" fill="black"/>`;
+            fillContent = `<path d="${path}" class="pie-fill"/>`;
           }
+
+          // Contour : toujours un cercle complet, indépendant du remplissage
+          const outline = `<circle cx="${cx}" cy="${cy}" r="${radius}" class="pie-outline"/>`;
 
           return `
             <div class="pie-cell">
               <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
-                ${content}
+                ${outline}
+                ${fillContent}
               </svg>
             </div>
           `;
@@ -2714,8 +2836,17 @@
             document.getElementById('top10-section').style.display = 'inline';
           }
           const top30 = getTopNSites(data, 30);
-          const maxEmissionsTotales = top30[0].emissionsTotales;
-          top30.forEach(site => renderSiteRow(site, tbody, maxEmissionsTotales));
+          let maxEmissionsTotales;
+          let isReduced;
+          if (top30[0].emissionsTotales >= 2*top30[1].emissionsTotales){
+            maxEmissionsTotales = 2*top30[1].emissionsTotales;
+            isReduced = true;
+          }
+          else {
+            maxEmissionsTotales = top30[0].emissionsTotales;
+            isReduced = false;
+          }
+          top30.forEach(site => renderSiteRow(site, tbody, maxEmissionsTotales, isReduced));
         }
                 
 
@@ -2813,6 +2944,7 @@
                 applyStyle(swatch, style);
 
                 const text = document.createElement('span');
+                text.classList.add('legend-item-text'); 
                 text.textContent = group.aggregateText ? group.aggregateText(itemsDuGroupe) : group.title;
 
                 li.appendChild(swatch);
@@ -2842,6 +2974,7 @@
                   swatch.style.borderStyle = 'solid';
 
                   const text = document.createElement('span');
+                  text.classList.add('legend-item-text');
                   text.textContent = group.formatText ? group.formatText(item) : item.text;
                   text.textContent = text.textContent.includes('DI') ? text.textContent.replace('DI', 'Decarb Ind')
                     : text.textContent.includes('DF') ? text.textContent.replace('DF', 'Decarb Flash')
@@ -3356,7 +3489,7 @@
         }
 
 
-        function computeSiteBar(site, maxEmissionsTotales) {
+        function computeSiteBar(site, maxEmissionsTotales, isReduced) {
           const { emissionsTotales, emissionsAbattues } = site;
           const { nonMESnonAide = 0, nonMESAide = 0, MES = 0 } = emissionsAbattues || {};
 
@@ -3367,17 +3500,19 @@
             ? Math.min((totalAbattu / emissionsTotales) * 100, 100)
             : 0;
 
-          // Largeurs internes en % de la barre elle-même (somme = 100% de la barre du site)
           const toPct = (v) => (emissionsTotales > 0 ? (v / emissionsTotales) * 100 : 0);
 
-          // Longueur de la barre en % de la largeur dispo, relative au site max de la liste
-          const barWidthPct = maxEmissionsTotales > 0
-            ? Math.max(Math.min((emissionsTotales / maxEmissionsTotales) * 100, 100), 0)
-            : 0;
+          const isCompacted = !!isReduced && maxEmissionsTotales > 0 && emissionsTotales > maxEmissionsTotales;
+          const barWidthPct = isCompacted
+            ? 100
+            : (maxEmissionsTotales > 0
+                ? Math.max(Math.min((emissionsTotales / maxEmissionsTotales) * 100, 100), 0)
+                : 0);
 
           return {
             pctAbattement: pct,
             barWidthPct,
+            isCompacted, 
             segments: {
               nonAbattu: toPct(nonAbattu),
               nonMESnonAide: toPct(nonMESnonAide),
@@ -3411,6 +3546,9 @@
           }
           else if (secteur == 'Raffinage'){
             return 'RAFF';
+          }
+          else if(secteur == 'Autres matériaux'){
+            return 'AUTRES MTX';
           }
           else {
             return secteur
