@@ -482,7 +482,7 @@
         grid-template-columns: 2fr 1fr;
         width: 100%;
         gap : 20px;
-        height: 700px;
+        height: 500px;
         overflow:hidden;
       }
 
@@ -579,7 +579,7 @@
         flex: 1 1 auto;
         min-height: 0;
         width: 100%;
-        height: 600px;
+        height: 400px;
         border-radius: 14px;
         overflow: hidden;
         border: 1px solid #E7E9FF;
@@ -608,16 +608,16 @@
       }
 
       #wrapper-aides {
-        height: 800px;
+        height: 500px;
       }
 
       #wrapper-projets {
-        height: 800px;
+        height: 500px;
       }
 
       #wrapper-traj {
         width: 100%;
-        height: 600px;
+        height: 400px;
         display: grid;
         grid-template-columns: 1fr;   /* une seule colonne au lieu de 3fr 1fr */
       }
@@ -1066,8 +1066,10 @@
       .pie-cell {
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: center;
+        gap: 10px;
       }
+
 
       .pie-svg {
         flex-shrink: 0;
@@ -1124,16 +1126,16 @@
         height: var(--row-h-bar);
         width: 100%;
         background: repeating-linear-gradient(
-          45deg, #fff, #fff 4px, #f2f2f2 4px, #f2f2f2 8px
+          45deg, #fff, #fff 4px, #c9c8c8 4px, #c9c8c8 8px
         ); /* hachuré = non abattu */
         position: relative;
         overflow: visible;
       }
 
-      .bar-seg { height: 100%; }
-      .seg-type1 { background: var(--light-gray); }
-      .seg-type2 { background: var(--green); }
-      .seg-type3 { background: var(--dark-green); }
+      .bar-seg { height: 100%; border:  1px solid #070707;}
+      .seg-type1 { background: var(--light-gray); border:  0px solid #fff; }
+      .seg-type2 { background: var(--green); border:  0px solid #fff;}
+      .seg-type3 { background: var(--dark-green); border:  0px solid #fff;}
 
       .bar-compaction-mark {
         position: absolute;
@@ -1279,7 +1281,6 @@
             <label for="search-by-name">Nom du site</label>
             <input class="form-control" id="search-by-name" type="text" placeholder="Rechercher le nom d'un site..." />
             <ul id="suggestions"></ul>
-            <div class="hint">Astuce : tapez 3+ caractères pour filtrer rapidement.</div>
           </div>
 
           <div class="form-group form-group--btn">
@@ -1355,7 +1356,7 @@
               <button class="btn secondary" onclick="exportToExcel(currentDataExportProcede,'Extraction_abattement_par_procede.xlsx')"
                 id="export-button-charts-procede">Exporter données</button>
               <button class='btn secondary' onclick="switchCumul('canvas-charts-procede-1')"
-                id="cumul-button-charts-procede">Cumulé</button>
+                id="cumul-button-charts-procede">Annuel</button>
             </div>
           </div>
         </div>
@@ -1385,7 +1386,7 @@
               <button class="btn secondary" onclick="exportToExcel(currentDataExportAide,'Extraction_abattement_par_dispositif.xlsx')"
                 id="export-button-charts-aide">Exporter données</button>
               <button class='btn secondary' onclick="switchCumul('canvas-charts-aide-1')"
-                id="cumul-button-charts-aide">Cumulé</button>
+                id="cumul-button-charts-aide">Annuel</button>
             </div>
           </div>
           <div class="legend-wrapper">
@@ -1470,8 +1471,8 @@
             <colgroup>
               <col style="width:3%">
               <col style="width:25%">
-              <col style="width:10%">
-              <col style="width:2%">
+              <col style="width:7%">
+              <col style="width:5%">
               <col style="width:50%">
               <col style="width:10%">
             </colgroup>
@@ -1479,10 +1480,10 @@
               <tr>
                 <th class="secteur-cell"></th>
                 <th>Sites</th>
-                <th class="head-pct">Abattement des émissions à horizon 2035</th>
+                <th class="head-pct">Cible d'abattement 2035</th>
                 <th class="head-pct"> </th>
-                <th class="head-bar">Répartition de l'abattement</th>
-                <th class="head-num">Cible d'abattement 2035 (en kt CO2e)</th>
+                <th class="head-bar">Sécurisation de l'abattement</th>
+                <th class="head-num">Abattement à horizon 2035 (en kt CO2e)</th>
               </tr>
             </thead>
             <tbody id="sites-tbody">
@@ -1615,12 +1616,12 @@
 
           const nb_projets = data_traite[0].length;
           const nb_projets_MES = data_traite[3].filter(v => v === 'Mis en service').length;
-          b1.value = nb_projets != 0 ? `${nb_projets}` : null;
+          b1.value = nb_projets != 0 ? `${nDecimales(nb_projets,0)}` : null;
           b1.label = 'Nombre de Projets';
           b1.unit = '';
           b1.secondaryItems = [
             nb_projets_MES != 0
-              ? `Dont ${Math.floor(nb_projets_MES)} mis en service \n (${nDecimales((nb_projets_MES / nb_projets) * 100, 1)} % du total)`
+              ? `Dont ${Math.floor(nDecimales(nb_projets_MES,0))} mis en service \n (${nDecimales((nb_projets_MES / nb_projets) * 100, 0)} % du total)`
               : null
           ];
 
@@ -1631,7 +1632,7 @@
           b2.label = 'Abattement total';
           b2.secondaryItems = [
             abat_tot_MES != 0 
-            ? `Dont ${unitAdaptee(abat_tot_MES,'t CO2e/an',1)[0]} ${unitAdaptee(abat_tot,'t CO2e/an',1)[1]} mis en service \n (${nDecimales(abat_tot_MES/abat_tot*100,1)} % du total)`
+            ? `Dont ${unitAdaptee(abat_tot_MES,'t CO2e/an',1)[0]} ${unitAdaptee(abat_tot,'t CO2e/an',1)[1]} mis en service (${nDecimales(abat_tot_MES/abat_tot*100,0)} % du total)`
             : null
           ];
 
@@ -1647,7 +1648,7 @@
           b4.unit = unitAdaptee(puissance_elec_tot*1000000,'W',0)[1];
           b4.secondaryItems = [
             puissance_elec_tot != 0
-              ? `Dont ${nb_sites_raccord} avec besoin de raccordement`
+              ? `Dont ${nDecimales(nb_sites_raccord,0)} avec besoin de raccordement`
               : null
           ];
 
@@ -1665,27 +1666,27 @@
           const nb_aides_MES = record.Engage_Desengage.filter(v => v == 'Engagé et MES').length;
           const abat_tot_aides = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé').Gain_GES_an_tCO2eq_previsionnels);
           const abat_tot_aides_MES = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] == 'Engagé et MES').Gain_GES_an_tCO2eq_previsionnels);
-          b1.value = nb_aides != 0 ? `${nb_aides}` : null;
+          b1.value = nb_aides != 0 ? `${nDecimales(nb_aides,0)}` : null;
           b1.label = "Nombre d'aides engagées";
           b1.unit = '';
           b1.secondaryItems = [
             abat_tot_aides != 0
-              ? `Excluant ${Math.floor(record.Engage_Desengage.length - nb_aides)} dispositifs désengagés \n (${nDecimales(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100, 1)} % du total)`
+              ? `Excluant ${nDecimales(Math.floor(record.Engage_Desengage.length - nb_aides),0)} aides désengagés \n (${nDecimales(((record.Engage_Desengage.length - nb_aides) / record.Engage_Desengage.length) * 100, 0)} % du total)`
               : null
           ];
 
           b2.value = abat_tot_aides != 0 ? `${unitAdaptee(abat_tot_aides,'t CO2e/an',1)[0]}` : null;
-          b2.label = 'Abattement total des dispositifs de base Aide';
+          b2.label = 'Abattement total des aides';
           b2.unit = unitAdaptee(abat_tot_aides,'t CO2e/an',1)[1];
           b2.secondaryItems = [
             abat_tot_aides_MES != 0 
-            ? `Dont ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[0]} ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[1]} mis en service \n (${nDecimales(abat_tot_aides_MES/abat_tot_aides*100,1)} % du total)`
+            ? `Dont ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[0]} ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[1]} mis en service \n (${nDecimales(abat_tot_aides_MES/abat_tot_aides*100,0)} % du total)`
             : null
           ];
 
           const montant_tot_engage = sumList(filtreRecord(record, (r,i) => r.Engage_Desengage[i] !== 'Désengagé').Montant_d_aide);
           b3.value = montant_tot_engage != 0 ? `${unitAdaptee(montant_tot_engage,'€',0)[0]}` : null;
-          b3.label = 'Montant total des soutiens engagés';
+          b3.label = 'Montant total des aides engagées';
           b3.unit = `${unitAdaptee(montant_tot_engage,'€',0)[1]}`;
 
           return blocks;
@@ -1699,7 +1700,7 @@
           const blocks = [b1, b2, b3];
 
           const nb_sites_ETS = filtreRecord(record_site, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).Perimetre.length;
-          b1.value = nb_sites_ETS != 0 ? `${nb_sites_ETS}` : null;
+          b1.value = nb_sites_ETS != 0 ? `${nDecimales(nb_sites_ETS,0)}` : null;
           b1.label = "Nombre de sites ETS";
           b1.unit = '';
 
@@ -1714,7 +1715,7 @@
           const ges2024AvecDecarb = filtreRecord(record_site, (r, i) => (sitesAvecDecarb.includes(r.name_site[i]))).ges_2024;
           const ges2025AvecDecarb = filtreRecord(record_site, (r, i) => (sitesAvecDecarb.includes(r.name_site[i]))).ges_2025;
           const em_tot_AvecDecarb = sumList(ges2025AvecDecarb.map((g,i) => g != -1 ? g : (ges2024AvecDecarb[i] != -1) ? ges2024AvecDecarb[i] : 0));
-          b3.value = em_tot != 0 ? `${nDecimales(em_tot_AvecDecarb/em_tot*100,1)}` : null;
+          b3.value = em_tot != 0 ? `${nDecimales(em_tot_AvecDecarb/em_tot*100,0)}` : null;
           b3.label = "Part des émissions couvertes par des feuilles de route";
           b3.unit = '% du total';
 
@@ -2099,7 +2100,7 @@
                   type: 'linear',
                   ticks: {
                     callback: function (value) {
-                      return Math.floor(value / 1000);
+                      return Math.floor(value / 1000).toLocaleString('fr-FR');
                     },
                     font: {
                       family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
@@ -2464,7 +2465,7 @@
                   type: 'linear',
                   ticks: {
                     callback: function (value) {
-                      return Math.floor(value / 1000);
+                      return Math.floor(value / 1000).toLocaleString('fr-FR');
                     },
                     font: {
                       family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
@@ -2622,7 +2623,7 @@
                   align: 'start',
                   padding: 20,
                   display: true,
-                  text: cumule ? "Abattement cumulé, par dispositif d'aide, ktCO2e/an, 2019-2050 " : "Abattement annuel, par dispositif d'aide, ktCO2e/an, 2019-2050",
+                  text: cumule ? "Abattement cumulé, par dispositif, ktCO2e/an, 2019-2050 " : "Abattement annuel, par dispositif, ktCO2e/an, 2019-2050",
                 },
                 tooltip: {
                   mode: 'x',
@@ -2695,7 +2696,7 @@
                   type: 'linear',
                   ticks: {
                     callback: function (value) {
-                      return Math.floor(value / 1000);
+                      return Math.floor(value / 1000).toLocaleString('fr-FR');
                     },
                     font: {
                       family: window.getComputedStyle(document.head).getPropertyValue('--font-primary'),
@@ -2849,26 +2850,26 @@
         }
 
         function getPieCondition(nMESnAide, nMESAide, MES) {
-          const pctAssure = (nMESAide + MES)/(nMESnAide + nMESAide + MES);
+          const pctAssure = (nMESAide + MES) / (nMESnAide + nMESAide + MES);
           if (pctAssure < 0.2) return 0;
-          else if (pctAssure < 0.4) return 1;   
-          else if (pctAssure < 0.6) return 2;   
-          else if (pctAssure < 0.8) return 3;   
-          return 4;                            
+          else if (pctAssure < 0.4) return 1;
+          else if (pctAssure < 0.6) return 2;
+          else if (pctAssure < 0.8) return 3;
+          return 4;
         }
-        
+
         function renderPieCellSVG(nMESnAide, nMESAide, MES) {
           const condition = getPieCondition(nMESnAide, nMESAide, MES);
           const degreesMap = { 1: 90, 2: 180, 3: 270, 4: 360 };
           const degrees = degreesMap[condition];
-          const radius = 7;
-          const cx = 8, cy = 8;
+          const radius = 14;      // doublé (7 → 14)
+          const cx = 16, cy = 16; // recentré (8 → 16, car le rayon a doublé)
 
           let fillContent;
 
           if (degrees === 360) {
             fillContent = `<circle cx="${cx}" cy="${cy}" r="${radius}" class="pie-fill"/>`;
-          } else {
+          } else if (degrees) {
             const largeArc = degrees > 180 ? 1 : 0;
             const rad = (degrees * Math.PI) / 180;
             const x = cx + radius * Math.sin(rad);
@@ -2876,14 +2877,15 @@
 
             const path = `M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc} 1 ${x},${y} Z`;
             fillContent = `<path d="${path}" class="pie-fill"/>`;
+          } else {
+            fillContent = ''; // condition 0 : aucun remplissage
           }
 
-          // Contour : toujours un cercle complet, indépendant du remplissage
           const outline = `<circle cx="${cx}" cy="${cy}" r="${radius}" class="pie-outline"/>`;
 
           return `
             <div class="pie-cell">
-              <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
+              <svg width="32" height="32" viewBox="0 0 32 32" class="pie-svg">
                 ${outline}
                 ${fillContent}
               </svg>
@@ -3120,6 +3122,11 @@
 
         function D_traj_emissions(record_projets,record_sites){
           const em_2019 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2019);
+          const em_2021 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2021);
+          const em_2022 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2022);
+          const em_2023 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2023);
+          const em_2024 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2024);
+          const emissions = {2019 : em_2019, 2021 : em_2022, 2022 : em_2022, 2023 : em_2023, 2024 : em_2024};
           if(em_2019 == 0){
             document.getElementById('wrapper-traj').style.display = 'none';
             return;
@@ -3127,18 +3134,22 @@
           else{
             document.getElementById('wrapper-traj').style.display = 'grid';
           }
-          let D = {'2019|Emissions' : em_2019,'2019|Abattement' : em_2019};
+          let D = {};
+          for (annee of Object.keys(emissions)){
+            D[`${annee}|Emissions`] = emissions[`${annee}`];
+            D[`${annee}|Abattement`] = emissions[`${annee}`];
+          }
           const donnees_traitees = traitement_donnees_CO2_procede(record_projets);
           const anneesMES = donnees_traitees[2];
           const co2_abattu = donnees_traitees[1];
           const procede = donnees_traitees[0];
-          const anneeMin = 2019;
+          const anneeMin = 2024;
           const anneeMax = 2035;
           const annees_emissions = Array.from({ length: anneeMax - anneeMin + 1 }, (_, i) => anneeMin + i);
           
           for (a of annees_emissions){
-            D[`${a}|Abattement`] = D['2019|Emissions'];
-            D[`${a}|Emissions`] = D['2019|Emissions'];
+            D[`${a}|Abattement`] = D[`${anneeMin}|Emissions`];
+            D[`${a}|Emissions`] = D[`${anneeMin}|Emissions`];
             for (let i = 0; i < anneesMES.length; i++){
               if (anneesMES[i] <= anneeMax && anneesMES[i] > anneeMin){
                 if(procede[i] == 'Variation de production sans décarbonation'){
@@ -3771,26 +3782,28 @@
         }
 
         function nDecimales(number,n){
-          string = '' + number.toFixed(n);
-          return string;
+          return typeof number == 'number' ? number.toLocaleString('fr-FR', {
+            minimumFractionDigits: n,
+            maximumFractionDigits: n
+          }) : null;
         }
 
         function unitAdaptee(number, unit, n){
           let conversion = number;
           let nouv_unit = unit;
           if(conversion >= 1000){
-            conversion = nDecimales(conversion/1000,n);
+            conversion = conversion/1000;
             nouv_unit = 'k' + unit;
           }
           if(conversion >= 1000){
-            conversion = nDecimales(conversion/1000,n);
+            conversion = conversion/1000;
             nouv_unit = 'M' + unit;
           }
           if(conversion >= 10000 && unit != 'W'){
-            conversion = nDecimales(conversion/1000,n);
+            conversion = conversion/1000;
             nouv_unit = (unit == '€') ? 'Md' + unit : 'G' + unit;
           }
-          return [conversion, nouv_unit];
+          return [nDecimales(conversion,n), nouv_unit];
         }
 
         function triDecroissantParColonne(record, cols, indexColCible){
@@ -3837,7 +3850,6 @@
               list_annees[j] += dataset[i]['data'][j] > 0 ? dataset[i]['data'][j] : 0;
             }
           }
-          console.log(Math.max(...list_annees));
           return Math.max(...list_annees);
         }
 
@@ -4156,9 +4168,9 @@
 
           renderMap(filtered_records_sites, 'logarithmique');
 
-          graphique_CO2_procede_annee(filtered_records_projets, true, false);
+          graphique_CO2_procede_annee(filtered_records_projets, true, true);
 
-          graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, false);
+          graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, true);
 
           graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
 
