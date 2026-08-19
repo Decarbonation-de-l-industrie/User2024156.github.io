@@ -1653,7 +1653,7 @@
           ];
 
           const capex_tot = sumList(data_traite[4]);
-          b3.value = capex_tot != 0 ? `${unitAdaptee(capex_tot,'€',1)[0]}` : null;
+          b3.value = capex_tot != 0 ? `${unitAdaptee(capex_tot,'€',capex_tot > 10000000000 ? 1 : 0)[0]}` : null;
           b3.label = 'Montant total de CAPEX';
           b3.unit = unitAdaptee(capex_tot,'€',1)[1];
 
@@ -4051,7 +4051,7 @@
             const options = setSelectOptions(records_projets, f.col, f.labelAll);
 
             const isLocked = (f.col == 'Region' || f.col == 'Filiere') && options.length == 3; // Si une seule option disponible on l'affiche verrouillée et on enlève la possibilité d'intéragir (utile surtout pour les utilisateurs restreints)
-
+            console.log(isLocked);
             const tom = new TomSelect(`#${f.id}`, {
               maxItems: null,
               create: false,
