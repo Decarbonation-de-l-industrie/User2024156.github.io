@@ -2921,7 +2921,7 @@
           const top30 = getTopNSites(data, 30);
           let maxEmissionsTotales;
           let isReduced;
-          if (top30[0].emissionsTotales >= 2*top30[1].emissionsTotales){
+          if (top30[1] && top30[0].emissionsTotales >= 2*top30[1].emissionsTotales){
             maxEmissionsTotales = 2*top30[1].emissionsTotales;
             isReduced = true;
           }
