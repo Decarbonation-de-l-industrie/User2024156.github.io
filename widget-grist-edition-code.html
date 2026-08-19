@@ -4050,7 +4050,7 @@
           for (const f of filtres) {
             const options = setSelectOptions(records_projets, f.col, f.labelAll);
 
-            const isLocked = (f.col == 'Region' || f.col == 'Filiere') && options.length == 3; // Si une seule option disponible on l'affiche verrouillée et on enlève la possibilité d'intéragir (utile surtout pour les utilisateurs restreints)
+            const isLocked = (f.col == 'Region' || f.col == 'Filiere') && options.length <= 3; // Si une seule option disponible on l'affiche verrouillée et on enlève la possibilité d'intéragir (utile surtout pour les utilisateurs restreints)
             console.log(isLocked);
             const tom = new TomSelect(`#${f.id}`, {
               maxItems: null,
