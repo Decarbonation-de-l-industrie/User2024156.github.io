@@ -928,6 +928,16 @@
           color:#686d75;
       }
 
+      .main-list-comment{
+          margin-top:2px;
+          padding-top:6px;
+          border-top:1px dashed rgba(0,0,0,.08);
+          font-size:.75rem;
+          font-style:italic;
+          color:#686d75;
+          line-height:1.4;
+      }
+
 
       /* ===========================================================
       AFFICHAGE DE LA LISTE DE SUGGESTION POUR LA RECHERCHE DE SITES
@@ -1046,6 +1056,7 @@
         border-radius: 2px;
         white-space: nowrap;
         font-family: var(--font-primary);
+        flex-shrink: 0;
       }
 
       .pct-cell {
@@ -1130,12 +1141,19 @@
         ); /* hachuré = non abattu */
         position: relative;
         overflow: visible;
+        flex-shrink: 0;
       }
 
       .bar-seg { height: 100%; border:  1px solid #070707;}
       .seg-type1 { background: var(--light-gray); border:  0px solid #fff; }
       .seg-type2 { background: var(--green); border:  0px solid #fff;}
       .seg-type3 { background: var(--dark-green); border:  0px solid #fff;}
+
+      .bar-cell-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
       .bar-compaction-mark {
         position: absolute;
@@ -1473,17 +1491,15 @@
               <col style="width:25%">
               <col style="width:7%">
               <col style="width:5%">
-              <col style="width:50%">
-              <col style="width:10%">
+              <col style="width:60%">  
             </colgroup>
             <thead id="top10-sites">
               <tr>
                 <th class="secteur-cell"></th>
                 <th>Sites</th>
                 <th class="head-pct">Cible d'abattement 2035</th>
-                <th class="head-pct"> </th>
-                <th class="head-bar">Sécurisation de l'abattement</th>
-                <th class="head-num">Abattement à horizon 2035 (en kt CO2e)</th>
+                <th></th>
+                <th class="head-bar">Sécurisation de l'abattement — Abattement à horizon 2035 (en kt CO2e)</th>
               </tr>
             </thead>
             <tbody id="sites-tbody">
@@ -1746,7 +1762,7 @@
                   {name: "Année MES",value: projets.annee[i]},
                   {name: "Procédé",value: projets.procede[i]},
                   {name: "CAPEX",value: `${unitAdaptee(projets.capex[i],'€',0)[0] + ' ' + unitAdaptee(projets.capex[i],'€',0)[1]}`},
-              ])
+              ], projets.commentaire[i])
             );
           }
           else{
@@ -1766,7 +1782,7 @@
                   {name: "Entreprise",value: sites.entreprise[i]},
                   {name: "Périmètre",value: sites.perimetre[i]},
                   {name: "Filière",value: sites.filiere[i]},
-              ])
+              ], sites.commentaire[i])
             );
           }
           else{
@@ -1795,7 +1811,7 @@
 
         function listMainProjets(record_projets){
           const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => (typeof r.Emissions_abattues_tCO2e_an_[i] == 'number' && r.Procede[i] != null && r.Procede[i] != '0' & r.Procede[i] != '-1' && r.Annee_MES_prevue[i] != 0 && typeof r.Annee_MES_prevue[i] == 'number')),
-          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_'],0);
+          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_','Commentaire2'],0);
           let result = {
             description: data_triee_projets[1],
             abattement: data_triee_projets[0],
@@ -1805,22 +1821,23 @@
             filiere: data_triee_projets[5],
             annee: data_triee_projets[6],
             capex: data_triee_projets[7],
-
+            commentaire: data_triee_projets[8],
           }
           return result;
         }
 
         function listMainSites(record_sites){
           const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r.ges_2024[i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
-          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data'],1);
+          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data','Situation_du_site'],1);
           let result = {
-            emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),                 // On prend ges_2025 si la donnée est disponible, ges_2024 sinon
+            emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),
             nom_site: data_triee_sites[2],
             region: data_triee_sites[3],
             perimetre: data_triee_sites[4],
             filiere: data_triee_sites[5],
             entreprise: data_triee_sites[6],
             zibac: data_triee_sites[7],
+            commentaire: data_triee_sites[8],
           }
           return result;
         }
@@ -1839,11 +1856,10 @@
           return result;
         }
 
-        function createListItem(title, highlight, details){
+        function createListItem(title, highlight, details, comment){
 
           const item = document.createElement("div");
           item.className = "main-list-item";
-
 
           // Ligne 1 : titre
           const header = document.createElement("div");
@@ -1855,8 +1871,6 @@
 
           header.appendChild(titleElement);
 
-
-
           // Ligne 2 : valeur principale
           const main = document.createElement("div");
           main.className = "main-list-highlight";
@@ -1867,40 +1881,39 @@
 
           main.appendChild(highlightElement);
 
-
           const detailsContainer = document.createElement("div");
           detailsContainer.className = "main-list-details";
 
-
           details.forEach(detail => {
-
               const row = document.createElement("div");
               row.className = "main-list-detail";
-
 
               const label = document.createElement("span");
               label.className = "label";
               label.textContent = detail.name;
-
 
               const value = document.createElement("span");
               value.className = `main-list__${detail.name.toLowerCase().replace('é','e').replace('è','e').replace(' ','-')}`;
               value.classList.add("value");
               value.textContent = detail.value;
 
-
               row.appendChild(label);
               row.appendChild(value);
 
               detailsContainer.appendChild(row);
-
           });
-
 
           item.appendChild(header);
           item.appendChild(main);
           item.appendChild(detailsContainer);
 
+          // Bloc commentaire, uniquement si présent et non vide
+          if (typeof comment == 'string' && comment.trim() != ''){
+              const commentElement = document.createElement("div");
+              commentElement.className = "main-list-comment";
+              commentElement.textContent = comment;
+              item.appendChild(commentElement);
+          }
 
           return item;
       }
@@ -1916,6 +1929,7 @@
               container.appendChild(builder(i));
           }
       }
+
 
 
 
@@ -2830,19 +2844,19 @@
               ${renderPieCellSVG(segments.nonMESnonAide,segments.nonMESAide,segments.MES)}
             </td>
             <td class="bar-cell">
-              <div class="bar-track${isCompacted ? ' bar-track--compacted' : ''}" title="${escapeHtml(site.site)}${isCompacted ? ' (échelle compactée)' : ''}" style="width:${barWidthPct}%">
-                <div class="bar-seg" style="width:${segments.nonAbattu}%"></div>
-                <div class="bar-seg seg-type1" style="width:${segments.nonMESnonAide}%"></div>
-                <div class="bar-seg seg-type2" style="width:${segments.nonMESAide}%"></div>
-                <div class="bar-seg seg-type3" style="width:${segments.MES}%"></div>
-                ${isCompacted ? `
-                  <div class="bar-compaction-mark" style="left:33%"></div>
-                  <div class="bar-compaction-mark" style="left:66%"></div>
-                ` : ''}
+              <div class="bar-cell-content">
+                <div class="bar-track${isCompacted ? ' bar-track--compacted' : ''}" title="${escapeHtml(site.site)}${isCompacted ? ' (échelle compactée)' : ''}" style="width:${barWidthPct}%">
+                  <div class="bar-seg" style="width:${segments.nonAbattu}%"></div>
+                  <div class="bar-seg seg-type1" style="width:${segments.nonMESnonAide}%"></div>
+                  <div class="bar-seg seg-type2" style="width:${segments.nonMESAide}%"></div>
+                  <div class="bar-seg seg-type3" style="width:${segments.MES}%"></div>
+                  ${isCompacted ? `
+                    <div class="bar-compaction-mark" style="left:33%"></div>
+                    <div class="bar-compaction-mark" style="left:66%"></div>
+                  ` : ''}
+                </div>
+                <div class="num-cell">${formatNumber(site.emissionsTotales/1000)}</div>
               </div>
-            </td>
-            <td>
-              <div class="num-cell">${formatNumber(site.emissionsTotales/1000)}</div>
             </td>
           `;
 
@@ -3581,16 +3595,19 @@
           const toPct = (v) => (emissionsTotales > 0 ? (v / emissionsTotales) * 100 : 0);
 
           const isCompacted = !!isReduced && maxEmissionsTotales > 0 && emissionsTotales > maxEmissionsTotales;
+
+          const BAR_MAX_PCT = 90; // marge réservée pour num-cell (10% de .bar-cell-content)
+
           const barWidthPct = isCompacted
-            ? 100
+            ? BAR_MAX_PCT
             : (maxEmissionsTotales > 0
-                ? Math.max(Math.min((emissionsTotales / maxEmissionsTotales) * 100, 100), 0)
+                ? Math.max(Math.min((emissionsTotales / maxEmissionsTotales) * BAR_MAX_PCT, BAR_MAX_PCT), 0)
                 : 0);
 
           return {
             pctAbattement: pct,
             barWidthPct,
-            isCompacted, 
+            isCompacted,
             segments: {
               nonAbattu: toPct(nonAbattu),
               nonMESnonAide: toPct(nonMESnonAide),
