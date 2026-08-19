@@ -482,7 +482,7 @@
         grid-template-columns: 2fr 1fr;
         width: 100%;
         gap : 20px;
-        height: 500px;
+        height: 600px;
         overflow:hidden;
       }
 
@@ -608,16 +608,16 @@
       }
 
       #wrapper-aides {
-        height: 500px;
+        height: 650px;
       }
 
       #wrapper-projets {
-        height: 500px;
+        height: 650px;
       }
 
       #wrapper-traj {
         width: 100%;
-        height: 400px;
+        height: 550px;
         display: grid;
         grid-template-columns: 1fr;   /* une seule colonne au lieu de 3fr 1fr */
       }
@@ -996,7 +996,7 @@
         font-size: 12px;
         font-weight: 600;
         padding: 6px 6px;
-        color: #444;
+        color: var(--color-brand-blue);
       }
 
       table.sites td {
@@ -1045,8 +1045,8 @@
 
       .num-cell {
         height: var(--row-h);
-        background: var(--dark-gray);
-        color: #fff;
+        background: #fff;
+        color: #575353;
         font-weight: 600;
         font-size: 13px;
         display: flex;
@@ -1497,9 +1497,9 @@
               <tr>
                 <th class="secteur-cell"></th>
                 <th>Sites</th>
-                <th class="head-pct">Cible d'abattement 2035</th>
+                <th class="head-pct">Cible 2035</th>
                 <th></th>
-                <th class="head-bar">Sécurisation de l'abattement — Abattement à horizon 2035 (en kt CO2e)</th>
+                <th class="head-bar">Avancée des projets de décarbonation et émissions résiduelles (MtCO2e)</th>
               </tr>
             </thead>
             <tbody id="sites-tbody">
@@ -1762,7 +1762,7 @@
                   {name: "Année MES",value: projets.annee[i]},
                   {name: "Procédé",value: projets.procede[i]},
                   {name: "CAPEX",value: `${unitAdaptee(projets.capex[i],'€',0)[0] + ' ' + unitAdaptee(projets.capex[i],'€',0)[1]}`},
-              ], projets.commentaire[i])
+              ], (!projets.commentaire[i] ? '' : 'Commentaire : ') + projets.commentaire[i])
             );
           }
           else{
@@ -1782,7 +1782,7 @@
                   {name: "Entreprise",value: sites.entreprise[i]},
                   {name: "Périmètre",value: sites.perimetre[i]},
                   {name: "Filière",value: sites.filiere[i]},
-              ], sites.commentaire[i])
+              ], (!sites.commentaire[i] ? '' : 'Situation : ') + sites.commentaire[i])
             );
           }
           else{
@@ -2855,7 +2855,7 @@
                     <div class="bar-compaction-mark" style="left:66%"></div>
                   ` : ''}
                 </div>
-                <div class="num-cell">${formatNumber(site.emissionsTotales/1000)}</div>
+                <div class="num-cell">${nDecimales(site.emissionsTotales/1000000,1)}</div>
               </div>
             </td>
           `;
