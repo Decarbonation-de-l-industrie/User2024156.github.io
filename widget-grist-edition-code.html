@@ -1828,7 +1828,7 @@
 
         function listMainSites(record_sites){
           const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r.ges_2024[i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
-          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data','Situation_du_site'],1);
+          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data','Situation_du_site'],0);
           let result = {
             emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),
             nom_site: data_triee_sites[2],
@@ -3006,7 +3006,6 @@
         
             const groupsByKey = new Map(groups.map(g => [g.key, g]));
 
-            // Construit le <div class="legend-group"> (titre optionnel + <ul>) pour un lot d'items donné
             function buildGroupContent(group, itemsDuGroupe) {
               const groupDiv = document.createElement('div');
               groupDiv.classList.add('legend-group');
