@@ -332,6 +332,9 @@
         font-size: var(--font-legend-size);
       }
 
+      .btn.secondary:active { transform: scale(0.97); }
+
+
       #cumul-button-charts-procede {
         padding: 6px 10px;
       }
@@ -938,6 +941,9 @@
           line-height:1.4;
       }
 
+      .main-list-detail .value.proba-mes    { color: #22b64c; font-weight: 600; }
+      .main-list-detail .value.proba-risque { color: #ef1414; font-weight: 600; }
+
 
       /* ===========================================================
       AFFICHAGE DE LA LISTE DE SUGGESTION POUR LA RECHERCHE DE SITES
@@ -1327,7 +1333,10 @@
             <div class="chart-buttons-group">
               <div id="map-buttons">
                 <button class="btn secondary" onclick="exportToExcel(currentDataExportTraj,'Extraction_trajectoire_emissions.xlsx')"
-                  id="export-button-charts-traj">Exporter données</button>
+                  id="export-button-charts-traj">Export</button>
+                <button class="btn secondary" id="copyBtn-lineChartTrajEmissions" data-target="lineChartTrajEmissions">
+                  <span class="label">Copier l'image</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1372,7 +1381,10 @@
             <canvas id="barChartCO2parAnnee"></canvas>
             <div class="chart-buttons-group">
               <button class="btn secondary" onclick="exportToExcel(currentDataExportProcede,'Extraction_abattement_par_procede.xlsx')"
-                id="export-button-charts-procede">Exporter données</button>
+                id="export-button-charts-procede">Export</button>
+              <button class="btn secondary" id="copyBtn-barChartCO2parAnnee" data-target="barChartCO2parAnnee">
+                <span class="label">Copier l'image</span>
+              </button>
               <button class='btn secondary' onclick="switchCumul('canvas-charts-procede-1')"
                 id="cumul-button-charts-procede">Annuel</button>
             </div>
@@ -1402,7 +1414,10 @@
             <canvas id="barChartCO2parAnneeAide"></canvas>
             <div class="chart-buttons-group">
               <button class="btn secondary" onclick="exportToExcel(currentDataExportAide,'Extraction_abattement_par_dispositif.xlsx')"
-                id="export-button-charts-aide">Exporter données</button>
+                id="export-button-charts-aide">Export</button>
+              <button class="btn secondary" id="copyBtn-barChartCO2parAnneeAide" data-target="barChartCO2parAnneeAide">
+                <span class="label">Copier l'image</span>
+              </button>
               <button class='btn secondary' onclick="switchCumul('canvas-charts-aide-1')"
                 id="cumul-button-charts-aide">Annuel</button>
             </div>
@@ -1432,7 +1447,7 @@
           <div class="legend-subtitle">Abattement :</div>
           <div class="legend-item">
             <span class="legend-swatch swatch-empty"></span>
-            <span class="legend-text">Emissions résiduelles</span>
+            <span class="legend-text">Emissions résiduelles en 2040</span>
           </div>
           <div class="legend-item">
             <span class="legend-swatch swatch-type1"></span>
@@ -1448,7 +1463,7 @@
           </div>
         </div>
         <div class="legend legend-pie-row" id="legend-pie">
-          <div class="legend-subtitle">Sécurisation de la cible 2035 :</div>
+          <div class="legend-subtitle">Sécurisation de la cible 2040 :</div>
           <div class="legend-item">
             <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
               <circle cx="8" cy="8" r="7" class="pie-outline"/>
@@ -1497,7 +1512,7 @@
               <tr>
                 <th class="secteur-cell"></th>
                 <th>Sites</th>
-                <th class="head-pct">Cible 2035</th>
+                <th class="head-pct">Cible 2040</th>
                 <th></th>
                 <th class="head-bar">Avancée des projets de décarbonation et émissions résiduelles (MtCO2e)</th>
               </tr>
@@ -1760,6 +1775,7 @@
               [
                   {name: "Site",value: projets.nom_site[i]},
                   {name: "Année MES",value: projets.annee[i]},
+                  {name: "Probabilité de MES",value: projets.probabilite[i]},
                   {name: "Procédé",value: projets.procede[i]},
                   {name: "CAPEX",value: `${unitAdaptee(projets.capex[i],'€',0)[0] + ' ' + unitAdaptee(projets.capex[i],'€',0)[1]}`},
               ], (!projets.commentaire[i] ? '' : 'Commentaire : ') + projets.commentaire[i])
@@ -1811,7 +1827,7 @@
 
         function listMainProjets(record_projets){
           const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => (typeof r.Emissions_abattues_tCO2e_an_[i] == 'number' && r.Procede[i] != null && r.Procede[i] != '0' & r.Procede[i] != '-1' && r.Annee_MES_prevue[i] != 0 && typeof r.Annee_MES_prevue[i] == 'number')),
-          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_','Commentaire2'],0);
+          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_','Commentaire2','Probabilite_de_mise_en_service_MES_Statut_du_projet'],0);
           let result = {
             description: data_triee_projets[1],
             abattement: data_triee_projets[0],
@@ -1822,6 +1838,7 @@
             annee: data_triee_projets[6],
             capex: data_triee_projets[7],
             commentaire: data_triee_projets[8],
+            probabilite: data_triee_projets[9],
           }
           return result;
         }
@@ -1893,10 +1910,18 @@
               label.textContent = detail.name;
 
               const value = document.createElement("span");
-              value.className = `main-list__${detail.name.toLowerCase().replace('é','e').replace('è','e').replace(' ','-')}`;
+              value.className = `main-list__${detail.name.toLowerCase().replaceAll('é','e').replaceAll('è','e').replaceAll(' ','-')}`;
               value.classList.add("value");
               value.textContent = detail.value;
 
+              if (detail.name === "Probabilité de MES") {
+                if(detail.value == 'Mis en service'){
+                  value.classList.add('proba-mes');
+                }
+                else if(detail.value == 'A risque'){
+                  value.classList.add('proba-risque');
+                }
+              }
               row.appendChild(label);
               row.appendChild(value);
 
@@ -3531,7 +3556,7 @@
         
         function donneesSitesPlusEmetteurs (records_projets, records_sites){
           const projetsEtudies = filtreRecord(records_projets, (r,i) => 
-          (typeof (r.Annee_MES_prevue[i]) == 'number' && r.Annee_MES_prevue[i] != 0 && r.Annee_MES_prevue[i] <= 2035) &&
+          (typeof (r.Annee_MES_prevue[i]) == 'number' && r.Annee_MES_prevue[i] != 0 && r.Annee_MES_prevue[i] <= 2040) &&
           (r.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné') &&
           (Number.isFinite(r.Emissions_abattues_tCO2e_an_[i])) &&
           (typeof (r.Nom_du_site[i]) == 'string' && !r.Nom_du_site[i].includes('#'))
@@ -3725,6 +3750,50 @@
             currentDataExportAide = graph[1];
           }
         }
+
+        async function copyCanvasToClipboard(canvas) {
+          const blob = await new Promise((resolve, reject) => {
+            canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob a échoué')), 'image/png');
+          });
+        
+          if (!navigator.clipboard || !window.ClipboardItem) {
+            throw new Error('Clipboard API non supportée par ce navigateur');
+          }
+        
+          await navigator.clipboard.write([
+            new ClipboardItem({ [blob.type]: blob })
+          ]);
+        }
+
+        
+      document.querySelectorAll('.btn.secondary[data-target]').forEach(btn => {
+        btn.addEventListener('click', () => handleCopyClick(btn));
+      });
+
+      async function handleCopyClick(btn) {
+        const canvas = document.getElementById(btn.dataset.target);
+        const label = btn.querySelector('.label');
+        const originalText = label.textContent;
+        const originalBg = btn.style.backgroundColor;
+
+        try {
+          await copyCanvasToClipboard(canvas);
+          btn.style.backgroundColor = '#2e9e57';
+          label.textContent = 'Copié !';
+          showToast('Graphique copié dans le presse-papiers ✅');
+        } catch (err) {
+          console.error(err);
+          showToast("Échec de la copie : " + err.message);
+        } finally {
+          setTimeout(() => {
+            btn.style.backgroundColor = originalBg;
+            label.textContent = originalText;
+          }, 1500);
+        }
+      }
+
+
+
 
 
         function areaMarkerfromEmission(emission, maxRadius, typeMarker) {
