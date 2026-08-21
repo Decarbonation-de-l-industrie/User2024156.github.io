@@ -1432,7 +1432,7 @@
           <div class="legend-subtitle">Abattement :</div>
           <div class="legend-item">
             <span class="legend-swatch swatch-empty"></span>
-            <span class="legend-text">Emissions sans projet d'abattement connu</span>
+            <span class="legend-text">Emissions résiduelles</span>
           </div>
           <div class="legend-item">
             <span class="legend-swatch swatch-type1"></span>
@@ -3136,10 +3136,11 @@
         function D_traj_emissions(record_projets,record_sites){
           const em_2019 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2019);
           const em_2021 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2021);
+          const em_2020 = (em_2019 + em_2021)/2;
           const em_2022 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2022);
           const em_2023 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2023);
           const em_2024 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2024);
-          const emissions = {2019 : em_2019, 2021 : em_2022, 2022 : em_2022, 2023 : em_2023, 2024 : em_2024};
+          const emissions = {2019 : em_2019, 2020 : em_2020, 2021 : em_2022, 2022 : em_2022, 2023 : em_2023, 2024 : em_2024};
           if(em_2019 == 0){
             document.getElementById('wrapper-traj').style.display = 'none';
             return;
