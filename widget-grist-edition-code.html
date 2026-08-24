@@ -3438,11 +3438,6 @@
               else{
                 projet_compte = true;
               }
-              if (record_projets.Nom_du_site[i] == 'EQIOM Lumbres'){
-	              console.log(laureats['aide'][laureats['aide'].length - 1]);
-	              console.log(laureats['etat'][laureats['aide'].length - 1]);
-                console.log(laureats['co2_abattu'][laureats['aide'].length - 1]);
-              }
               if (!record_projets.Aide_UE_dans_base_aide[i]){
                 laureats['montant'].push(record_projets.Aide_UE_Montant_[i]);
                 laureats['anneeMES'].push((record_projets.Annee_MES_prevue[i] && record_projets.Annee_MES_prevue[i] != 0) ? record_projets.Annee_MES_prevue[i] : null);
