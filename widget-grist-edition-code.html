@@ -841,6 +841,10 @@
           border-radius:10px;
           box-shadow:0 1px 3px rgba(0,0,0,.05);
           transition:.15s ease;
+          flex: 1 1 auto;
+          min-width: 0;
+          overflow-wrap: break-word;
+          white-space: normal;
       }
 
       .main-list-item:hover{
@@ -848,18 +852,53 @@
           box-shadow:0 4px 10px rgba(0,0,0,.08);
       }
 
-      .main-list-header{
+      .main-list-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 8px;
           padding-bottom:6px;
           border-bottom:1px solid rgba(0,0,0,.08);
       }
 
+      .main-list-tag {
+          flex-shrink: 0;
+          font-size: 0.7rem;
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: 999px;
+          text-transform: uppercase;
+          letter-spacing: 0.02em;
+          white-space: nowrap;
+          margin-top: 1px;
+      }
 
-      .main-list__description,
-      .main-list__dispositif{
-          font-size:15px;
-          font-weight:700;
-          color:var(--color-brand-blue);
-          line-height:1.35;
+      .main-list-tag--50-sites {
+        background-color: #fdecea;
+        color: #8a342b;
+      }
+
+      .main-list-tag--top-140 {
+        background-color: #e8f0fe;
+        color: #6aa87f;
+      }
+
+      .main-list-tag--no-tag {
+        display: none;
+        color: #0d0d0d;
+      }
+
+
+
+      .main-list__dispositif,
+      .main-list__description{
+        font-size:15px;
+        font-weight:700;
+        color:var(--color-brand-blue);
+        line-height:1.35;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-wrap: break-word;
       }
 
       .main-list-highlight{
@@ -1049,6 +1088,41 @@
         padding: 0 10px;
         border-radius: 2px;
         font-family: var(--font-primary);
+        justify-content: space-between;
+        gap:8px;
+      }
+
+      .site-name-text {
+        flex: 1 1 auto;       
+        min-width: 0;          
+        overflow-wrap: break-word;
+        white-space: normal;
+      }
+
+      .site-tag {
+        flex-shrink: 0;         
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+
+      .site-tag--50-sites {
+        background-color: #fdecea;
+        color: #8a342b;
+      }
+
+      .site-tag--top-140 {
+        background-color: #e8f0fe;
+        color: #6aa87f;
+      }
+
+      .site-tag--no-tag {
+        display: none;
+        color: #0d0d0d;
       }
 
       .num-cell {
@@ -1152,7 +1226,7 @@
         flex-shrink: 0;
       }
 
-      .bar-seg { height: 100%; border:  1px solid #070707;}
+      .bar-seg { height: 100%; border: 1.5px solid #070707; border-style: dashed;}
       .seg-type1 { background: var(--light-gray); border:  0px solid #fff; }
       .seg-type2 { background: var(--green); border:  0px solid #fff;}
       .seg-type3 { background: var(--dark-green); border:  0px solid #fff;}
@@ -1242,6 +1316,7 @@
         background: repeating-linear-gradient(
           45deg, #fff, #fff 3px, #d9d9d9 3px, #d9d9d9 6px
         );
+        border-style: dashed;
       }
       .swatch-type1 { background: var(--light-gray); }
       .swatch-type2 { background: var(--green); }
@@ -1782,7 +1857,8 @@
                   {name: "Probabilité de MES",value: projets.probabilite[i]},
                   {name: "Procédé",value: projets.procede[i]},
                   {name: "CAPEX",value: `${unitAdaptee(projets.capex[i],'€',0)[0] + ' ' + unitAdaptee(projets.capex[i],'€',0)[1]}`},
-              ], (!projets.commentaire[i] ? '' : 'Commentaire : ') + projets.commentaire[i])
+              ], (!projets.commentaire[i] ? '' : 'Commentaire : ') + projets.commentaire[i],
+              true, projets.perimetre[i])
             );
           }
           else{
@@ -1831,7 +1907,7 @@
 
         function listMainProjets(record_projets){
           const data_triee_projets = triDecroissantParColonne(filtreRecord(record_projets, (r,i) => (typeof r.Emissions_abattues_tCO2e_an_[i] == 'number' && r.Procede[i] != null && r.Procede[i] != '0' & r.Procede[i] != '-1' && r.Annee_MES_prevue[i] != 0 && typeof r.Annee_MES_prevue[i] == 'number')),
-          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_','Commentaire2','Probabilite_de_mise_en_service_MES_Statut_du_projet'],0);
+          ['Emissions_abattues_tCO2e_an_','Description_du_projet','Nom_du_site','Region','Procede','Filiere','Annee_MES_prevue','CAPEX_prevus_','Commentaire2','Probabilite_de_mise_en_service_MES_Statut_du_projet','Perimetre'],0);
           let result = {
             description: data_triee_projets[1],
             abattement: data_triee_projets[0],
@@ -1843,6 +1919,7 @@
             capex: data_triee_projets[7],
             commentaire: data_triee_projets[8],
             probabilite: data_triee_projets[9],
+            perimetre: data_triee_projets[10],
           }
           return result;
         }
@@ -1877,7 +1954,7 @@
           return result;
         }
 
-        function createListItem(title, highlight, details, comment){
+        function createListItem(title, highlight, details, comment, isProject, perimetre){
 
           const item = document.createElement("div");
           item.className = "main-list-item";
@@ -1889,8 +1966,17 @@
           const titleElement = document.createElement("div");
           titleElement.className = `main-list__${title.name}`;
           titleElement.textContent = title.value;
-
           header.appendChild(titleElement);
+
+          if (isProject){
+              const tagInfo = computeProjectTag({perimetre});
+              if (tagInfo) {
+                  const tagElement = document.createElement("span");
+                  tagElement.className = `main-list-tag main-list-tag--${tagInfo.type}`;
+                  tagElement.textContent = tagInfo.label;
+                  header.appendChild(tagElement);
+              }
+          }
 
           // Ligne 2 : valeur principale
           const main = document.createElement("div");
@@ -2875,13 +2961,17 @@
           const { pctAbattement, barWidthPct, segments, isCompacted } = computeSiteBar(site, maxEmissionsTotales, isReduced);
 
           const tr = document.createElement('tr');
+          const styleNonAbat = segments.nonAbattu == 0 ? "display:none" : `width:${segments.nonAbattu}%`;
 
           tr.innerHTML = `
             <td class="secteur-cell">
               <div class="secteur-band" style="background-color: var(--color-${site.secteur.toLowerCase().replaceAll(' ','-').replaceAll('é','e').replaceAll('â','a').replaceAll('è','e')})">${escapeHtml(formatSecteur(site.secteur))}</div>
             </td>
             <td>
-              <div class="site-name-cell">${escapeHtml(site.site)}</div>
+              <div class="site-name-cell">
+                <span class="site-name-text">${escapeHtml(site.site)}</span>
+                ${renderSiteTag(site)}
+              </div>
             </td>
             <td>
               <div class="pct-cell">${nDecimales(pctAbattement*(-1),0)}%</div>
@@ -2892,7 +2982,7 @@
             <td class="bar-cell">
               <div class="bar-cell-content">
                 <div class="bar-track${isCompacted ? ' bar-track--compacted' : ''}" title="${escapeHtml(site.site)}${isCompacted ? ' (échelle compactée)' : ''}" style="width:${barWidthPct}%">
-                  <div class="bar-seg" style="width:${segments.nonAbattu}%"></div>
+                  <div class="bar-seg" style="${styleNonAbat}"></div>
                   <div class="bar-seg seg-type1" style="width:${segments.nonMESnonAide}%"></div>
                   <div class="bar-seg seg-type2" style="width:${segments.nonMESAide}%"></div>
                   <div class="bar-seg seg-type3" style="width:${segments.MES}%"></div>
@@ -2907,6 +2997,17 @@
           `;
 
           tbody.appendChild(tr);
+        }
+
+        function renderSiteTag(site) {
+          const tag = { text : (site.perimetre == '50 sites' || site.perimetre == '50 sites raffinerie') ? '50 sites' : site.perimetre != 'Top 140' ? '' : 'Top 140', type : (site.perimetre == '50 sites' || site.perimetre == '50 sites raffinerie') ? '50-sites' : site.perimetre != 'Top 140' ? 'no-tag' : 'top-140'}
+          return `<span class="site-tag site-tag--${tag.type}">${escapeHtml(tag.text)}</span>`;
+        }
+
+        function computeProjectTag({ perimetre }) {
+          if (perimetre === '50 sites' || perimetre === '50 sites raffinerie') return { type: '50-sites', label: '50 sites' };
+          if (perimetre === 'Top 140') return { type: 'top-140', label: 'Top 140' };
+          return null;
         }
 
         function getPieCondition(nMESnAide, nMESAide, MES) {
@@ -3589,6 +3690,7 @@
               const nv_site = {
                 secteur: projetsEtudies.Filiere[i],
                 site: projetsEtudies.Nom_du_site[i],
+                perimetre: projetsEtudies.Perimetre[i],
                 emissionsTotales: projetsEtudies.Procede[i] == 'Variation de production sans décarbonation' ? projetsEtudies.Emissions_abattues_tCO2e_an_[i]*(-1) : 0,
                 emissionsAbattues: {
                   nonMESnonAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Certain') ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
