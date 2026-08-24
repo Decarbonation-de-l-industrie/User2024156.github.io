@@ -26,6 +26,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap4.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 
     <style>
 
@@ -1415,7 +1417,9 @@
             <div class="chart-buttons-group">
               <button class="btn secondary" onclick="exportToExcel(currentDataExportAide,'Extraction_abattement_par_dispositif.xlsx')"
                 id="export-button-charts-aide">Export</button>
-              <button class="btn secondary" id="copyBtn-barChartCO2parAnneeAide" data-target="barChartCO2parAnneeAide">
+              <button class="btn secondary" id="copyBtn-barChartCO2parAnneeAide"
+                      data-target="barChartCO2parAnneeAide"
+                      data-legend="legend-container">
                 <span class="label">Copier l'image</span>
               </button>
               <button class='btn secondary' onclick="switchCumul('canvas-charts-aide-1')"
@@ -1806,7 +1810,7 @@
           }
 
           const aides = listMainAides(record_aides);
-          const wrapper_aide = document.getElementById('wrapper-aides');
+          const wrapper_aide = document.getElementById('list-wrapper-aides');
           if(sumList(aides.abattement) != 0){
             if (wrapper_aide.style.display == 'none'){
               wrapper_aide.style.display = 'grid';
@@ -3316,14 +3320,14 @@
         function regroupAides(list_aide){                                                       // On rebrand tous les NOM d'aide en conservant la taille de la liste selon un format normalisé : toutes les aides qui ne correspondent pas 
           list_aide_sans_nombre = list_aide.map(a => a ? a.replace(/[0-9]/g, '') : '');                  // ou ont un NOM NULL sont appelées 'Autre Aides'
           list_aide_regroupe = list_aide_sans_nombre.map( a => {
-            const a_norm = typeof a === 'string' ? a.toLowerCase().replaceAll(' ','') : '';
+            const a_norm = typeof a === 'string' ? a.toLowerCase().replaceAll(' ','').replaceAll("'",'') : '';
             if (a_norm.includes('bciat')){
               return 'BCIAT';
             }
             else if (a_norm.includes('di') || a_norm.includes('carbind')){
               return "Decarb'Ind";
             }
-            else if (a_norm.includes('df')){
+            else if (a_norm.includes('df') || a_norm.includes("carbfl")){
               return "Decarb'Flash";
             }
             else if (a_norm.includes('aogpid')){
@@ -3434,7 +3438,11 @@
               else{
                 projet_compte = true;
               }
-
+              if (record_projets.Nom_du_site[i] == 'EQIOM Lumbres'){
+	              console.log(laureats['aide'][laureats['aide'].length - 1]);
+	              console.log(laureats['etat'][laureats['aide'].length - 1]);
+                console.log(laureats['co2_abattu'][laureats['aide'].length - 1]);
+              }
               if (!record_projets.Aide_UE_dans_base_aide[i]){
                 laureats['montant'].push(record_projets.Aide_UE_Montant_[i]);
                 laureats['anneeMES'].push((record_projets.Annee_MES_prevue[i] && record_projets.Annee_MES_prevue[i] != 0) ? record_projets.Annee_MES_prevue[i] : null);
@@ -3588,8 +3596,8 @@
                 site: projetsEtudies.Nom_du_site[i],
                 emissionsTotales: projetsEtudies.Procede[i] == 'Variation de production sans décarbonation' ? projetsEtudies.Emissions_abattues_tCO2e_an_[i]*(-1) : 0,
                 emissionsAbattues: {
-                  nonMESnonAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Aide_UE_Situation[i] != 'Lauréat' && projetsEtudies.Aide_autre_Statut[i] != 'Lauréat') ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
-                  nonMESAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && (projetsEtudies.Aide_FR_Situation[i] == 'Lauréat' || projetsEtudies.Aide_UE_Situation[i] == 'Lauréat' || projetsEtudies.Aide_autre_Statut[i] == 'Lauréat'))   ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
+                  nonMESnonAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Certain') ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
+                  nonMESAide: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && (projetsEtudies.Aide_FR_Situation[i] == 'Lauréat' || projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Certain'))   ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
                   MES: (projetsEtudies.Procede[i] != 'Variation de production sans décarbonation' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Mis en service') ? projetsEtudies.Emissions_abattues_tCO2e_an_[i] : 0,
                 }
               }
@@ -3600,10 +3608,10 @@
               if (projetsEtudies.Procede[i] == 'Variation de production sans décarbonation'){
                 resultats[index_site]['emissionsTotales'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i]*(-1);
               }
-              else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Aide_UE_Situation[i] != 'Lauréat' && projetsEtudies.Aide_autre_Statut[i] != 'Lauréat'){
+              else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && projetsEtudies.Aide_FR_Situation[i] != 'Lauréat' && projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Certain'){
                 resultats[index_site]['emissionsAbattues']['nonMESnonAide'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
               }
-              else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && (projetsEtudies.Aide_FR_Situation[i] == 'Lauréat' || projetsEtudies.Aide_UE_Situation[i] == 'Lauréat' || projetsEtudies.Aide_autre_Statut[i] == 'Lauréat')){
+              else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Mis en service' && (projetsEtudies.Aide_FR_Situation[i] == 'Lauréat' || projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Certain')){
                 resultats[index_site]['emissionsAbattues']['nonMESAide'] += projetsEtudies.Emissions_abattues_tCO2e_an_[i];
               }
               else if (projetsEtudies.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Mis en service'){
@@ -3789,12 +3797,18 @@
 
       async function handleCopyClick(btn) {
         const canvas = document.getElementById(btn.dataset.target);
+        const legendId = btn.dataset.legend; // undefined si absent -> comportement inchangé
         const label = btn.querySelector('.label');
         const originalText = label.textContent;
         const originalBg = btn.style.backgroundColor;
 
         try {
-          await copyCanvasToClipboard(canvas);
+          if (legendId) {
+            const legendEl = document.getElementById(legendId);
+            await copyChartWithLegendToClipboard(canvas, legendEl);
+          } else {
+            await copyCanvasToClipboard(canvas);
+          }
           btn.style.backgroundColor = '#2e9e57';
           label.textContent = 'Copié !';
           showToast('Graphique copié dans le presse-papiers ✅');
@@ -3807,6 +3821,36 @@
             label.textContent = originalText;
           }, 1500);
         }
+      }
+
+      async function copyChartWithLegendToClipboard(canvasEl, legendEl) {
+        // Rasteriser la légende (DOM -> image)
+        const legendCanvas = await html2canvas(legendEl, {
+          backgroundColor: null, // transparent, ou '#ffffff' si tu préfères un fond blanc
+          scale: window.devicePixelRatio || 2 // pour une image nette
+        });
+
+        // Dimensions cohérentes (on garde la largeur du chart comme référence)
+        const width = canvasEl.width;
+        const chartHeight = canvasEl.height;
+        const legendHeight = legendCanvas.height * (width / legendCanvas.width);
+
+        const composite = document.createElement('canvas');
+        composite.width = width;
+        composite.height = chartHeight + legendHeight;
+        const ctx = composite.getContext('2d');
+
+        // Fond blanc (sinon fond transparent -> noir dans certains presse-papiers)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, composite.width, composite.height);
+
+        ctx.drawImage(canvasEl, 0, 0, width, chartHeight);
+        ctx.drawImage(legendCanvas, 0, chartHeight, width, legendHeight);
+
+        const blob = await new Promise(resolve => composite.toBlob(resolve, 'image/png'));
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
       }
 
 
