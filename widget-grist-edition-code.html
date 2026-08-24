@@ -1992,6 +1992,10 @@
             return;
           }
 
+          const regionsFiltree = getFilters().region;
+          let facteurSNBC = baisse_SNBC.SNBC_Nat;
+          let labelSNBC = 'Trajectoire SNBC Nationale';
+
           // On extrait la liste des années présentes dans le dictionnaire, triées par ordre croissant
           const annees = [...new Set(cles.map(k => Number(k.split('|')[0])))].sort((a, b) => a - b);
           const list_labels = annees.map(a => a.toString());
@@ -1999,7 +2003,20 @@
           // Construction des deux séries à partir des clés 'annee|Emissions' et 'annee|Abattement'
           const dataEmissions = annees.map(a => dict_donnees[`${a}|Emissions`] ?? null);
           const dataAbattement = annees.map(a => dict_donnees[`${a}|Abattement`] ?? null);
-          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*baisse_SNBC.SNBC_Nat[i] ?? null);
+
+          if (regionsFiltree.length == 1 && regionsFiltree[0] != ''){
+            const mapAnneeFacteur = {};
+            const regionFormat = regionsFiltree[0].replaceAll('-','_').replaceAll(' ','_').replaceAll('é','e').replaceAll('ô','o').replaceAll("'",'_');
+            for (let i = 0 ; i < facteurSNBC.length ; i++){
+              mapAnneeFacteur[baisse_SNBC.Annee[i]] = baisse_SNBC[`SNBC_COP_${regionFormat}`][i] == 0 ? null : baisse_SNBC[`SNBC_COP_${regionFormat}`][i]; 
+            }
+            if (completionParInterpolation(mapAnneeFacteur)){
+              facteurSNBC = completionParInterpolation(mapAnneeFacteur);
+              labelSNBC = `Trajectoire SNBC COP ${regionsFiltree[0]}`;
+            }
+          }
+
+          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*facteurSNBC[i] ?? null);
 
           const colorEmissions = '#000000';
           const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue');
@@ -2029,7 +2046,7 @@
               pointRadius: 3,
             },
             {
-              label: 'Trajectoire SNBC',
+              label: labelSNBC,
               borderDash: [6, 6],
               data: traj_snbc,
               borderColor: colorSNBC,
@@ -3817,6 +3834,50 @@
         }
 
 
+        function completionParInterpolation(obj) {
+          // 1. Tri par année
+          const entries = Object.entries(obj)
+            .map(([annee, valeur]) => ({ annee: Number(annee), valeur }))
+            .sort((a, b) => a.annee - b.annee);
+
+          const indicesConnus = entries
+            .map((e, i) => (e.valeur !== null ? i : null))
+            .filter(i => i !== null);
+
+          // Seule valeur non nulle = la première année -> pas de pente calculable
+          if (indicesConnus.length === 1) return false;
+
+          const result = new Array(entries.length);
+          indicesConnus.forEach(i => (result[i] = entries[i].valeur));
+
+          // Interpolation des trous internes (entre deux points connus)
+          for (let k = 0; k < indicesConnus.length - 1; k++) {
+            const i1 = indicesConnus[k], i2 = indicesConnus[k + 1];
+            const { annee: x1, valeur: y1 } = entries[i1];
+            const { annee: x2, valeur: y2 } = entries[i2];
+            for (let i = i1 + 1; i < i2; i++) {
+              const x = entries[i].annee;
+              result[i] = Math.max(y1 + (y2 - y1) * (x - x1) / (x2 - x1),0);
+            }
+          }
+
+          // Extrapolation en fin de série, pente des 2 derniers points connus
+          const dernier = indicesConnus[indicesConnus.length - 1];
+          if (dernier < entries.length - 1) {
+            const n = indicesConnus.length;
+            const i1 = indicesConnus[n - 2], i2 = indicesConnus[n - 1];
+            const { annee: x1, valeur: y1 } = entries[i1];
+            const { annee: x2, valeur: y2 } = entries[i2];
+            const pente = (y2 - y1) / (x2 - x1);
+            for (let i = dernier + 1; i < entries.length; i++) {
+              result[i] = Math.max(y2 + pente * (entries[i].annee - x2),0);
+            }
+          }
+
+          return result;
+        }
+
+
         function exportToExcel(dataU, filename) {
           const titre = ['Emissions abattues en ktCO2e/an'];
           const premLigne = dataU.data.map(dU => dU.annee);         
@@ -4120,7 +4181,6 @@
             const options = setSelectOptions(records_projets, f.col, f.labelAll);
 
             const isLocked = (f.col == 'Region' || f.col == 'Filiere') && options.length <= 3; // Si une seule option disponible on l'affiche verrouillée et on enlève la possibilité d'intéragir (utile surtout pour les utilisateurs restreints)
-            console.log(isLocked);
             const tom = new TomSelect(`#${f.id}`, {
               maxItems: null,
               create: false,
