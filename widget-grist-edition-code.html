@@ -1770,7 +1770,8 @@
           const b1 = {};
           const b2 = {};
           const b3 = {};
-          const blocks = [b1, b2, b3];
+          const b4 = {};
+          const blocks = [b1, b2, b3, b4];
 
           const nb_aides = filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé').Engage_Desengage.length;
           const nb_aides_MES = record.Engage_Desengage.filter(v => v == 'Engagé et MES').length;
@@ -1799,6 +1800,12 @@
           b3.label = 'Montant total des aides engagées';
           b3.unit = `${unitAdaptee(montant_tot_engage,'€',0)[1]}`;
 
+          const abatNa = resultCO2Aide[2][0];
+          const abatTot = resultCO2Aide[2][1];
+          b4.value = nDecimales((abatNa/abatTot)*100,1);
+          b4.label = "Abattement dont la couverture par des aides n'est pas connue";
+          b4.unit = "% du total";
+
           return blocks;
         }
 
@@ -1807,7 +1814,8 @@
           const b1 = {};
           const b2 = {};
           const b3 = {};
-          const blocks = [b1, b2, b3];
+          const b4 = {};
+          const blocks = [b1, b2, b3, b4];
 
           const nb_sites_ETS = filtreRecord(record_site, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).Perimetre.length;
           b1.value = nb_sites_ETS != 0 ? `${nDecimales(nb_sites_ETS,0)}` : null;
@@ -1819,7 +1827,7 @@
           // const em_tot = sumList(ges2025.map((g,i) => g != -1 ? g : (ges2024[i] != -1) ? ges2024[i] : 0));
           const em_tot = sumList(ges2024);
           b2.value = nb_sites_ETS != 0 ? `${unitAdaptee(em_tot,'tCO2e',1)[0]}` : null;
-          b2.label = "Emissions ETS 2024";
+          b2.label = "émissions ETS 2024";
           b2.unit = unitAdaptee(em_tot,'tCO2e',1)[1];
 
           const sitesAvecDecarb = filtreRecord(record_projets, (r, i) => r.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné').Nom_du_site;
@@ -1828,9 +1836,29 @@
           // const em_tot_AvecDecarb = sumList(ges2025AvecDecarb.map((g,i) => g != -1 ? g : (ges2024AvecDecarb[i] != -1) ? ges2024AvecDecarb[i] : 0));
           const em_tot_AvecDecarb = sumList(ges2024AvecDecarb);
           b3.value = em_tot != 0 ? `${nDecimales(em_tot_AvecDecarb/em_tot*100,0)}` : null;
-          b3.label = "Part des émissions 2024 des sites faisant l'objet d'un suivi";
+          b3.label = "émissions des sites faisant l'objet d'un suivi";
           b3.unit = '% du total';
 
+          const regionsFiltree = getFilters().region;
+          let facteurSNBC = 0;
+          for (let i = 0 ; i < baisse_SNBC.Annee.length ; i++){
+            if(baisse_SNBC.Annee[i] == 2035){
+              facteurSNBC = baisse_SNBC.SNBC_Nat[i];
+            }                  
+          }
+
+          if (regionsFiltree.length == 1 && regionsFiltree[0] != ''){
+            const mapAnneeFacteur = {};
+            const regionFormat = regionsFiltree[0].replaceAll('-','_').replaceAll(' ','_').replaceAll('é','e').replaceAll('ô','o').replaceAll("'",'_');
+            for (let i = 0 ; i < facteurSNBC.length ; i++){
+              if(baisse_SNBC.Annee[i] == 2035){
+                facteurSNBC = baisse_SNBC[`SNBC_COP_${regionFormat}`][i] == 0 ? baisse_SNBC.SNBC_Nat[i] : baisse_SNBC[`SNBC_COP_${regionFormat}`][i];
+              }                  
+            }
+          }
+          b4.value = 100 - (100*facteurSNBC);
+          b4.unit = '% des émissions';
+          b4.label = 'Cible 2035 de réduction';
           return blocks; 
         }
 
@@ -2695,7 +2723,9 @@
               emissions: Object.fromEntries(list_aide.map(p => [p.startsWith(' : ') ? p.slice(3) : p, isNaN(typeof dict_donnees[`${a}|${p}`] == 'object' ? dict_donnees[`${a}|${p}`][0] : 'NaN') == false ? dict_donnees[`${a}|${p}`][0] : 0]),
               ),
             })),
-          };                                                                                                       
+          }; 
+          
+          const abatNa = cumule ? dataU.data[dataU.data.length - 1].emissions['n.a.'] : sumList(dataU.data.map( (_,i) => dataU.data[i].emissions['n.a.']));
 
           for (let i = 0; i < list_aide.length; i++) {
             if (list_aide[i].endsWith('Engagé')) {
@@ -2714,14 +2744,14 @@
               else {
                 order[i] += aideOrderAlph.indexOf(list_aide[i].split(' :')[0]);
               }
-              order[i] += 100;
+              order[i] += 1000;
               backgroundColors[i] = Chart.helpers.color(window.getComputedStyle(document.head).getPropertyValue(`--color-aide-${list_aide[i].split(' :')[0].replace(' ','-').replace("'",'-').toLowerCase()}`)).alpha(0.2).rgbString();
             }
             else if(list_aide[i].endsWith("Pas besoin d'aide")){
               backgroundColors[i] = 'transparent';
               borderColors[i] = 'rgba(1,1,1,255)';
               borderWidths[i] = 2;
-              order[i] += 1000;
+              order[i] += 100;
             }
             else {
               backgroundColors[i] = 'transparent';
@@ -2745,6 +2775,8 @@
             stack: 'stack1',
             skipNull: true,
           }))
+
+          const abatTot = cumule ? sumList(datasets.map((_,i) => datasets[i].data[datasets[i].data.length-1] )) : sumList(datasets.map( d => sumList(d.data)));
 
           chartCO2Aide = new Chart(ctx, {
             type: 'bar',
@@ -2856,7 +2888,7 @@
               maintainAspectRatio: false
             }
           });
-          return [chartCO2Aide,dataU];
+          return [chartCO2Aide,dataU,[abatNa,abatTot]];
         }
 
 
@@ -3670,9 +3702,9 @@
                 }
               }
               else{
-                const cle = `${cleAnnee}|${aides[i]} : ${engagement[i]}`;              // cle String obtenues via la méthode .split()
+                const cle = `${cleAnnee}|${aides[i]} : ${engagement[i]}`;
                 D[cle] = (D[cle] ?? [0,0]);
-                D[cle][0] = D[cle][0] + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);                // D [cle] ?? 0 initialise la clé à 0 si elle est de type undefined et ne fais rien sinon
+                D[cle][0] = D[cle][0] + (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
                 D[cle][1] = D[cle][1] + (typeof montant[i] == 'number' ? montant[i] : 0);
               }
             }
@@ -4417,8 +4449,6 @@
         function majGraphiques() {
           if (chartCO2Procede) chartCO2Procede.destroy();
           if (chartCO2Aide) chartCO2Aide.destroy();
-          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
-          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
           resultCO2Procede = graphique_CO2_procede_annee(filtered_records_projets, true);
           resultCO2Aide = graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true);
           resultTrajCO2 = graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
@@ -4434,6 +4464,8 @@
             chartTrajEmissions = resultTrajCO2[0];
             currentDataExportTraj = resultTrajCO2[1];
           }
+          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
+          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
           renderMap(filtered_records_sites, 'logarithmique');
           displayTop30Sites(filtered_records_projets, filtered_records_sites);
         }
@@ -4455,19 +4487,14 @@
           document.addEventListener("DOMContentLoaded", function (event) {
             new TomSelect('select', settings);
           });
-          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
-
-          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
-
           renderMap(filtered_records_sites, 'logarithmique');
-
           graphique_CO2_procede_annee(filtered_records_projets, true, true);
-
           graphique_abattement_par_annee_par_aide(filtered_records_aides, filtered_records_projets, true, true);
-
           graphique_traj_emissions(filtered_records_projets, filtered_records_sites);
 
           displayTop30Sites(filtered_records_projets, filtered_records_sites);
+          buildStatBlocks(filtered_records_projets,filtered_records_sites,filtered_records_aides);
+          renderListsMain(filtered_records_projets,filtered_records_sites,filtered_records_aides);
         }
 
 
