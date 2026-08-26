@@ -514,8 +514,8 @@
         background: #fff;
         position: sticky;
         top: 10px;
-        height: 100%;       /* AJOUT : occupe exactement la hauteur de sa cellule (600px) */
-        min-height: 0;       /* AJOUT : autorise à rétrécir sous la taille de son contenu */
+        height: 100%; 
+        min-height: 0;    
         overflow: hidden;    
       }
 
@@ -692,7 +692,6 @@
         flex: 0 0 100px;    
         max-height: 240px;  
         box-sizing: border-box;
-        /* NOUVEAU : on définit ce wrapper comme référence de taille pour les cqw */
         container-type: inline-size;
         container-name: legend;
       }
@@ -703,7 +702,6 @@
         flex-wrap: nowrap;          
         align-content: flex-start;
         justify-content: flex-start;
-        /* AVANT : gap: 10px 15px (fixe) */
         gap: clamp(4px, 1.5cqw, 15px);
         height: auto;             
       }
@@ -727,7 +725,6 @@
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        /* AVANT : gap: 8px (fixe) */
         gap: clamp(2px, 0.8cqw, 8px);
         width: 100%;
       }
@@ -741,7 +738,6 @@
         display: flex;
         flex-direction: column;
         gap: clamp(2px, 0.6cqw, 4px);
-        /* CHANGEMENT CLÉ : on retire le min-width figé qui causait le débordement */
         min-width: 0;
         flex: 1 1 0;
       }
@@ -874,13 +870,13 @@
       }
 
       .main-list-tag--50-sites {
-        background-color: #fdecea;
-        color: #8a342b;
+        background-color: rgba(27, 61, 212, 0.3);
+        color: rgba(27, 61, 212, 1);
       }
 
       .main-list-tag--top-140 {
-        background-color: #e8f0fe;
-        color: #6aa87f;
+        background-color: rgba(70, 131, 205, 0.3);
+        color: rgba(70, 131, 205, 1);
       }
 
       .main-list-tag--no-tag {
@@ -1111,13 +1107,13 @@
       }
 
       .site-tag--50-sites {
-        background-color: #fdecea;
-        color: #8a342b;
+        background-color: rgba(27, 61, 212, 0.3);
+        color: rgba(27, 61, 212, 1);
       }
 
       .site-tag--top-140 {
-        background-color: #e8f0fe;
-        color: #6aa87f;
+        background-color: rgba(70, 131, 205, 0.3);
+        color: rgba(70, 131, 205, 1);
       }
 
       .site-tag--no-tag {
@@ -1519,6 +1515,9 @@
 
       <header class='section-header'>
         <h1>Avancée de la décarbonation par site</h1>
+        <button class="btn secondary" id="copyBtn-top10-section" data-target="top10-section">
+          <span class="label">Copier l'image</span>
+        </button>
       </header>  
 
       <section id="top10-section">
@@ -3235,7 +3234,7 @@
 
                   const swatch = document.createElement('span');
                   swatch.classList.add('swatch');
-                  swatch.style.background = item.fillStyle;
+                  swatch.style.background = `linear-gradient(135deg, ${withOpacity(item.fillStyle,0.3)} 50%, ${item.fillStyle} 50%)`;
                   swatch.style.borderColor = item.strokeStyle;
                   swatch.style.borderWidth = item.lineWidth + 'px';
                   swatch.style.borderStyle = 'solid';
@@ -3926,66 +3925,65 @@
         }
 
         
-      document.querySelectorAll('.btn.secondary[data-target]').forEach(btn => {
-        btn.addEventListener('click', () => handleCopyClick(btn));
-      });
-
-      async function handleCopyClick(btn) {
-        const canvas = document.getElementById(btn.dataset.target);
-        const legendId = btn.dataset.legend; // undefined si absent -> comportement inchangé
-        const label = btn.querySelector('.label');
-        const originalText = label.textContent;
-        const originalBg = btn.style.backgroundColor;
-
-        try {
-          if (legendId) {
-            const legendEl = document.getElementById(legendId);
-            await copyChartWithLegendToClipboard(canvas, legendEl);
-          } else {
-            await copyCanvasToClipboard(canvas);
-          }
-          btn.style.backgroundColor = '#2e9e57';
-          label.textContent = 'Copié !';
-          showToast('Graphique copié dans le presse-papiers ✅');
-        } catch (err) {
-          console.error(err);
-          showToast("Échec de la copie : " + err.message);
-        } finally {
-          setTimeout(() => {
-            btn.style.backgroundColor = originalBg;
-            label.textContent = originalText;
-          }, 1500);
-        }
-      }
-
-      async function copyChartWithLegendToClipboard(canvasEl, legendEl) {
-        // Rasteriser la légende (DOM -> image)
-        const legendCanvas = await html2canvas(legendEl, {
-          backgroundColor: null, // transparent, ou '#ffffff' si tu préfères un fond blanc
-          scale: window.devicePixelRatio || 2 // pour une image nette
+        document.querySelectorAll('.btn.secondary[data-target]').forEach(btn => {
+          btn.addEventListener('click', () => handleCopyClick(btn));
         });
 
+        async function handleCopyClick(btn) {
+        const canvas = document.getElementById(btn.dataset.target);
+        const legendId = btn.dataset.legend; // undefined si absent -> comportement inchangé
+          const label = btn.querySelector('.label');
+          const originalText = label.textContent;
+          const originalBg = btn.style.backgroundColor;
+
+          try {
+              if (legendId) {
+                const legendEl = document.getElementById(legendId);
+            await copyChartWithLegendToClipboard(canvas, legendEl);
+              } else {
+            await copyCanvasToClipboard(canvas);
+              }
+            btn.style.backgroundColor = '#2e9e57';
+            label.textContent = 'Copié !';
+          showToast('Graphique copié dans le presse-papiers ✅');
+          } catch (err) {
+            console.error(err);
+            showToast("Échec de la copie : " + err.message);
+          } finally {
+            setTimeout(() => {
+              btn.style.backgroundColor = originalBg;
+              label.textContent = originalText;
+            }, 1500);
+          }
+        }
+
+        async function copyChartWithLegendToClipboard(canvasEl, legendEl) {
+        // Rasteriser la légende (DOM -> image)
+          const legendCanvas = await html2canvas(legendEl, {
+            backgroundColor: '#ffffff',
+            scale: window.devicePixelRatio || 2 
+          });
+
         // Dimensions cohérentes (on garde la largeur du chart comme référence)
-        const width = canvasEl.width;
-        const chartHeight = canvasEl.height;
-        const legendHeight = legendCanvas.height * (width / legendCanvas.width);
+          const width = canvasEl.width;
+          const chartHeight = canvasEl.height;
+          const legendHeight = legendCanvas.height * (width / legendCanvas.width);
 
-        const composite = document.createElement('canvas');
-        composite.width = width;
-        composite.height = chartHeight + legendHeight;
-        const ctx = composite.getContext('2d');
+          const composite = document.createElement('canvas');
+          composite.width = width;
+          composite.height = chartHeight + legendHeight;
+          const ctx = composite.getContext('2d');
 
-        // Fond blanc (sinon fond transparent -> noir dans certains presse-papiers)
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, composite.width, composite.height);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, composite.width, composite.height);
 
-        ctx.drawImage(canvasEl, 0, 0, width, chartHeight);
-        ctx.drawImage(legendCanvas, 0, chartHeight, width, legendHeight);
+          ctx.drawImage(canvasEl, 0, 0, width, chartHeight);
+          ctx.drawImage(legendCanvas, 0, chartHeight, width, legendHeight);
 
-        const blob = await new Promise(resolve => composite.toBlob(resolve, 'image/png'));
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob })
-        ]);
+          const blob = await new Promise(resolve => composite.toBlob(resolve, 'image/png'));
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
       }
 
 
@@ -4177,6 +4175,21 @@
             }
           }
           return Math.max(...list_annees);
+        }
+
+        function withOpacity(color, alpha) {
+          const ctx = withOpacity._ctx || (withOpacity._ctx = document.createElement('canvas').getContext('2d'));
+          ctx.fillStyle = color;          // le contexte normalise la couleur
+          const normalized = ctx.fillStyle; // "#rrggbb" ou "rgba(...)"
+          let r, g, b;
+          if (normalized.startsWith('#')) {
+            r = parseInt(normalized.slice(1, 3), 16);
+            g = parseInt(normalized.slice(3, 5), 16);
+            b = parseInt(normalized.slice(5, 7), 16);
+          } else {
+            [r, g, b] = normalized.match(/[\d.]+/g).map(Number);
+          }
+          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
         }
 
 
