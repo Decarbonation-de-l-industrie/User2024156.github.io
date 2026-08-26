@@ -1722,7 +1722,7 @@
           const b3 = {};
           const b4 = {};
           const blocks = [b1, b2, b3, b4];
-          const data_traite = traitement_donnees_CO2_procede(record_projets);
+          const data_traite = traitement_donnees_CO2_procede(filtreRecord(record_projets, (r,i) => (typeof r.Annee_MES_prevue[i] == 'number' && r.Annee_MES_prevue[i] >= 2019 && r.Annee_MES_prevue[i] <= 2050)));
 
           const nb_projets = data_traite[0].length;
           const nb_projets_MES = data_traite[3].filter(v => v === 'Mis en service').length;
