@@ -1621,7 +1621,11 @@
         let chartTrajEmissions = null;
         let map;
         let markersLayer;
-
+        console.log(records_sites);
+        let anneeMin = 2019;
+        let anneeCourante = 2024;
+        let anneeMax = 2035;
+        console.log(anneeMin);
 
 
      /* ===================
@@ -1718,7 +1722,7 @@
           const b3 = {};
           const b4 = {};
           const blocks = [b1, b2, b3, b4];
-          const data_traite = traitement_donnees_CO2_procede(filtreRecord(record_projets, (r,i) => (typeof r.Annee_MES_prevue[i] == 'number' && r.Annee_MES_prevue[i] >= 2019 && r.Annee_MES_prevue[i] <= 2050)));
+          const data_traite = traitement_donnees_CO2_procede(filtreRecord(record_projets, (r,i) => (typeof r.Annee_MES_prevue[i] == 'number' && r.Annee_MES_prevue[i] >= anneeMin && r.Annee_MES_prevue[i] <= 2050)));
 
           const nb_projets = data_traite[0].length;
 
@@ -1833,19 +1837,19 @@
           b1.label = "Nombre de sites ETS";
           b1.unit = '';
 
-          const ges2024 = filtreRecord(record_site, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).ges_2024;
+          const gesCourant = filtreRecord(record_site, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== ''))[`ges_${anneeCourante}`];
           // const ges2025 = filtreRecord(record_site, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).ges_2025;
-          // const em_tot = sumList(ges2025.map((g,i) => g != -1 ? g : (ges2024[i] != -1) ? ges2024[i] : 0));
-          const em_tot = sumList(ges2024);
+          // const em_tot = sumList(ges2025.map((g,i) => g != -1 ? g : (gesCourant[i] != -1) ? gesCourant[i] : 0));
+          const em_tot = sumList(gesCourant);
           b2.value = nb_sites_ETS != 0 ? `${unitAdaptee(em_tot,'tCO2e',1)[0]}` : null;
-          b2.label = "émissions ETS 2024";
+          b2.label = `émissions ETS ${anneeCourante}`;
           b2.unit = unitAdaptee(em_tot,'tCO2e',1)[1];
 
           const sitesAvecDecarb = filtreRecord(record_projets, (r, i) => r.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné').Nom_du_site;
-          const ges2024AvecDecarb = filtreRecord(record_site, (r, i) => (sitesAvecDecarb.includes(r.name_site[i]))).ges_2024;
+          const gesCourantAvecDecarb = filtreRecord(record_site, (r, i) => (sitesAvecDecarb.includes(r.name_site[i])))[`ges_${anneeCourante}`];
           // const ges2025AvecDecarb = filtreRecord(record_site, (r, i) => (sitesAvecDecarb.includes(r.name_site[i]))).ges_2025;
-          // const em_tot_AvecDecarb = sumList(ges2025AvecDecarb.map((g,i) => g != -1 ? g : (ges2024AvecDecarb[i] != -1) ? ges2024AvecDecarb[i] : 0));
-          const em_tot_AvecDecarb = sumList(ges2024AvecDecarb);
+          // const em_tot_AvecDecarb = sumList(ges2025AvecDecarb.map((g,i) => g != -1 ? g : (gesCourantAvecDecarb[i] != -1) ? gesCourantAvecDecarb[i] : 0));
+          const em_tot_AvecDecarb = sumList(gesCourantAvecDecarb);
           b3.value = em_tot != 0 ? `${nDecimales(em_tot_AvecDecarb/em_tot*100,0)}` : null;
           b3.label = "émissions des sites faisant l'objet d'un suivi";
           b3.unit = '% du total';
@@ -1853,23 +1857,22 @@
           const regionsFiltree = getFilters().region;
           let facteurSNBC = 0;
           for (let i = 0 ; i < baisse_SNBC.Annee.length ; i++){
-            if(baisse_SNBC.Annee[i] == 2035){
+            if(baisse_SNBC.Annee[i] == anneeMax){
               facteurSNBC = baisse_SNBC.SNBC_Nat[i];
             }                  
           }
-
+          console.log(regionsFiltree.length);
           if (regionsFiltree.length == 1 && regionsFiltree[0] != ''){
-            const mapAnneeFacteur = {};
             const regionFormat = regionsFiltree[0].replaceAll('-','_').replaceAll(' ','_').replaceAll('é','e').replaceAll('ô','o').replaceAll("'",'_');
-            for (let i = 0 ; i < facteurSNBC.length ; i++){
-              if(baisse_SNBC.Annee[i] == 2035){
+            for (let i = 0 ; i < baisse_SNBC.SNBC_Nat.length ; i++){
+              if(baisse_SNBC.Annee[i] == anneeMax){
                 facteurSNBC = baisse_SNBC[`SNBC_COP_${regionFormat}`][i] == 0 ? baisse_SNBC.SNBC_Nat[i] : baisse_SNBC[`SNBC_COP_${regionFormat}`][i];
               }                  
             }
           }
           b4.value = nDecimales(100 - (100*facteurSNBC),0);
           b4.unit = '% des émissions';
-          b4.label = 'Cible 2035 de réduction';
+          b4.label = `Cible ${anneeMax} de réduction`;
           return blocks; 
         }
 
@@ -1966,8 +1969,8 @@
         }
 
         function listMainSites(record_sites){
-          const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r.ges_2024[i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
-          ['ges_2024','ges_2025','name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data','Situation_du_site'],0);
+          const data_triee_sites = triDecroissantParColonne(filtreRecord(record_sites, (r,i) => (typeof r[`ges_${anneeCourante}`][i] == 'number' && r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')),
+          [`ges_${anneeCourante}`,`ges_${anneeCourante + 1}`,'name_site','Region','Perimetre','Filiere','entreprise','ZIBaC_data','Situation_du_site'],0);
           let result = {
             emissions: data_triee_sites[1].map((e,i) => (typeof e == 'number' && e > 0) ? e : data_triee_sites[0][i] >= 0 ? data_triee_sites[0][i] : 0),
             nom_site: data_triee_sites[2],
@@ -2097,7 +2100,7 @@
 
 
 
-        function graphique_traj_emissions(record_projets, record_sites) {   // Trace le graphique des trajectoires d'émissions à partir des données ETS de 2019 et de l'abattement cumulé des projets
+        function graphique_traj_emissions(record_projets, record_sites) {   // Trace le graphique des trajectoires d'émissions à partir des données ETS de l'anneeMin et de l'abattement cumulé des projets
 
           let doc = document.getElementById('canvas-charts-traj-1');
           doc.className = 'canvas-charts-1-shown';
@@ -2146,8 +2149,8 @@
               labelSNBC = `Trajectoire COP ${regionsFiltree[0]}`;
             }
           }
-
-          const traj_snbc = annees.map((a,i) => dict_donnees[`${a}|Emissions`]*facteurSNBC[i] ?? null);
+          // a <= anneeCourante ? a : anneeCourante
+          const traj_snbc = annees.map((a,i) => dict_donnees[`${anneeCourante}|Emissions`]*facteurSNBC[i] ?? null);
 
           const colorEmissions = '#000000';
           const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue');
@@ -2241,7 +2244,7 @@
                   align: 'start',
                   display: true,
                   padding: 20,
-                  text: "Trajectoire des émissions ETS selon les projets de décarbonation, ktCO2e/an, 2019-2035",
+                  text: `Trajectoire des émissions ETS selon les projets de décarbonation, ktCO2e/an, ${anneeMin}-${anneeMax}`,
                 },
                 tooltip: {
                   mode: 'point',
@@ -2349,10 +2352,10 @@
 
           const ptsWithRadius = pts.map(p => {
             const ind = p.index;
-            const last_ges = records['ges_2025'][ind] != -1
-              ? records['ges_2025'][ind]
-              : records['ges_2024'][ind] != -1
-                ? records['ges_2024'][ind]
+            const last_ges = records[`ges_${anneeCourante+1}`][ind] != -1
+              ? records[`ges_${anneeCourante + 1}`][ind]
+              : records[`ges_${anneeCourante}`][ind] != -1
+                ? records[`ges_${anneeCourante}`][ind]
                 : '0 émissions ou données incomplètes';
             const radius = typeMarker == 'constant' ? 7 : areaMarkerfromEmission(last_ges, maxRadius, typeMarker);
             return { p, last_ges, radius };
@@ -2369,7 +2372,7 @@
             const filiere = records['Filiere'][ind];
             const ville = records['commune'][ind];
             const cp = records['CP'][ind];
-            const last_ges = records['ges_2025'][ind] != -1 ? records['ges_2025'][ind] : records['ges_2024'][ind] != -1 ? records['ges_2024'][ind] : '0 émissions ou données incomplètes';
+            const last_ges = records[`ges_${anneeCourante+1}`][ind] != -1 ? records[`ges_${anneeCourante+1}`][ind] : records[`ges_${anneeCourante}`][ind] != -1 ? records[`ges_${anneeCourante}`][ind] : '0 émissions ou données incomplètes';
             const filiere_css = filiere.replaceAll(' ', '-').replaceAll('é', 'e').replaceAll('â', 'a');
             let marker;
             const radius = typeMarker == 'constant' ? 7 : areaMarkerfromEmission(last_ges, maxRadius, typeMarker);
@@ -2447,7 +2450,7 @@
           }
 
 
-          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
+          const list_annees = Array.from({ length: 20 }, (_, i) => anneeMin + i);
           let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
           list_labels[list_labels.length - 1] = '2046-2050';
           list_annees[list_annees.length - 1] = 2048;
@@ -2583,7 +2586,7 @@
                   align: 'start',
                   display: true,
                   padding: 20,
-                  text: cumule ? "Abattement cumulé par le déploiement des projets, ktCO2e/an, 2019-2050 " : "Abattement annuel par les projets déployés, ktCO2e/an, 2019-2050",
+                  text: cumule ? `Abattement cumulé par le déploiement des projets, ktCO2e/an, ${anneeMin}-2050 ` : `Abattement annuel par les projets déployés, ktCO2e/an, ${anneeMin}-2050`,
                 },
                 tooltip: {
                   mode: 'x',
@@ -2708,7 +2711,7 @@
           }
           const ctx = document.getElementById('barChartCO2parAnneeAide').getContext('2d');
 
-          const list_annees = Array.from({ length: 20 }, (_, i) => 2019 + i);
+          const list_annees = Array.from({ length: 20 }, (_, i) => anneeMin + i);
           let list_labels = list_annees.slice();                // On construit les labels à partir des intervalles de temps considérés
           list_labels[list_labels.length - 1] = '2046-2050';
           list_annees[list_annees.length - 1] = 2048;
@@ -2814,7 +2817,7 @@
                   align: 'start',
                   padding: 20,
                   display: true,
-                  text: cumule ? "Abattement cumulé, par dispositif, ktCO2e/an, 2019-2050 " : "Abattement annuel, par dispositif, ktCO2e/an, 2019-2050",
+                  text: cumule ? `Abattement cumulé, par dispositif, ktCO2e/an, ${anneeMin}-2050 ` : `Abattement annuel, par dispositif, ktCO2e/an, ${anneeMin}-2050`,
                 },
                 tooltip: {
                   mode: 'x',
@@ -3330,12 +3333,12 @@
 
 
         function D_traj_emissions(record_projets,record_sites){
-          const em_2019 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2019);
+          const em_2019 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS'))[`ges_${anneeMin}`]);
           const em_2021 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2021);
           const em_2020 = (em_2019 + em_2021)/2;
           const em_2022 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2022);
           const em_2023 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2023);
-          const em_2024 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS')).ges_2024);
+          const em_2024 = sumList(filtreRecord(record_sites, (r,i) => (r.Perimetre[i] != '' && r.Perimetre[i] != 'Hors ETS'))[`ges_${anneeCourante}`]);
           const emissions = {2019 : em_2019, 2020 : em_2020, 2021 : em_2022, 2022 : em_2022, 2023 : em_2023, 2024 : em_2024};
           if(em_2019 == 0){
             document.getElementById('wrapper-traj').style.display = 'none';
@@ -3353,15 +3356,13 @@
           const anneesMES = donnees_traitees[2];
           const co2_abattu = donnees_traitees[1];
           const procede = donnees_traitees[0];
-          const anneeMin = 2024;
-          const anneeMax = 2035;
           const annees_emissions = Array.from({ length: anneeMax - anneeMin + 1 }, (_, i) => anneeMin + i);
           
           for (a of annees_emissions){
-            D[`${a}|Abattement`] = D[`${anneeMin}|Emissions`];
-            D[`${a}|Emissions`] = D[`${anneeMin}|Emissions`];
+            D[`${a}|Abattement`] = D[`${anneeCourante}|Emissions`];
+            D[`${a}|Emissions`] = D[`${anneeCourante}|Emissions`];
             for (let i = 0; i < anneesMES.length; i++){
-              if (anneesMES[i] <= anneeMax && anneesMES[i] > anneeMin){
+              if (anneesMES[i] <= anneeMax && anneesMES[i] > anneeCourante){
                 if(procede[i] == 'Variation de production sans décarbonation'){
                   if (a >= anneesMES[i]){
                     D[`${a}|Emissions`] = D[`${a}|Emissions`] - (typeof co2_abattu[i] == 'number' ? co2_abattu[i] : 0);
@@ -3387,7 +3388,7 @@
           const procede = donnees_traitees[0];
           const co2_abattu = donnees_traitees[1];
 
-          const cles = Array.from({ length: 17 }, (_, i) => 2019 + i).concat([2038,2043,2048]);
+          const cles = Array.from({ length: 17 }, (_, i) => anneeMin + i).concat([2038,2043,2048]);
           for (let i = 0; i < anneesMES.length; i++) {
             const annee = anneesMES[i];
             let cleAnnee;
@@ -3400,7 +3401,7 @@
             else if (2046 <= annee && annee <= 2050) {
               cleAnnee = 2048;
             }
-            else if (annee < 2019) { }
+            else if (annee < anneeMin) { }
             else {
               cleAnnee = annee;
             }
@@ -3682,7 +3683,7 @@
           const engagement = concat[2];
           const montant = concat[3];
           
-          const cles = Array.from({ length: 17 }, (_, i) => 2019 + i).concat([2038,2043,2048]);
+          const cles = Array.from({ length: 17 }, (_, i) => anneeMin + i).concat([2038,2043,2048]);
           for (let i = 0; i < anneesMES.length; i++) {
             const annee = anneesMES[i];
             let cleAnnee;
@@ -3696,7 +3697,7 @@
             else if (2046 <= annee && annee <= 2050) {
               cleAnnee = 2048;
             }
-            else if (annee < 2019 || annee > 2050) { 
+            else if (annee < anneeMin || annee > 2050) { 
             }
             else {
               cleAnnee = annee;
@@ -3726,7 +3727,7 @@
         
         function donneesSitesPlusEmetteurs (records_projets, records_sites){
           const projetsEtudies = filtreRecord(records_projets, (r,i) => 
-          (typeof (r.Annee_MES_prevue[i]) == 'number' && r.Annee_MES_prevue[i] != 0 && r.Annee_MES_prevue[i] <= 2035) &&
+          (typeof (r.Annee_MES_prevue[i]) == 'number' && r.Annee_MES_prevue[i] != 0 && r.Annee_MES_prevue[i] <= anneeMax) &&
           (r.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] != 'Abandonné') &&
           (Number.isFinite(r.Emissions_abattues_tCO2e_an_[i])) &&
           (typeof (r.Nom_du_site[i]) == 'string' && !r.Nom_du_site[i].includes('#'))
@@ -3766,12 +3767,12 @@
             }
           }
 
-          const D_sites_ges2019 = {};
+          const D_sites_gesMin = {};
           for (let i = 0 ; i < records_sites.name_site.length ; i++){
-            D_sites_ges2019[`${records_sites.name_site[i]}`] = records_sites.ges_2019[i];
+            D_sites_gesMin[`${records_sites.name_site[i]}`] = records_sites[`ges_${anneeMin}`][i];
           }
           for (let j = 0 ; j < sitesEtudies.length ; j++){
-            resultats[j].emissionsTotales += D_sites_ges2019[`${sitesEtudies[j]}`];
+            resultats[j].emissionsTotales += D_sites_gesMin[`${sitesEtudies[j]}`];
           }
           return resultats;
         }
@@ -4501,7 +4502,6 @@
 
 
         async function chargerDonnees() {                                     // Fonction qui importe les données et trace les graphs
-
           attachUIEvents();
           records_projets = await grist.docApi.fetchTable('Base_projets');
           records_aides = await grist.docApi.fetchTable('Base_aides');
