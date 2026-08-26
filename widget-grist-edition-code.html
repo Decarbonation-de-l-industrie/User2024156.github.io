@@ -1829,7 +1829,7 @@
 
           const nb_sites_ETS = filtreRecord(record_site, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).Perimetre.length;
 
-          if(nb_sites_ETS == 0){
+          if(nb_sites_ETS == 0 || !resultTrajCO2){
             return {};
           }
 
@@ -1854,23 +1854,10 @@
           b3.label = "émissions des sites faisant l'objet d'un suivi";
           b3.unit = '% du total';
 
-          const regionsFiltree = getFilters().region;
-          let facteurSNBC = 0;
-          for (let i = 0 ; i < baisse_SNBC.Annee.length ; i++){
-            if(baisse_SNBC.Annee[i] == anneeMax){
-              facteurSNBC = baisse_SNBC.SNBC_Nat[i];
-            }                  
-          }
-          console.log(regionsFiltree.length);
-          if (regionsFiltree.length == 1 && regionsFiltree[0] != ''){
-            const regionFormat = regionsFiltree[0].replaceAll('-','_').replaceAll(' ','_').replaceAll('é','e').replaceAll('ô','o').replaceAll("'",'_');
-            for (let i = 0 ; i < baisse_SNBC.SNBC_Nat.length ; i++){
-              if(baisse_SNBC.Annee[i] == anneeMax){
-                facteurSNBC = baisse_SNBC[`SNBC_COP_${regionFormat}`][i] == 0 ? baisse_SNBC.SNBC_Nat[i] : baisse_SNBC[`SNBC_COP_${regionFormat}`][i];
-              }                  
-            }
-          }
-          b4.value = nDecimales(100 - (100*facteurSNBC),0);
+          const dataAbattement = resultTrajCO2[2];
+          console.log(dataAbattement[0]);
+          console.log(dataAbattement[dataAbattement.length-1]);
+          b4.value = nDecimales(((dataAbattement[0]-dataAbattement[dataAbattement.length-1])/dataAbattement[0])*100,0);
           b4.unit = '% des émissions';
           b4.label = `Cible ${anneeMax} de réduction`;
           return blocks; 
@@ -2304,7 +2291,7 @@
             }
           });
 
-          return [chartTrajEmissions, dataU];
+          return [chartTrajEmissions, dataU, dataAbattement];
         }
 
 
