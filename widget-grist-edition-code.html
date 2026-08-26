@@ -1515,9 +1515,6 @@
 
       <header class='section-header'>
         <h1>Avancée de la décarbonation par site</h1>
-        <button class="btn secondary" id="copyBtn-top10-section" data-target="top10-section">
-          <span class="label">Copier l'image</span>
-        </button>
       </header>  
 
       <section id="top10-section">
@@ -1724,6 +1721,11 @@
           const data_traite = traitement_donnees_CO2_procede(filtreRecord(record_projets, (r,i) => (typeof r.Annee_MES_prevue[i] == 'number' && r.Annee_MES_prevue[i] >= 2019 && r.Annee_MES_prevue[i] <= 2050)));
 
           const nb_projets = data_traite[0].length;
+
+          if (nb_projets == 0){
+            return {};
+          }
+
           const nb_projets_MES = data_traite[3].filter(v => v === 'Mis en service').length;
           b1.value = nb_projets != 0 ? `${nDecimales(nb_projets,0)}` : null;
           b1.label = 'Nombre de Projets';
@@ -1773,6 +1775,11 @@
           const blocks = [b1, b2, b3, b4];
 
           const nb_aides = filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé').Engage_Desengage.length;
+
+          if(!resultCO2Aide || nb_aides == 0){
+            return {};
+          }
+
           const nb_aides_MES = record.Engage_Desengage.filter(v => v == 'Engagé et MES').length;
           const abat_tot_aides = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] !== 'Désengagé').Gain_GES_an_tCO2eq_previsionnels);
           const abat_tot_aides_MES = sumList(filtreRecord(record, (r, i) => r.Engage_Desengage[i] == 'Engagé et MES').Gain_GES_an_tCO2eq_previsionnels);
@@ -1817,6 +1824,11 @@
           const blocks = [b1, b2, b3, b4];
 
           const nb_sites_ETS = filtreRecord(record_site, (r, i) => (r.Perimetre[i] !== 'Hors ETS' && r.Perimetre[i] !== '')).Perimetre.length;
+
+          if(nb_sites_ETS == 0){
+            return {};
+          }
+
           b1.value = nb_sites_ETS != 0 ? `${nDecimales(nb_sites_ETS,0)}` : null;
           b1.label = "Nombre de sites ETS";
           b1.unit = '';
@@ -1915,8 +1927,8 @@
           }
 
           const aides = listMainAides(record_aides);
-          const wrapper_aide = document.getElementById('list-wrapper-aides');
-          if(sumList(aides.abattement) != 0){
+          const wrapper_aide = document.getElementById('wrapper-aides');
+          if(sumList(aides.abattement) > 0){
             if (wrapper_aide.style.display == 'none'){
               wrapper_aide.style.display = 'grid';
             }
@@ -3095,7 +3107,7 @@
           const data = donneesSitesPlusEmetteurs(records_projets,records_sites);
           const tbody = document.getElementById(tbodyId);
           tbody.innerHTML = '';
-          if (data.length == 0) {
+          if (data.length == 0 || sumList(data.map(d => d.emissionsTotales)) <= 0) {
             document.getElementById('top10-section').style.display = 'none';
             return;
           }
