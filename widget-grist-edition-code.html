@@ -2150,7 +2150,7 @@
             }
           }
           // a <= anneeCourante ? a : anneeCourante
-          const traj_snbc = annees.map((a,i) => dict_donnees[`${anneeCourante}|Emissions`]*facteurSNBC[i] ?? null);
+          const traj_snbc = annees.map((a,i) => dict_donnees[`${anneeMin}|Emissions`]*facteurSNBC[i] ?? null);
 
           const colorEmissions = '#000000';
           const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue');
@@ -3359,8 +3359,8 @@
           const annees_emissions = Array.from({ length: anneeMax - anneeMin + 1 }, (_, i) => anneeMin + i);
           
           for (a of annees_emissions){
-            D[`${a}|Abattement`] = D[`${anneeCourante}|Emissions`];
-            D[`${a}|Emissions`] = D[`${anneeCourante}|Emissions`];
+            D[`${a}|Abattement`] = D[`${a < anneeCourante ? a : anneeCourante}|Emissions`];
+            D[`${a}|Emissions`] = D[`${a < anneeCourante ? a : anneeCourante}|Emissions`];
             for (let i = 0; i < anneesMES.length; i++){
               if (anneesMES[i] <= anneeMax && anneesMES[i] > anneeCourante){
                 if(procede[i] == 'Variation de production sans décarbonation'){
