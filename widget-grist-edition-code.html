@@ -1025,6 +1025,43 @@
       AFFICHAGE LISTE DES SITES LES PLUS EMETTEURS
       =============================================== */
 
+      #tooltip-hover {
+        position: relative;
+        cursor: help;
+      }
+
+      .tooltip-hover-content {
+        position: absolute;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--color-light-blue-bg);
+        color: var(--color-brand-blue);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-family: var(--font-primary);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        z-index: 1000;
+      }
+
+      #tooltip-hover:hover .tooltip-hover-content {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* MathML hérite mal de la couleur du texte parent selon les navigateurs */
+      #tooltip-hover-content math {
+        color: inherit;
+        font-size: 1.1em;
+      }
+
       .table-scroll-wrapper {
         max-height: 500px;
         overflow-y: auto;
@@ -1560,7 +1597,16 @@
           </div>
         </div>
         <div class="legend legend-pie-row" id="legend-pie">
-          <div class="legend-subtitle">Sécurisation de la cible 2035 :</div>
+          <div class="legend-subtitle" id="tooltip-hover" >ℹ️ Sécurisation de la cible 2035 :
+            <span class="tooltip-hover-content">
+              <math xmlns="http://www.w3.org/1998/Math/MathML">
+                <mfrac>
+                  <mn>Certain + Réalisé</mn>
+                  <mn>Certain + Réalisé + A sécuriser</mn>
+                </mfrac>
+              </math>
+            </span>
+          </div>
           <div class="legend-item">
             <svg width="16" height="16" viewBox="0 0 16 16" class="pie-svg">
               <circle cx="8" cy="8" r="7" class="pie-outline"/>
