@@ -1573,7 +1573,6 @@
 
       <header class='section-header'>
         <h1>Avancée de la décarbonation par site</h1>
-        <h2>Emissions de référence = émissions 2019 incl. variation de production</h2>
       </header>  
 
       <section id="top10-section">
@@ -1657,7 +1656,7 @@
                 <th>Sites</th>
                 <th class="head-pct">Cible 2035</th>
                 <th></th>
-                <th class="head-bar">Avancée des projets de décarbonation et émissions résiduelles (MtCO2e)</th>
+                <th class="head-bar">Avancée des projets de décarbonation et émissions résiduelles (MtCO2e, référence 2019 incl. variation de production)</th>
               </tr>
             </thead>
             <tbody id="sites-tbody">
@@ -1867,7 +1866,7 @@
           b2.unit = unitAdaptee(abat_tot_aides,'t CO2e/an',1)[1];
           b2.secondaryItems = [
             abat_tot_aides_MES != 0 
-            ? `Dont ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[0]} ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[1]} mis en service \n (${nDecimales(abat_tot_aides_MES/abat_tot_aides*100,0)} % du total)`
+            ? `Dont ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[0]} ${unitAdaptee(abat_tot_aides_MES,'t CO2e/an',0)[1]} mis en service (${nDecimales(abat_tot_aides_MES/abat_tot_aides*100,0)} % du total)`
             : null
           ];
 
