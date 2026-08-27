@@ -145,10 +145,22 @@
         font-size: 13px;
       }
 
+      .info-banner {
+        position: sticky;
+        padding: 16px 0px;
+        top: 0;
+        z-index: 1000;
+        color: #b72f2c;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 600;
+        background-color: #fff;
+      }
+
       .page-wrapper {
         display: flex;
         justify-content: center;
-        padding: 24px;
+        padding: 0px 0px 24px;
       }
 
       .main-content {
@@ -1323,6 +1335,11 @@
   </head>
 
   <body>
+
+    <div class="info-banner">
+      ⚠️ L'ensemble des données affichées sont confidentielles <a href=https://grist.numerique.gouv.fr/o/decarb-industrie/kNb1YPN2TUgY/Decarbonation-de-lindustrie-Base-projets/p/49 target="_blank" rel="noopener noreferrer">plus de détails ici.<a></a>
+    </div>
+
     <div class="page-wrapper">
       <main class="main-content">
 
@@ -1621,11 +1638,9 @@
         let chartTrajEmissions = null;
         let map;
         let markersLayer;
-        console.log(records_sites);
         let anneeMin = 2019;
         let anneeCourante = 2024;
         let anneeMax = 2035;
-        console.log(anneeMin);
 
 
      /* ===================
@@ -1812,8 +1827,8 @@
 
           const abatNa = resultCO2Aide[2][0];
           const abatTot = resultCO2Aide[2][1];
-          b4.value = nDecimales((abatNa/abatTot)*100,0);
-          b4.label = "Abattement dont la couverture par des aides n'est pas connue";
+          b4.value = nDecimales(((abatTot-abatNa)/abatTot)*100,0);
+          b4.label = "Abattement avec une source de financement identifiée";
           b4.unit = "% du total";
 
           return blocks;
@@ -1855,8 +1870,6 @@
           b3.unit = '% du total';
 
           const dataAbattement = resultTrajCO2[2];
-          console.log(dataAbattement[0]);
-          console.log(dataAbattement[dataAbattement.length-1]);
           b4.value = nDecimales(((dataAbattement[0]-dataAbattement[dataAbattement.length-1])/dataAbattement[0])*100,0);
           b4.unit = '% des émissions';
           b4.label = `Cible ${anneeMax} de réduction`;
@@ -2099,6 +2112,7 @@
 
           const btn = document.getElementById('export-button-charts-traj');
           const dict_donnees = D_traj_emissions(record_projets, record_sites);
+          const dict_donnees_certains = D_traj_emissions(filtreRecord(record_projets, (r,i) => (r.Aide_FR_dans_base_aide[i] || r.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Certain' || r.Probabilite_de_mise_en_service_MES_Statut_du_projet[i] == 'Mis en service')), record_sites)
           if (dict_donnees == undefined){
             btn.style.display = 'none';
             return;
@@ -2123,6 +2137,7 @@
 
           // Construction des deux séries à partir des clés 'annee|Emissions' et 'annee|Abattement'
           const dataEmissions = annees.map(a => dict_donnees[`${a}|Emissions`] ?? null);
+          const dataEngagement = annees.map(a => dict_donnees_certains[`${a}|Abattement`] ?? null);
           const dataAbattement = annees.map(a => dict_donnees[`${a}|Abattement`] ?? null);
 
           if (regionsFiltree.length == 1 && regionsFiltree[0] != ''){
@@ -2140,6 +2155,7 @@
           const traj_snbc = annees.map((a,i) => dict_donnees[`${anneeMin}|Emissions`]*facteurSNBC[i] ?? null);
 
           const colorEmissions = '#000000';
+          const colorEngagement = window.getComputedStyle(document.head).getPropertyValue('--color-procede-biomasse');
           const colorAbattement = window.getComputedStyle(document.head).getPropertyValue('--color-brand-blue');
           const colorSNBC = window.getComputedStyle(document.head).getPropertyValue('--color-aide-aogpid');
 
@@ -2154,6 +2170,18 @@
               tension: 0.2,
               spanGaps: true,       
               pointRadius: 0,
+              order : 2,
+            },
+            {
+              label: 'Emissions avec abattement des projets engagés',
+              data: dataEngagement,
+              borderColor: colorEngagement,
+              borderWidth: 5,
+              fill: false,
+              tension: 0.2,
+              spanGaps: true,
+              pointRadius: 3,
+              order : 1,
             },
             {
               label: 'Emissions avec abattement des projets de décarbonation',
@@ -2165,6 +2193,7 @@
               tension: 0.2,
               spanGaps: true,
               pointRadius: 3,
+              order : 0,
             },
             {
               label: labelSNBC,
@@ -2176,6 +2205,7 @@
               tension: 0.2,
               spanGaps: true,       
               pointRadius: 0,
+              order : 3,
             }
           ];
 
@@ -2185,6 +2215,7 @@
               annee: a,
               emissions: {
                 [datasets[0].label]: dataEmissions[i],
+                [datasets[1].label]: dataEngagement[i],
                 [datasets[1].label]: dataAbattement[i],
                 [datasets[2].label]: traj_snbc[i],
               },
@@ -4319,37 +4350,36 @@
           filtered_records_aides = deepCopyRecord(records_aides);
           filtered_records_sites = deepCopyRecord(records_sites);
 
-          const region = filters.region.filter(v => v !== '');
-          const zibac = filters.zibac.filter(v => v !== '');
-          const filiere = filters.filiere.filter(v => v !== '');
-          const perimetre = filters.perimetre.filter(v => v !== '');
-          const levier = filters.levier.filter(v => v !== '');
+          const region = filters.region;
+          const zibac = filters.zibac;
+          const filiere = filters.filiere;
+          const perimetre = filters.perimetre;
+          const levier = filters.levier;
           let test_filtre = false;
-
-          if (region.length) {
+          if (region.length && !region.includes('')) {
             filtered_records_projets = filterTable(filtered_records_projets, 'Region', filters.region);
             filtered_records_aides = filterTable(filtered_records_aides, 'Region_data', filters.region);
             filtered_records_sites = filterTable(filtered_records_sites, 'Region', filters.region);
             test_filtre = true;
           }
-          if (zibac.length) {
+          if (zibac.length && !zibac.includes('')) {
             filtered_records_projets = filterTable(filtered_records_projets, 'ZIBaC', filters.zibac);
             filtered_records_aides = filterTable(filtered_records_aides, 'ZIBaC', filters.zibac);
             filtered_records_sites = filterTable(filtered_records_sites, 'ZIBaC_data', filters.zibac);
             test_filtre = true;
           }
-          if (filiere.length) {
+          if (filiere.length && !filiere.includes('')) {
             filtered_records_projets = filterTable(filtered_records_projets, 'Filiere', filters.filiere);
             filtered_records_aides = filterTable(filtered_records_aides, 'Filiere', filters.filiere);
             filtered_records_sites = filterTable(filtered_records_sites, 'Filiere', filters.filiere);
             test_filtre = true;
           }
-          if (perimetre.length) {
+          if (perimetre.length && !perimetre.includes('')) {
             filtered_records_projets = filterTable(filtered_records_projets, 'Perimetre', filters.perimetre);
             filtered_records_sites = filterTable(filtered_records_sites, 'Perimetre', filters.perimetre);
             test_filtre = true;
           }
-          if (levier.length) {
+          if (levier.length && !levier.includes('')) {
             filtered_records_projets = filterTable(filtered_records_projets, 'Procede', filters.levier);
           }
           if (filters.search.length >= 3) {
