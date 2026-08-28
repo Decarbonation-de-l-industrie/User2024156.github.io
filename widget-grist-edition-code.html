@@ -1970,9 +1970,9 @@
               [
                   {name: "Région",value: sites.region[i]},
                   {name: "Entreprise",value: sites.entreprise[i]},
-                  {name: "Périmètre",value: sites.perimetre[i]},
                   {name: "Filière",value: sites.filiere[i]},
-              ], (!sites.commentaire[i] ? '' : 'Situation : ') + sites.commentaire[i])
+              ], (!sites.commentaire[i] ? '' : 'Situation : ') + sites.commentaire[i],
+              true, sites.perimetre[i])
             );
           }
           else{
